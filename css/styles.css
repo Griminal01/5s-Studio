@@ -3519,3 +3519,12 @@ body.presenting {
     display: none !important;
   }
 }
+.prstage {
+  touch-action: none;
+}
+.prstage.zoomed {
+  cursor: grab;
+}
+.prstage.zoomed:active {
+  cursor: grabbing;
+}

@@ -29,6 +29,8 @@ filter to it.
 - **Present**: the *Present* button on the Layout shows the layout full screen for a TV or projector.
   Arrow keys (or the buttons that appear when you move the pointer) step through the whole factory, each
   line and each zone; *Tour* (Space) does it on a timer; *C* shows what changed on a proposal. Esc exits.
+  Zoom with the mouse wheel, pinch, double-click or the + / − keys and buttons (0 or Fit resets); drag to
+  move. Item names grow as you zoom in, so you can read them from across the room.
 - **Lines and zones**: outline each production line, then the zones inside it (Zone tool, Q), each with an
   owner and a note. An item belongs to the zone it sits in, or you designate it to one; a designated item
   that strays is flagged in Compare, on the map and on daily checks. Each zone shows its items, tape,

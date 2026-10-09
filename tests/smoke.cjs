@@ -849,6 +849,29 @@ const VIEWS = [
     scope: ui.scope,
     shapes: document.querySelectorAll("#prStage svg [data-t]").length,
   }));
+  // zoom in: names get bigger and more of them fit; Fit and stepping go back to the whole step
+  const textSize = () =>
+    page.evaluate(() => {
+      const t = [...document.querySelectorAll("#prStage svg text")][0];
+      return t ? t.getBoundingClientRect().height : 0;
+    });
+  const pz0 = await textSize();
+  await page.keyboard.press("+");
+  await page.keyboard.press("+");
+  await page.waitForTimeout(250);
+  const pz1 = await page.evaluate(() => ({
+    z: pr.z,
+    h: [
+      ...document.querySelectorAll("#prStage svg text"),
+    ][0]?.getBoundingClientRect().height,
+  }));
+  await page.click("#prFit");
+  const pz2 = await page.evaluate(() => pr.z);
+  expect(
+    pz1.z > 2 && pz1.h > pz0 && pz2 === 1,
+    "zooming the presentation did not enlarge the names: " +
+      JSON.stringify({ pz0, pz1, pz2 }),
+  );
   await page.keyboard.press("Escape");
   const pm2 = await page.evaluate(() => ({
     hidden: document.getElementById("present").hidden,

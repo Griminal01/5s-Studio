@@ -265,7 +265,7 @@ function areaSVG(sh, k, only) {
       top = a.pts.reduce((b, p) => (p.y < b.y ? p : b), a.pts[0]),
       xs0 = Math.min(...a.pts.map((p) => p.x)),
       xs1 = Math.max(...a.pts.map((p) => p.x)),
-      fs = (line ? 14 : 12.5) * k;
+      fs = (line ? 14 : 12.5) * k * (ui.textBoost || 1);
     s +=
       `<g data-t="area" data-id="${esc(a.id)}"><title>${esc(areaCode(a) + " " + a.name)}</title>` +
       `<polygon points="${ps}" fill="${a.color}" fill-opacity="${line ? 0.04 : 0.08}" stroke="none" pointer-events="none"/>` +

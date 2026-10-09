@@ -22,7 +22,8 @@ function fit(s, w, fs) {
 function objSVG(o, k) {
   const hw = o.w / 2,
     hh = o.h / 2,
-    fs = 11 * k;
+    boost = ui.textBoost || 1, // presentation mode makes item names bigger as it zooms in
+    fs = 11 * k * boost;
   let body;
   if (o.kind === "keepclear")
     body = `<rect x="${-hw}" y="${-hh}" width="${o.w}" height="${o.h}" fill="url(#hz)" stroke="#D3401D" stroke-width="${1.6 * k}"/>`;
@@ -33,8 +34,12 @@ function objSVG(o, k) {
   const flip = angDiff(o.a, 180) < 89.9 ? 180 : 0;
   let label = "";
   if (o.kind === "item") {
-    const t = fit(o.label, o.w, fs);
-    if (t) label = txt(0, 0, t, fs, k);
+    // presenting: shrink a long name to fit the item (down to a small size) before cutting it short
+    const f2 = ui.textBoost
+        ? Math.max(Math.min(fs, o.w / (0.56 * o.label.length)), 8 * k, fs * 0.6)
+        : fs,
+      t = fit(o.label, o.w, f2);
+    if (t) label = txt(0, 0, t, f2, k);
   } else {
     const t = fit(o.label, o.w - 8 * k, fs);
     if (t && o.h > fs * 1.6)

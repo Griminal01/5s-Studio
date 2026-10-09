@@ -4,7 +4,7 @@ function fixedSVG(sh, k, edit, pid = "fxh") {
   const fx = DM(sh)?.fixed || [];
   if (!fx.length || !ui.layers.fixed) return "";
   const pe = edit ? "" : ' pointer-events="none"',
-    fs = 11 * k;
+    fs = 11 * k * (ui.textBoost || 1); // bigger names when presenting zoomed in
   let s = `<g${pe}><defs><pattern id="${esc(pid)}" patternUnits="userSpaceOnUse" width="${6 * k}" height="${6 * k}" patternTransform="rotate(45)"><rect width="${1.6 * k}" height="${6 * k}" fill="#4A4F66" fill-opacity=".5"/></pattern></defs>`;
   for (const f of fx)
     if (f.t === "mask")
