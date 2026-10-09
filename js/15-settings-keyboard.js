@@ -94,6 +94,23 @@ document.addEventListener("keydown", (e) => {
     act("dup");
     return;
   }
+  if (mod && ui.view === "layout" && !window.getSelection()?.toString()) {
+    if (key === "c" && ui.sel.length) {
+      e.preventDefault();
+      copySel();
+      return;
+    }
+    if (key === "v" && ui.clip) {
+      e.preventDefault();
+      pasteClip();
+      return;
+    }
+    if (key === "a") {
+      e.preventDefault();
+      selectAll();
+      return;
+    }
+  }
   if (mod || e.altKey || ui.view !== "layout") return;
   if (e.key === " ") {
     if (["BUTTON", "SUMMARY"].includes(tag)) return;
@@ -182,9 +199,14 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (key === "f") {
-    fitView();
-    draw();
+    if (ui.sel.length) zoomToSel();
+    else {
+      fitView();
+      draw();
+    }
+    return;
   }
+  if (e.key === "?") shortcutsModal();
 });
 document.addEventListener("keyup", (e) => {
   if (e.key === " ") ui.space = false;

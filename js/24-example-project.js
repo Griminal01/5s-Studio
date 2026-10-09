@@ -144,7 +144,6 @@ function makeExampleProject() {
     });
   };
   // areas and keep-clear zones sit underneath the items
-  zone("Red tag area", 2.8, 2.8, 2.6, 2.4, "#D3401D");
   zone("Storage area", 20.6, 3.6, 7.6, 2.2, "#B07C3A");
   zone("Changeover parts area", 12, 14.1, 3.6, 1.8, "#202C86");
   zone("Electrical panel clearance", 24, 2.1, 2, 1.4, "#D3401D", "keepclear");

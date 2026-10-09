@@ -13,7 +13,10 @@ Everything runs in the browser. There is no server and no build step. Data is st
 
 - **Layout**: scaled drawing with walls and fixed equipment, movable items, floor tape (with a tape
   schedule, setting-out and rolls to order), walking and vehicle routes, layout checks (keep-clear,
-  aisle widths), proposals compared with the standard, A3 print and PNG export.
+  aisle widths), proposals compared with the standard, A3 print and PNG export. Editing: a toolbar
+  under the selection (rotate, duplicate, lock, align, delete), items snap to the edges of other items
+  and walls (hold Alt to place freely), Shift-drag to box-select, align and space evenly, copy and paste
+  between sheets (Ctrl+C / Ctrl+V), exact positions from the datum, and a shortcuts list (press ?).
 - **Areas**: outline named zones of the line (Area tool, Q) with an owner and a note. An item belongs to
   the area it sits in, or you designate it to one; a designated item that strays is flagged in Compare,
   on the map and on daily checks. Each area shows its items, tape, documents, boards, red tags and

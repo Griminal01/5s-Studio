@@ -45,11 +45,11 @@ function pinSVG(pn, k) {
         : pn.k === "tag"
           ? tagOverdue(o)
           : actOverdue(o);
-  const w = (label.length * 6.6 + 12) * k,
-    h = 16 * k,
-    bx = o.x + 7 * k,
-    by = o.y - 9 * k - h;
-  return `<g data-t="pin" data-pk="${esc(pn.k)}" data-id="${esc(o.id)}"><title>${esc(label + ": " + o.title)}</title><line x1="${o.x}" y1="${o.y}" x2="${bx}" y2="${by + h}" stroke="${col}" stroke-width="${1.6 * k}"/><circle cx="${o.x}" cy="${o.y}" r="${3.6 * k}" fill="${col}" stroke="#fff" stroke-width="${1.2 * k}"/><rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="${3 * k}" fill="${col}" stroke="${od ? "#FEC20F" : "#fff"}" stroke-width="${od ? 2.4 * k : 1.2 * k}"/><text x="${bx + w / 2}" y="${by + h / 2}" font-size="${10.5 * k}" font-family="Segoe UI,system-ui,sans-serif" font-weight="700" fill="${def.txt}" text-anchor="middle" dominant-baseline="central" pointer-events="none">${label}</text></g>`;
+  const w = (label.length * 5.8 + 10) * k,
+    h = 14 * k,
+    bx = o.x + 6 * k,
+    by = o.y - 8 * k - h;
+  return `<g data-t="pin" data-pk="${esc(pn.k)}" data-id="${esc(o.id)}"><title>${esc(label + ": " + o.title)}</title><line x1="${o.x}" y1="${o.y}" x2="${bx}" y2="${by + h}" stroke="${col}" stroke-width="${1.6 * k}"/><circle cx="${o.x}" cy="${o.y}" r="${3.2 * k}" fill="${col}" stroke="#fff" stroke-width="${1.2 * k}"/><rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="${3 * k}" fill="${col}" stroke="${od ? "#FEC20F" : "#fff"}" stroke-width="${od ? 2.4 * k : 1.2 * k}"/><text x="${bx + w / 2}" y="${by + h / 2}" font-size="${9.4 * k}" font-family="Segoe UI,system-ui,sans-serif" font-weight="700" fill="${def.txt}" text-anchor="middle" dominant-baseline="central" pointer-events="none">${label}</text></g>`;
 }
 function openPin(pk, id) {
   pk === "doc" ? editDocument(id) : pk === "tag" ? editTag(id) : editAction(id);

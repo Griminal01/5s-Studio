@@ -247,6 +247,14 @@ function act(a, el) {
     case "photo":
       $("#fPhoto").click();
       break;
+    case "clearSel":
+      ui.sel = [];
+      draw();
+      renderSide();
+      break;
+    case "align":
+      alignSel(el?.dataset.id);
+      break;
     default:
       areaAct(a, el);
   }
@@ -271,6 +279,20 @@ function setField(f, v) {
   if (t === "obj" && x.locked && !["note"].includes(f)) {
     toast("Unlock it first.");
     renderSide();
+    return;
+  }
+  if (f === "px" || f === "py") {
+    const n = Number(v),
+      dt = DM().datum;
+    if (v === "" || !Number.isFinite(n)) {
+      renderSide();
+      return;
+    }
+    checkpoint();
+    if (f === "px") x.x = (dt ? dt.x : 0) + fromUser(n);
+    else x.y = (dt ? dt.y : 0) + fromUser(n);
+    record("Placed", (x.label || "") + " at a typed position");
+    renderAll();
     return;
   }
   let val = v;

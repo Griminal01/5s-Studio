@@ -298,6 +298,96 @@ const VIEWS = [
     ar3.left === ar0.n && ar3.released,
     "deleting an area should release its items: " + JSON.stringify(ar3),
   );
+  // layout editing: toolbar under the selection, box select, align, copy/paste, typed position
+  await page.click('[data-view="layout"]');
+  await page.evaluate(() => {
+    openSheet(STD().id);
+    ui.sel = [];
+    fitView();
+    drawNow();
+  });
+  const at = (label) =>
+    page.evaluate((l) => {
+      const o = S().objects.find((x) => x.label === l),
+        r = svg.getBoundingClientRect();
+      return {
+        x: r.left + ((o.x - ui.vb.x) / ui.vb.w) * r.width,
+        y: r.top + ((o.y - ui.vb.y) / vbH()) * r.height,
+        h: (o.h / ui.vb.w) * r.width,
+      };
+    }, label);
+  const tq = await at("Quality check station");
+  await page.mouse.click(tq.x, tq.y);
+  await page.waitForTimeout(200);
+  const le1 = await page.evaluate(() => ({
+    bar: !document.getElementById("selbar").hidden,
+    buttons: document.querySelectorAll("#selbar [data-sb]").length,
+    noList: !document.querySelector("#pane .item-categories"),
+  }));
+  expect(
+    le1.bar && le1.buttons >= 5 && le1.noList,
+    "the selection toolbar did not show: " + JSON.stringify(le1),
+  );
+  const tc = await at("Cleaning station");
+  await page.keyboard.press("Escape");
+  await page.keyboard.down("Shift");
+  await page.mouse.move(tq.x - 60, tq.y - 45);
+  await page.mouse.down();
+  await page.mouse.move(tc.x + 60, tc.y + 45, { steps: 6 });
+  await page.mouse.up();
+  await page.keyboard.up("Shift");
+  await page.waitForTimeout(200);
+  const le2 = await page.evaluate(() =>
+    selected()
+      .map((f) => f.x.label)
+      .filter(Boolean),
+  );
+  expect(
+    le2.includes("Quality check station") && le2.includes("Cleaning station"),
+    "Shift-drag box select did not pick up both items: " + JSON.stringify(le2),
+  );
+  await page.click('#pane [data-a="align"][data-id="top"]');
+  const le3 = await page.evaluate(() => {
+    const tops = selected()
+      .filter((f) => f.t === "obj")
+      .map((f) => Math.round(bboxOf(f).y0 * 100));
+    return new Set(tops).size === 1;
+  });
+  expect(le3, "aligning top edges did not line them up");
+  await page.keyboard.press("Control+c");
+  const le4 = await page.evaluate(() => {
+    const n = selected().length;
+    openSheet(P.sheets.find((x) => x.kind === "proposal").id);
+    return { n, before: S().objects.length };
+  });
+  await page.keyboard.press("Control+v");
+  const le5 = await page.evaluate(() => S().objects.length);
+  expect(
+    le5 === le4.before + le4.n,
+    "copy and paste onto another sheet did not work: " +
+      JSON.stringify([le4, le5]),
+  );
+  await page.keyboard.press("Control+z");
+  await page.evaluate(() => {
+    openSheet(STD().id);
+    const o = S().objects.find((x) => x.label === "Spill kit");
+    ui.sel = [o.id];
+    ui.tab = "item";
+    renderSide();
+  });
+  await page.fill('#pane [data-f="px"]', "12.5");
+  await page.press('#pane [data-f="px"]', "Tab");
+  const le6 = await page.evaluate(() =>
+    toUser(S().objects.find((x) => x.label === "Spill kit").x),
+  );
+  expect(le6 === 12.5, "typing a position did not move the item: " + le6);
+  await page.keyboard.press("Control+z");
+  await page.evaluate(() => {
+    ui.sel = [];
+    renderSide();
+    draw();
+  });
+
   // problem solving: examples, the real forms, 5-Why, fishbone, countermeasures, A3, Pareto
   await page.click('[data-view="problems"]');
   await page.waitForTimeout(200);

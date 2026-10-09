@@ -378,6 +378,7 @@ function buildSVG(sh, o) {
         );
       }
     }
+    s += labelTagsSVG(sh, k) + guidesSVG(k) + marqueeSVG(k);
     // draft
     const d = ui.draft;
     if (d && d.pts.length) {
@@ -521,6 +522,7 @@ function drawNow() {
     );
   $("#zlabel").textContent = Math.round((fitW / ui.vb.w) * 100) + "%";
   drawScale(k);
+  positionSelbar();
 }
 function drawScale(k) {
   const el = $("#scale"),
@@ -615,11 +617,17 @@ svg.addEventListener("pointerdown", (e) => {
   }
   const t = e.target.closest("[data-t]");
   if (!t) {
-    startPan(e, true);
+    if (e.shiftKey) startMarquee(e, p);
+    else startPan(e, true);
     return;
   }
   const kind = t.dataset.t,
     id = t.dataset.id;
+  // an area's edge is a thin target along the floor: Shift-drag there still draws a box
+  if (kind === "area" && e.shiftKey) {
+    startMarquee(e, p);
+    return;
+  }
   if (kind === "ghost") {
     restoreMissing(t.dataset.ref);
     return;
@@ -732,6 +740,13 @@ svg.addEventListener("pointermove", (e) => {
       const last = ui.draft.pts.at(-1);
       ui.cursor = snapPoint(world(e), e, last);
       draw();
+    } else if (ui.tool === "select" && e.pointerType === "mouse") {
+      // full name of a small item when the pointer is over it
+      const id = e.target.closest?.('[data-t="obj"]')?.dataset.id || null;
+      if (id !== ui.hover) {
+        ui.hover = id;
+        draw();
+      }
     }
     return;
   }
@@ -745,6 +760,18 @@ svg.addEventListener("pointermove", (e) => {
     draw();
     return;
   }
+  if (d.mode === "marquee") {
+    d.moved = true;
+    const p = world(e);
+    ui.marquee = {
+      x0: Math.min(d.p0.x, p.x),
+      x1: Math.max(d.p0.x, p.x),
+      y0: Math.min(d.p0.y, p.y),
+      y1: Math.max(d.p0.y, p.y),
+    };
+    draw();
+    return;
+  }
   if (!d.moved) {
     d.moved = true;
     undoS.push(d.snap);
@@ -755,13 +782,14 @@ svg.addEventListener("pointermove", (e) => {
     sh = S();
   if (d.mode === "move") {
     const dx = p.x - d.p0.x,
-      dy = p.y - d.p0.y;
+      dy = p.y - d.p0.y,
+      g = moveGuides(d, dx, dy, e);
     for (const f of selected()) {
       const o0 = d.orig[f.x.id];
       if (!o0 || f.x.locked) continue;
       if (f.t === "obj") {
-        f.x.x = snapV(o0.x + dx, sh);
-        f.x.y = snapV(o0.y + dy, sh);
+        f.x.x = g.gx ? o0.x + g.dx : snapV(o0.x + dx, sh);
+        f.x.y = g.gy ? o0.y + g.dy : snapV(o0.y + dy, sh);
       } else {
         const sx = snapV(dx, sh),
           sy = snapV(dy, sh);
@@ -829,7 +857,16 @@ function endDrag(e) {
   const d = ui.drag;
   if (!d) return;
   ui.drag = null;
+  ui.guides = [];
   $("#canvas").classList.remove("panning");
+  if (d.mode === "marquee") {
+    const m = ui.marquee;
+    ui.marquee = null;
+    if (d.moved && m) selectInBox(m);
+    draw();
+    renderSide();
+    return;
+  }
   if (d.mode === "pin") {
     if (d.moved) {
       const it = pinObj(d.pk, d.id);
@@ -859,6 +896,10 @@ function endDrag(e) {
 svg.addEventListener("pointerup", endDrag);
 svg.addEventListener("pointercancel", endDrag);
 svg.addEventListener("pointerleave", () => {
+  if (ui.hover && !ui.drag) {
+    ui.hover = null;
+    draw();
+  }
   if (ui.draft && !ui.drag) {
     ui.cursor = null;
     draw();

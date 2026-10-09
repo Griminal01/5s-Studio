@@ -226,7 +226,7 @@ function areaSVG(sh, k) {
       `<g data-t="area" data-id="${esc(a.id)}"><title>${esc(areaCode(a) + " " + a.name)}</title>` +
       `<polygon points="${ps}" fill="${a.color}" fill-opacity=".08" stroke="none" pointer-events="none"/>` +
       `<polygon points="${ps}" fill="none" stroke="${a.color}" stroke-width="${2.4 * k}" stroke-dasharray="${9 * k} ${5 * k}" stroke-linejoin="round" pointer-events="none"/>` +
-      `<polygon points="${ps}" fill="none" stroke="transparent" stroke-width="${14 * k * TOUCH}" stroke-linejoin="round" pointer-events="stroke"/>` +
+      `<polygon points="${ps}" fill="none" stroke="transparent" stroke-width="${10 * k * TOUCH}" stroke-linejoin="round" pointer-events="stroke"/>` +
       txt(
         top.x + 8 * k,
         top.y + 14 * k,

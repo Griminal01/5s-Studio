@@ -125,7 +125,7 @@ const LIB = [
     ],
   ],
   [
-    "Areas",
+    "Marked zones",
     [
       ["Storage area", 3, 2, "#B07C3A", "zone"],
       ["WIP area", 3, 2, "#7A8099", "zone"],
@@ -456,7 +456,7 @@ function categoryGroupsHTML(sh) {
     (o) => o.kind !== "item" && (!q || o.label.toLocaleLowerCase().includes(q)),
   );
   if (zones.length && !ui.itemFilter)
-    html += "<h3>Areas and keep-clear</h3>" + zones.map(row).join("");
+    html += "<h3>Zones and keep-clear</h3>" + zones.map(row).join("");
   return html + "</section>";
 }
 async function manageItemCategories() {

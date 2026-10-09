@@ -46,6 +46,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
 | 34-areas | areas (`P.areas`): polygons on a drawing, item designation (`o.area`), layout check `outOfArea`, area pane and tab, A3 area sheets |
 | 35-problems, 36-problem-tools | problem solving module (`P.problems`, actions link by `a.prob`): list and detail tabs, 5-Why, fishbone SVG, countermeasures, review, Pareto, A3 print, CSV |
+| 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup |
 

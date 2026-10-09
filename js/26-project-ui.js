@@ -21,7 +21,6 @@ $("#projectIdentity").onclick = async () => {
   record("Project renamed", P.projectName);
   renderAll();
 };
-$("#bQuickDup").onclick = () => act("dup");
 pane.addEventListener("input", (e) => {
   if (e.target.id !== "itemSearch") return;
   const start = e.target.selectionStart,

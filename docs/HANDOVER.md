@@ -17,6 +17,12 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 
 Navigation (reworked 9 Oct): one list in `js/12-views.js` drives the grouped header (Design / Improve / Follow up), a section menu on medium screens and a bottom tab bar on phones. File actions are in a File menu; Print and Export image moved to the layout's Sheet menu. The address bar follows the view, so reload and Back keep your place.
 
+Layout editing (cleaned up 10 Oct, `js/37-layout-edit.js`): toolbar under the selection, smart guides,
+Shift-drag box select, align / space evenly, copy and paste across sheets, typed positions from the datum,
+full names shown for small items on hover or selection, the item list hidden while something is selected,
+"Marked zone" / "Keep-clear zone" wording so zones are not confused with Areas. Not done yet: touch box
+select, group/ungroup, align for tape and routes.
+
 The example model line (Settings, or the empty layout) fills every view.
 
 ## Review done (two passes, all fixed and pushed)

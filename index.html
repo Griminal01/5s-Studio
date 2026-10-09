@@ -192,9 +192,6 @@
             >Compare with
             <select id="cmpSel"></select
           ></label>
-          <button id="bQuickDup" title="Duplicate selected objects (Ctrl+D)">
-            Duplicate
-          </button>
           <button
             id="bEditDraw"
             title="Add walls, columns and other fixed things to the drawing"
@@ -202,7 +199,7 @@
             Edit drawing
           </button>
           <details class="menu" id="layersMenu">
-            <summary>Show on map</summary>
+            <summary title="Choose what shows on the drawing">Layers</summary>
             <div class="pop" id="layersPop"></div>
           </details>
           <details class="menu" id="sheetMenu">
@@ -217,6 +214,13 @@
             aria-label="Layout drawing"
           ></svg>
           <div class="hint" id="hint" hidden></div>
+          <div
+            class="selbar"
+            id="selbar"
+            hidden
+            role="toolbar"
+            aria-label="Selection"
+          ></div>
           <div class="editban" id="editBan" hidden>
             <span></span><button id="editBanDone">Done editing</button>
           </div>
@@ -315,6 +319,7 @@
     <script src="js/34-areas.js"></script>
     <script src="js/35-problems.js"></script>
     <script src="js/36-problem-tools.js"></script>
+    <script src="js/37-layout-edit.js"></script>
     <script src="js/40-main.js"></script>
   </body>
 </html>

@@ -23,9 +23,9 @@ function renderSide() {
         s5: paneS5,
         areas: paneAreas,
       }[ui.tab]();
-  if (!ui.editDrawing && ui.tab === "item")
+  // the item list is for finding things; it stays out of the way while something is selected
+  if (!ui.editDrawing && ui.tab === "item" && !ui.sel.length)
     p.insertAdjacentHTML("beforeend", categoryGroupsHTML(S()));
-  $("#bQuickDup").disabled = !ui.sel.length;
 }
 /* wording: daily checks say "out of place", proposals say "moved" */
 const cmpWords = (sh) =>
@@ -54,7 +54,7 @@ function sheetStats(sh) {
   return kv([
     ["Movable items", sh.objects.filter((o) => o.kind === "item").length],
     [
-      "Areas and keep-clear",
+      "Zones and keep-clear",
       sh.objects.filter((o) => o.kind !== "item").length,
     ],
     [
@@ -83,8 +83,16 @@ function paneItem() {
 <li>Each day, <b>start a daily check</b>: it copies the standard, you move things to where they really are. The Tracking view shows where things actually sit.</li></ol><div class="btns"><button data-a="loadExample">Open the example model line</button></div>`;
     return `<p class="empty">Select something on the drawing to edit it, or add an item from the left.</p>${sheetStats(sh)}`;
   }
-  if (sel.length > 1)
-    return `<h2>${sel.length} selected</h2>${categoryAssignmentHTML(sel.filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item").map((f) => f.x))}${areaSelectHTML(sel.filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item").map((f) => f.x))}<p class="small muted">Drag any of them to move them together. Arrow keys nudge.</p><div class="btns"><button data-a="dup">Duplicate</button><button data-a="rot90">Rotate 90°</button><button data-a="lock">Lock or unlock</button><button data-a="del" class="danger">Delete</button></div>`;
+  const backBtn = `<button class="selback" data-a="clearSel">← All items</button>`;
+  if (sel.length > 1) {
+    const items = sel
+        .filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item")
+        .map((f) => f.x),
+      objs = sel.filter((f) => f.t === "obj").length;
+    return `${backBtn}<h2>${sel.length} selected</h2>${categoryAssignmentHTML(items)}${areaSelectHTML(items)}
+${objs >= 2 ? `<h3>Line them up</h3><div class="aligngrid">${ALIGN.map(([k, l]) => `<button data-a="align" data-id="${k}"${k.startsWith("dist") && objs < 3 ? " disabled" : ""}>${l}</button>`).join("")}</div>` : ""}
+<p class="small muted">Drag any of them to move them together; they snap to the edges of other items and walls (hold Alt to place freely). Arrow keys nudge.</p><div class="btns"><button data-a="dup">Duplicate</button><button data-a="rot90">Rotate 90°</button><button data-a="lock">Lock or unlock</button><button data-a="del" class="danger">Delete</button></div>`;
+  }
   const { t, x } = sel[0];
   if (t === "obj") {
     const c = cmpCache;
@@ -111,17 +119,27 @@ function paneItem() {
       sh.kind === "daily" &&
       x.kind === "item" &&
       stdFor(sh).objects.some((r) => r.ref === x.ref);
+    const dt = DM(sh).datum,
+      ox = dt ? dt.x : 0,
+      oy = dt ? dt.y : 0,
+      step = u === "m" ? 0.05 : 1,
+      num = (f, label, v, st2 = step) =>
+        `<label class="f">${label}<input data-f="${f}" type="number" step="${st2}" value="${v}"></label>`;
     return (
+      backBtn +
       st +
-      `<label class="f">Label<input data-f="label" value="${esc(x.label)}"></label>
+      `<label class="f">Name<input data-f="label" value="${esc(x.label)}"></label>
 ${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) : ""}
-<div class="row2"><label class="f">Width (${u})<input data-f="w" type="number" step="${u === "m" ? 0.05 : 1}" value="${toUser(x.w)}"></label><label class="f">Depth (${u})<input data-f="h" type="number" step="${u === "m" ? 0.05 : 1}" value="${toUser(x.h)}"></label></div>
-<div class="row2"><label class="f">Rotation (°)<input data-f="a" type="number" step="15" value="${Math.round(x.a)}"></label><label class="f">Colour<input data-f="c" type="color" value="${esc(x.c)}"></label></div>
-<label class="f">Type<select data-f="kind"><option value="item"${x.kind === "item" ? " selected" : ""}>Movable item</option><option value="zone"${x.kind === "zone" ? " selected" : ""}>Area</option><option value="keepclear"${x.kind === "keepclear" ? " selected" : ""}>Keep-clear area</option></select></label>
+<h3>Size and position</h3>
+<div class="row3">${num("w", `Width (${u})`, toUser(x.w))}${num("h", `Depth (${u})`, toUser(x.h))}${num("a", "Turn (°)", Math.round(x.a), 15)}</div>
+<div class="row2">${num("px", `Across (${u})`, toUser(x.x - ox))}${num("py", `Down (${u})`, toUser(x.y - oy))}</div>
+<p class="small muted" style="margin:-4px 0 8px">Centre of the item, measured from ${dt ? "the datum" : 'the top-left corner of the drawing. <button class="linkbtn" data-a="setDatum">Set a datum</button> to measure from a column or door instead'}.</p>
+<h3>Look and type</h3>
+<div class="row2"><label class="f">Type<select data-f="kind"><option value="item"${x.kind === "item" ? " selected" : ""}>Movable item</option><option value="zone"${x.kind === "zone" ? " selected" : ""}>Marked zone</option><option value="keepclear"${x.kind === "keepclear" ? " selected" : ""}>Keep-clear zone</option></select></label><label class="f">Colour<input data-f="c" type="color" value="${esc(x.c)}"></label></div>
 ${x.kind === "item" ? (sh.kind === "daily" ? '<p class="small muted">Floor home marks come from the standard, so you can see when an item has drifted off its tape.</p>' : `<label class="f">Home marking on the floor<select data-f="home"><option value="none"${!x.fp ? " selected" : ""}>None</option><option value="corners"${x.fp && x.fpStyle !== "outline" ? " selected" : ""}>Corner marks</option><option value="outline"${x.fp && x.fpStyle === "outline" ? " selected" : ""}>Full outline</option></select></label>${x.fp ? `<label class="chk"><input type="checkbox" data-f="fpLaid"${x.fpLaid ? " checked" : ""}>Home tape is laid on the floor</label>` : ""}`) : ""}
 <label class="f">Note<textarea data-f="note" rows="2" placeholder="e.g. Returns here after every changeover">${esc(x.note || "")}</textarea></label>
-<div class="btns"><button data-a="rot90">Rotate 90°</button><button data-a="dup">Duplicate</button><button data-a="lock">${x.locked ? "Unlock" : "Lock"}</button><button data-a="tagItem">Red tag this</button><button data-a="del" class="danger">${inStd ? "Mark missing" : "Delete"}</button></div>
-<p class="small muted">Type: ${esc(x.type)}</p>
+<div class="btns">${x.kind === "item" ? '<button data-a="tagItem">Red tag this</button>' : ""}<button data-a="del" class="danger">${inStd ? "Mark missing" : "Delete"}</button></div>
+<p class="small muted">${x.locked ? "Locked: unlock it from the toolbar under it to move or resize it. " : ""}Catalogue type: ${esc(x.type)}. Rotate, duplicate and lock from the toolbar under the selection.</p>
 ${x.kind === "item" ? `<h3><span>Boards kept here</span><span class="count">${bds.length}</span></h3>${bds.map((b) => `<button class="irow" style="--c:#202C86" data-a="openBoard" data-id="${esc(b.id)}"><span>${esc(boardCode(b))} ${esc(b.name)}</span><span>${b.slots.length} slots</span></button>`).join("")}<div class="btns"><button data-a="newBoardFor">Add a board here</button></div>` : ""}`
     );
   }

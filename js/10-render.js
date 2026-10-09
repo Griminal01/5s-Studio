@@ -132,7 +132,7 @@ function renderTools() {
     t = ui.tool;
   let h = "";
   if (t === "select")
-    h = `<p class="small muted" style="margin:10px 0 0">Drag empty space to pan, scroll to zoom. Shift-click selects several. Arrow keys nudge, R rotates, Delete removes, Ctrl+D duplicates.</p>`;
+    h = `<p class="small muted" style="margin:10px 0 0">Drag empty floor to pan, scroll to zoom. Shift-click or Shift-drag a box to select several. Items snap to each other and to walls; hold Alt to place freely.</p><button class="linkbtn" data-shortcuts style="margin-top:4px">All shortcuts (press ?)</button>`;
   if (t === "tape")
     h = `<div class="toolopts"><div class="seg4">${[
       ["line", "Line"],
@@ -190,6 +190,7 @@ $("#toolOpts").addEventListener("click", (e) => {
     draw();
   }
   if (e.target.closest("[data-edit-marking]")) markingModal();
+  if (e.target.closest("[data-shortcuts]")) shortcutsModal();
 });
 $("#toolOpts").addEventListener("change", (e) => {
   const k = e.target.dataset.r;
@@ -233,7 +234,7 @@ $("#bCustom").onclick = async () => {
     "Add custom item",
     `<label class="f">Name<input name="n" required placeholder="e.g. Glue pot trolley"></label>
   <div class="row2"><label class="f">Width (m)<input name="w" type="number" step="0.05" value="1"></label><label class="f">Depth (m)<input name="h" type="number" step="0.05" value="0.8"></label></div>
-  <div class="row2"><label class="f">Type<select name="k"><option value="item">Movable item</option><option value="zone">Area</option><option value="keepclear">Keep-clear area</option></select></label><label class="f">Colour<input name="c" type="color" value="#202C86"></label></div>
+  <div class="row2"><label class="f">Type<select name="k"><option value="item">Movable item</option><option value="zone">Marked zone</option><option value="keepclear">Keep-clear zone</option></select></label><label class="f">Colour<input name="c" type="color" value="#202C86"></label></div>
   ${u === "u" ? '<p class="small muted">No scale set yet, so sizes are approximate until you set one with Measure.</p>' : ""}`,
     "Add",
   );
