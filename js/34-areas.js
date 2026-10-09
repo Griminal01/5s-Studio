@@ -152,15 +152,13 @@ function areaStats(a, sh = S()) {
       x: m.pts.reduce((t, q) => t + q.x, 0) / m.pts.length,
       y: m.pts.reduce((t, q) => t + q.y, 0) / m.pts.length,
     }),
-    marks = sh.marks.filter((m) => ptInPoly(mid(m), a.pts)),
-    refs = new Set(items.map((o) => o.ref));
+    marks = sh.marks.filter((m) => ptInPoly(mid(m), a.pts));
   return {
     items,
     designated: items.filter((o) => areaMode(o, sh) === "set"),
     marks,
     tape: marks.reduce((t, m) => t + markLen(m), 0),
     docs: P.documents.filter((d) => d.status !== "Withdrawn" && inside(d)),
-    boards: P.boards.filter((b) => refs.has(b.holder)),
     tags: P.tags.filter((t) => t.status !== "Closed" && inside(t)),
     acts: P.actions.filter(
       (x) => !["Done", "Cancelled"].includes(x.status) && inside(x),
@@ -301,7 +299,6 @@ ${kv([
   ],
   ["Floor tape", st.marks.length ? fmtLen(st.tape) : "None"],
   ["Documents", st.docs.length],
-  ["Boards", st.boards.length],
   ["Open red tags", st.tags.length],
   ["Open actions", st.acts.length],
 ])}
@@ -587,20 +584,6 @@ ${
     : ""
 }
 ${st.docs.length ? `<h2>Documents (${st.docs.length})</h2><table class="fixed">${DOC_COLS}<tr>${DOC_HEAD()}<th>Present</th></tr>${docKeyRows(st.docs, false, '<td><span class="box"></span></td>')}</table>` : ""}
-${
-  st.boards.length
-    ? `<h2>Boards</h2>${tbl(
-        ["Code", "Board", "Type", "Slots"],
-        st.boards.map((bd) => [
-          esc(boardCode(bd)),
-          esc(bd.name),
-          esc(bd.type),
-          bd.slots.length,
-        ]),
-        "",
-      )}`
-    : ""
-}
 ${
   st.tags.length
     ? `<h2>Open red tags</h2>${tbl(

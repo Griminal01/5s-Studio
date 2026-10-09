@@ -168,17 +168,6 @@ async function newProblem(over = {}) {
   setView("problems");
   return p;
 }
-function problemFromChangeover(co) {
-  const r = smedResult(co);
-  newProblem({
-    title: "Changeover takes too long: " + co.name,
-    category: "Changeover",
-    co: co.id,
-    current: `Stopped ${fmtMS(r.now.downtime)} per changeover${co.target ? ` against a target of ${fmtMS(co.target)}` : ""}, ${co.perWeek} a week.`,
-    target: co.target ? `Stopped time under ${fmtMS(co.target)}.` : "",
-    count: 0,
-  });
-}
 function problemFromTag(t) {
   const a = pinArea(t);
   newProblem({
@@ -371,7 +360,7 @@ function drawProblems() {
   if (!P.problems.length) {
     el.innerHTML =
       h +
-      `<div class="emptybox"><b>No problems yet</b>Raise a problem for anything that keeps happening: a slow changeover, a jam, something that keeps coming back after a clean-up. You can also raise one from a changeover in SMED, from a red tag, or from an area on the layout. Open the example model line to see three worked problems.<div style="margin-top:14px"><button class="pri" id="psNew2">New problem</button> <button data-a="loadExample">Open the example model line</button></div></div>`;
+      `<div class="emptybox"><b>No problems yet</b>Raise a problem for anything that keeps happening: a slow changeover, a jam, something that keeps coming back after a clean-up. You can also raise one from a red tag or from a zone on the layout. Open the example model line to see three worked problems.<div style="margin-top:14px"><button class="pri" id="psNew2">New problem</button> <button data-a="loadExample">Open the example model line</button></div></div>`;
     return;
   }
   if (p) {
@@ -420,15 +409,13 @@ function probChips(list, key, nameOf) {
     : "";
 }
 function probDetailsHTML(p) {
-  const co = P.smed.changeovers.find((c) => c.id === p.co),
-    docs = P.documents.filter((d) => !p.docs.includes(d.id)),
+  const docs = P.documents.filter((d) => !p.docs.includes(d.id)),
     stdItems = STD().objects.filter(
       (o) => o.kind === "item" && !p.items.includes(o.ref),
     );
   return `<div class="psform">
   <div class="row3">${pf(p, "team", "Team (who helps)")}<label class="f">Kind of problem (groups the Pareto)<input data-pf="category" list="probCats" value="${esc(p.category)}"></label><label class="f">Times it has happened<input data-pf="count" type="number" min="0" step="1" value="${esc(p.count || "")}"></label></div>
-  <div class="row3"><label class="f">Minutes lost in total<input data-pf="mins" type="number" min="0" step="1" value="${esc(p.mins || "")}"></label><label class="f">Linked red tag<select data-pf="tag">${optsKV([["", "None"], ...P.tags.map((t) => [t.id, tagNo(t) + " " + t.title])], p.tag)}</select></label><label class="f">Linked changeover<select data-pf="co">${optsKV([["", "None"], ...P.smed.changeovers.map((c) => [c.id, coCode(c) + " " + c.name])], p.co)}</select></label></div>
-  ${co ? `<label class="f">Step of that changeover<select data-pf="step">${optsKV([["", "The whole changeover"], ...co.steps.map((s, i) => [s.id, i + 1 + ". " + (s.name || "step")])], p.step)}</select></label>` : ""}
+  <div class="row3"><label class="f">Minutes lost in total<input data-pf="mins" type="number" min="0" step="1" value="${esc(p.mins || "")}"></label><label class="f">Linked red tag<select data-pf="tag">${optsKV([["", "None"], ...P.tags.map((t) => [t.id, tagNo(t) + " " + t.title])], p.tag)}</select></label></div>
   <datalist id="probCats">${PROB_CATS.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>${ownerList()}
   <div class="tgrid">
     <section class="block"><h3>1 Background</h3>${pt(p, "background", "", "Why does this matter? Who is hurt: safety, quality, output, people?")}</section>

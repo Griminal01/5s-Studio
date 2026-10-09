@@ -282,7 +282,6 @@ function afterProjectChange() {
   ui.cmp = "auto";
   ui.tab = "item";
   ui.drift.focus = "";
-  ui.smed.sel = "";
   ui.hiddenCategories.clear();
   if (ui.editDrawing) setEditDrawing(false);
   setTool("select");

@@ -12,7 +12,6 @@ const NAV = [
     items: [
       ["setup", "Setup"],
       ["layout", "Layout"],
-      ["boards", "Boards"],
       ["tracking", "Tracking"],
       ["tags", "Red tags"],
       ["actions", "5S actions"],
@@ -32,21 +31,11 @@ const NAV = [
     id: "improve",
     g: "Improve",
     short: "Improve",
-    items: [
-      ["problems", "Problem solving"],
-      ["smed", "SMED"],
-    ],
+    items: [["problems", "Problem solving"]],
   },
 ];
 const NAV_ITEMS = NAV.flatMap((g) => g.items);
-const SCOPED_VIEWS = [
-  "setup",
-  "layout",
-  "boards",
-  "tracking",
-  "tags",
-  "actions",
-];
+const SCOPED_VIEWS = ["setup", "layout", "tracking", "tags", "actions"];
 const sectionOf = (v) =>
   NAV.find((g) => g.items.some((i) => i[0] === v)) || NAV[0];
 const navLabel = (v) => NAV_ITEMS.find((i) => i[0] === v)?.[1] || "";
@@ -140,8 +129,6 @@ function setView(v, fromHash = false) {
   $("#regView").hidden = !reg;
   $("#docView").hidden = v !== "documents" && v !== "docmap";
   $("#setupView").hidden = v !== "setup";
-  $("#boardView").hidden = v !== "boards";
-  $("#smedView").hidden = v !== "smed";
   $("#trackView").hidden = v !== "tracking";
   $("#problemView").hidden = v !== "problems";
   $("#days").hidden = v !== "layout";
@@ -149,8 +136,6 @@ function setView(v, fromHash = false) {
   if (reg) renderRegister();
   else if (v === "setup") renderSetup();
   else if (v === "tracking") renderTracking();
-  else if (v === "boards") renderBoards();
-  else if (v === "smed") renderSmed();
   else if (v === "documents" || v === "docmap") renderDocuments();
   else if (v === "problems") renderProblems();
   else {

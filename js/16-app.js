@@ -18,8 +18,6 @@ function renderAll() {
     renderRegister();
   else if (ui.view === "setup") renderSetup();
   else if (ui.view === "tracking") renderTracking();
-  else if (ui.view === "boards") renderBoards();
-  else if (ui.view === "smed") renderSmed();
   else if (ui.view === "documents" || ui.view === "docmap") renderDocuments();
   else if (ui.view === "problems") renderProblems();
   else draw();

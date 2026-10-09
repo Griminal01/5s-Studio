@@ -181,16 +181,6 @@ const actNo = (a) => "A-" + String(a.no).padStart(3, "0");
 const actOverdue = (a) =>
   !!a.due && a.due < today() && !["Done", "Cancelled"].includes(a.status);
 
-/* label printing settings, kept in the project so Josh and Sam print the same */
-const DEFAULT_LABELS = {
-  size: "tze24",
-  w: 70,
-  h: 24,
-  copies: 1,
-  showQty: true,
-  showType: false,
-};
-
 /* documents that live in an area */
 const DOC_TYPES = [
   "SOP",

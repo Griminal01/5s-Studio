@@ -294,6 +294,20 @@ function validate(p) {
       if (hasData(p[k])) parked[k] = p[k];
       delete p[k];
     }
+    // Boards and SMED were removed from the studio (version 9). Their data is kept
+    // untouched in `parked` so old backups lose nothing and could be restored later.
+    if (Array.isArray(p.boards) && p.boards.length) parked.boards = p.boards;
+    if (
+      p.smed &&
+      Array.isArray(p.smed.changeovers) &&
+      p.smed.changeovers.length
+    )
+      parked.smed = p.smed;
+    if ((parked.boards || parked.smed) && hasData(p.labels))
+      parked.labels = p.labels;
+    delete p.boards;
+    delete p.smed;
+    delete p.labels;
     // Areas are back. Older files kept them as audit areas: they come back
     // as plain areas, and anything that is not a usable polygon stays parked.
     {
@@ -426,64 +440,6 @@ function validate(p) {
     ...p.documents.map((d) => d.no),
   );
   for (const d of p.documents) if (d.no <= 0) d.no = ++p.counters.doc;
-  const pos = (v, d) => (Number(v) > 0 ? Number(v) : d),
-    cnt = (v) => Math.max(0, Math.round(Number(v)) || 0);
-  p.boards = (Array.isArray(p.boards) ? p.boards : [])
-    .filter((b) => b && typeof b === "object")
-    .map((b) => ({
-      id: str(b.id, uid()),
-      no: Number(b.no) || 0,
-      code: str(b.code, "BD").toUpperCase().slice(0, 8),
-      name: str(b.name, "Board"),
-      type: pick(b.type, BOARD_TYPES, BOARD_TYPES[0]),
-      holder: str(b.holder),
-      owner: str(b.owner),
-      w: pos(b.w, 1200),
-      h: pos(b.h, 800),
-      note: str(b.note),
-      slots: (Array.isArray(b.slots) ? b.slots : [])
-        .filter((s) => s && typeof s === "object")
-        .map((s) => {
-          const type = SLOT_TYPES.some((t) => t[0] === s.type)
-              ? s.type
-              : "Other",
-            df = slotDefaults(type);
-          return {
-            id: str(s.id, uid()),
-            name: str(s.name, "Slot"),
-            type,
-            pn: str(s.pn),
-            qty: cnt(s.qty),
-            min: cnt(s.min),
-            max: cnt(s.max),
-            w: pos(s.w, df[1]),
-            h: pos(s.h, df[2]),
-            note: str(s.note),
-          };
-        }),
-    }));
-  p.counters.board = Math.max(
-    Number(p.counters.board) || 0,
-    ...p.boards.map((b) => b.no),
-  );
-  for (const b of p.boards) if (b.no <= 0) b.no = ++p.counters.board;
-  {
-    const sm = p.smed && typeof p.smed === "object" ? p.smed : {};
-    p.smed = {
-      weeks: Math.min(52, pos(sm.weeks, 48)),
-      changeovers: (Array.isArray(sm.changeovers) ? sm.changeovers : [])
-        .filter((c) => c && typeof c === "object")
-        .map(normChangeover),
-    };
-    // kit used to be stored as a location code; keep it as the slot's id
-    for (const c of p.smed.changeovers)
-      for (const st of c.steps) st.kit = kitStoreIn(p.boards, st.kit);
-    p.counters.smed = Math.max(
-      Number(p.counters.smed) || 0,
-      ...p.smed.changeovers.map((c) => c.no),
-    );
-    for (const c of p.smed.changeovers) if (c.no <= 0) c.no = ++p.counters.smed;
-  }
   p.problems = (Array.isArray(p.problems) ? p.problems : [])
     .filter((x) => x && typeof x === "object")
     .map(normProblem);
@@ -492,19 +448,6 @@ function validate(p) {
     ...p.problems.map((x) => x.no),
   );
   for (const x of p.problems) if (x.no <= 0) x.no = ++p.counters.prob;
-  {
-    const l = p.labels && typeof p.labels === "object" ? p.labels : {};
-    p.labels = {
-      size: LABEL_PRESETS.some((x) => x[0] === l.size)
-        ? l.size
-        : DEFAULT_LABELS.size,
-      w: pos(l.w, DEFAULT_LABELS.w),
-      h: pos(l.h, DEFAULT_LABELS.h),
-      copies: Math.min(20, Math.max(1, Math.round(Number(l.copies)) || 1)),
-      showQty: l.showQty !== false,
-      showType: !!l.showType,
-    };
-  }
   p.drawings =
     p.drawings && typeof p.drawings === "object" && !Array.isArray(p.drawings)
       ? p.drawings
@@ -638,7 +581,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 8;
+  p.version = 9;
   p.app = "5s-studio";
   return p;
 }

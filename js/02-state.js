@@ -27,7 +27,6 @@ const ui = {
     focus: "",
     all: false,
   },
-  smed: { sel: "", tab: "plan", stage: "record" },
   prob: {
     sel: "",
     tab: "list",
@@ -200,7 +199,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 8,
+    version: 9,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {
@@ -216,9 +215,6 @@ function newProject() {
     areas: [],
     problems: [],
     documents: [],
-    boards: [],
-    labels: clone(DEFAULT_LABELS),
-    smed: { weeks: 48, changeovers: [] },
     counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0, area: 0, prob: 0 },
     drawings: {
       d1: {

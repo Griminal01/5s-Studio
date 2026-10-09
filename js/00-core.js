@@ -47,3 +47,5 @@ const angDiff = (a, b) => {
   let d = Math.abs((((a - b) % 360) + 360) % 360);
   return d > 180 ? 360 - d : d;
 };
+const pad2 = (n) => String(n).padStart(2, "0");
+const clipText = (t, n) => (t.length > n ? t.slice(0, n - 1) + "…" : t);

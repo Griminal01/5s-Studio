@@ -211,8 +211,6 @@ function printProblem(p) {
         (a.due || "9999").localeCompare(b.due || "9999"),
     ),
     tag = P.tags.find((t) => t.id === p.tag),
-    co = P.smed.changeovers.find((c) => c.id === p.co),
-    step = co?.steps.find((s) => s.id === p.step),
     docs = p.docs
       .map((id) => P.documents.find((d) => d.id === id))
       .filter(Boolean),
@@ -229,7 +227,6 @@ function printProblem(p) {
     ];
   const links = [
     tag && `Red tag ${tagNo(tag)} ${tag.title}`,
-    co && `Changeover ${coCode(co)} ${co.name}${step ? ", " + step.name : ""}`,
     ...docs.map((d) => docNo(d) + " " + d.title),
   ].filter(Boolean);
   const whys = p.whys.filter((w) => w.text.trim());

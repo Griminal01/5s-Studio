@@ -5,8 +5,6 @@ const path = require("node:path");
 
 const VIEWS = [
   "setup",
-  "smed",
-  "boards",
   "documents",
   "docmap",
   "docactions",
@@ -42,7 +40,6 @@ const VIEWS = [
   const SECTION = {
     setup: "5s",
     layout: "5s",
-    boards: "5s",
     tracking: "5s",
     tags: "5s",
     actions: "5s",
@@ -50,7 +47,6 @@ const VIEWS = [
     docmap: "docs",
     docactions: "docs",
     problems: "improve",
-    smed: "improve",
   };
   const go = async (v) => {
     const cur = await page.evaluate(() => sectionOf(ui.view).id);
@@ -78,8 +74,6 @@ const VIEWS = [
       const ids = {
         setup: "setupView",
         layout: "layoutView",
-        smed: "smedView",
-        boards: "boardView",
         documents: "docView",
         docmap: "docView",
         docactions: "regView",
@@ -108,7 +102,7 @@ const VIEWS = [
   }));
   expect(
     nav1.sections === 3 &&
-      nav1.pages === "problems,smed" &&
+      nav1.pages === "problems" &&
       nav1.hash === "#/problems" &&
       nav1.cur === "improve" &&
       /Problem/.test(nav1.title),
@@ -202,8 +196,6 @@ const VIEWS = [
       marks: sh.marks.length,
       docs: P.documents.length,
       actions: P.actions.length,
-      boards: P.boards.length,
-      slots: P.boards.reduce((n, b) => n + b.slots.length, 0),
       tags: P.tags.length,
       dailies: dailies().length,
       sheets: P.sheets.length,
@@ -530,20 +522,6 @@ const VIEWS = [
   await page.waitForTimeout(300);
   const pr2 = await page.evaluate(() => P.problems.at(-1).status);
   expect(pr2 === "Closed", "closing a problem did not work");
-  await go("smed");
-  await page.click("#smedView .smedhead details.menu summary");
-  await page.click("#smProblem");
-  await page.click("#dlgOk");
-  await page.waitForTimeout(300);
-  const pr3 = await page.evaluate(() => ({
-    co: !!P.problems.at(-1).co,
-    kind: P.problems.at(-1).category,
-    view: ui.view,
-  }));
-  expect(
-    pr3.co && pr3.kind === "Changeover" && pr3.view === "problems",
-    "raising a problem from a changeover did not work: " + JSON.stringify(pr3),
-  );
   await go("layout");
   // documents live on their own map, not on the layout
   await go("layout");
@@ -650,147 +628,6 @@ const VIEWS = [
     "Show the whole factory did not bring everything back: " +
       JSON.stringify({ sc0, sc3 }),
   );
-  // boards: edit a board through the real form, then build and "print" labels
-  await go("boards");
-  await page.click('[data-bid] [data-bd="edit"]');
-  const before = await page.evaluate(() => P.boards[0].slots.length);
-  await page.click("#bdAdd");
-  await page.fill("#bdRows tr:last-child [data-k=name]", "Smoke spanner");
-  await page.click("#dlgOk");
-  await page.waitForTimeout(300);
-  const lab = await page.evaluate(() => {
-    const b = P.boards[0];
-    const items = labelItems(b.id, { slot: true, board: true, kanban: false });
-    printLabels(items);
-    const out = {
-      slots: b.slots.length,
-      last: b.slots.at(-1).name,
-      labels: document.querySelectorAll("#printDoc .lbl").length,
-      expected: b.slots.length + 1,
-      page: document.getElementById("pageStyle")?.textContent || "",
-      printing: document.getElementById("printDoc").className,
-    };
-    document.body.classList.remove("printing-doc");
-    document.getElementById("pageStyle")?.remove();
-    document.getElementById("printDoc").className = "";
-    return out;
-  });
-  expect(
-    lab.slots === before + 1 && lab.last === "Smoke spanner",
-    "editing a board did not save the new slot",
-  );
-  expect(
-    lab.labels === lab.expected,
-    "label count is wrong: " + lab.labels + " vs " + lab.expected,
-  );
-  expect(
-    /size:\s*70mm 24mm/.test(lab.page) && lab.printing === "labels",
-    "label page size was not set",
-  );
-  // SMED: edit a step, check the maths, use the stopwatch, build the work sheet
-  await go("smed");
-  const sm0 = await page.evaluate(() => {
-    const c = P.smed.changeovers[0],
-      r = smedResult(c);
-    return {
-      n: P.smed.changeovers.length,
-      now: r.now.downtime,
-      after: r.after.downtime,
-      id: c.id,
-    };
-  });
-  expect(
-    sm0.n >= 3 && sm0.after < sm0.now,
-    "example SMED data is missing or the plan does not save time",
-  );
-  await page.click(`[data-co="${sm0.id}"]`);
-  await page.fill("#smSteps tbody tr:first-child [data-k=dur]", "5:00");
-  await page.press("#smSteps tbody tr:first-child [data-k=dur]", "Enter");
-  await page.waitForTimeout(200);
-  const sm1 = await page.evaluate(() => ({
-    dur: P.smed.changeovers[0].steps[0].dur,
-    now: smedResult(P.smed.changeovers[0]).now.downtime,
-    kpi: document.querySelector("#smViz .smedk b")?.textContent,
-  }));
-  expect(
-    sm1.dur === 300 && sm1.now > sm0.now,
-    "editing a step time did not change the stopped time",
-  );
-  // the four SMED steps: quick add in Record, one tap in Separate and Improve
-  const smN = await page.evaluate(() => curCO().steps.length);
-  await page.fill("#smQName", "Sweep the area");
-  await page.fill("#smQDur", "1:30");
-  await page.press("#smQName", "Enter");
-  await page.click('[data-stage="separate"]');
-  await page.click(
-    '#smSteps tr:last-of-type [data-seg="type"][data-v="after"]',
-  );
-  await page.click('[data-stage="improve"]');
-  await page.click(
-    '#smSteps tr[data-i="0"] [data-seg="plan"][data-v="eliminate"]',
-  );
-  const smS = await page.evaluate(() => {
-    const c = curCO();
-    return {
-      n: c.steps.length,
-      last:
-        c.steps.at(-1).name +
-        "/" +
-        c.steps.at(-1).dur +
-        "/" +
-        c.steps.at(-1).type,
-      plan: c.steps[0].plan,
-      charts: document.querySelectorAll("#smViz .gantt").length,
-    };
-  });
-  expect(
-    smS.n === smN + 1 &&
-      smS.last === "Sweep the area/90/after" &&
-      smS.plan === "eliminate" &&
-      smS.charts === 2,
-    "the SMED Record, Separate or Improve steps did not work: " +
-      JSON.stringify(smS),
-  );
-  await page.click('[data-stage="record"]');
-  await page.click("#smTimer");
-  await page.click('[data-tm="startBefore"]');
-  await page.fill("#tmName", "Prep tools");
-  await page.click('[data-tm="done"]');
-  await page.click('[data-tm="stopped"]');
-  await page.fill("#tmName", "Strip the machine");
-  await page.click('[data-tm="done"]');
-  await page.fill('#dlgForm [name="name"]', "Smoke timed changeover");
-  await page.click("#dlgOk");
-  await page.waitForTimeout(400);
-  const sm2 = await page.evaluate(() => {
-    const c = P.smed.changeovers.at(-1);
-    return {
-      name: c.name,
-      types: c.steps.map((s) => s.type).join(","),
-      view: ui.view,
-    };
-  });
-  expect(
-    sm2.name === "Smoke timed changeover" &&
-      sm2.types === "before,internal" &&
-      sm2.view === "smed",
-    "the stopwatch did not record the changeover: " + JSON.stringify(sm2),
-  );
-  const sm3 = await page.evaluate(() => {
-    printSmedSheet(P.smed.changeovers[0]);
-    const out = {
-      gantts: document.querySelectorAll("#printDoc .gantt").length,
-      rows: document.querySelectorAll("#printDoc table.fixed tr").length,
-    };
-    document.body.classList.remove("printing-doc");
-    document.getElementById("pageStyle")?.remove();
-    document.getElementById("printDoc").className = "";
-    return out;
-  });
-  expect(
-    sm3.gantts === 2 && sm3.rows > 10,
-    "the SMED work sheet did not build",
-  );
   for (const v of VIEWS) {
     await go(v);
     await page.waitForTimeout(150);
@@ -829,18 +666,29 @@ const VIEWS = [
   );
 
   // regressions found in review
-  const reg = await page.evaluate(() => {
-    const c = blankChangeover();
-    c.steps = [
-      blankStep({ name: "A", who: "O1", dur: 60, at: 0 }),
-      blankStep({ name: "B", who: "O2", dur: 60, at: 60 }),
-    ];
-    const r = smedResult(c); // nothing planned: the plan must equal what was observed
-    return { now: r.now.downtime, after: r.after.downtime };
+  // boards and SMED were removed from the studio: their data is parked untouched, not lost
+  const parked = await page.evaluate(() => {
+    const q = JSON.parse(JSON.stringify(P));
+    q.boards = [{ id: "b1", name: "Old board", slots: [] }];
+    q.smed = { weeks: 48, changeovers: [{ id: "c1", name: "Old changeover" }] };
+    q.labels = { size: "tze24" };
+    const v = validate(q),
+      again = validate(JSON.parse(JSON.stringify(v)));
+    return {
+      gone: v.boards === undefined && v.smed === undefined,
+      boards: v.parked?.boards?.[0]?.name,
+      smed: v.parked?.smed?.changeovers?.[0]?.name,
+      again: again.parked?.boards?.[0]?.name === "Old board",
+      none: P.parked?.boards === undefined,
+    };
   });
   expect(
-    reg.now === 120 && reg.after === 120,
-    "a timed changeover shows a saving with no plan: " + JSON.stringify(reg),
+    parked.gone &&
+      parked.boards === "Old board" &&
+      parked.smed === "Old changeover" &&
+      parked.again &&
+      parked.none,
+    "boards or SMED data was not parked safely: " + JSON.stringify(parked),
   );
   await page.evaluate(() => {
     newDocument({});

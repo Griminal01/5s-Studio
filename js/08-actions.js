@@ -80,15 +80,14 @@ function act(a, el) {
       record(miss ? "Marked missing" : "Deleted", names.join(", "));
       if (miss) toast("Marked missing. Click its red outline to put it back.");
       else if (sh.kind === "standard") {
-        // boards and documents point at items in the standard: say when that link is lost
+        // documents point at items in the standard: say when that link is lost
         const refs = new Set(
             live.filter((f) => f.t === "obj").map((f) => f.x.ref),
           ),
-          nb = P.boards.filter((b) => refs.has(b.holder)).length,
           nd = P.documents.filter((d) => refs.has(d.holder)).length;
-        if (nb || nd)
+        if (nd)
           toast(
-            `${[nb && nb + " board" + (nb > 1 ? "s" : ""), nd && nd + " document" + (nd > 1 ? "s" : "")].filter(Boolean).join(" and ")} were kept here and are now unlinked. Undo (Ctrl+Z) to put it back.`,
+            `${nd} document${nd > 1 ? "s were" : " was"} kept here and ${nd > 1 ? "are" : "is"} now unlinked. Undo (Ctrl+Z) to put it back.`,
             7000,
           );
       }
@@ -176,16 +175,6 @@ function act(a, el) {
     case "loadExample":
       loadExample();
       break;
-    case "openBoard": {
-      const bd = P.boards.find((x) => x.id === el?.dataset.id);
-      if (bd) boardModal(bd, false);
-      break;
-    }
-    case "newBoardFor": {
-      const f = sel[0];
-      if (f && f.t === "obj") newBoard(undefined, f.x);
-      break;
-    }
     case "editMarking":
       markingModal();
       break;

@@ -120,7 +120,6 @@ ${objs >= 2 ? `<h3>Line them up</h3><div class="aligngrid">${ALIGN.map(([k, l]) 
     const sb = (c || issues(sh)).structure.find((z) => z.o.id === x.id);
     if (sb)
       st += `<div class="status bad"><b>${sb.door ? "Blocking" : "Overlapping"}:</b> ${esc(sb.z.label || "a wall")}</div>`;
-    const bds = P.boards.filter((b) => b.holder === x.ref);
     const inStd =
       sh.kind === "daily" &&
       x.kind === "item" &&
@@ -145,8 +144,7 @@ ${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) : ""}
 ${x.kind === "item" ? (sh.kind === "daily" ? '<p class="small muted">Floor home marks come from the standard, so you can see when an item has drifted off its tape.</p>' : `<label class="f">Home marking on the floor<select data-f="home"><option value="none"${!x.fp ? " selected" : ""}>None</option><option value="corners"${x.fp && x.fpStyle !== "outline" ? " selected" : ""}>Corner marks</option><option value="outline"${x.fp && x.fpStyle === "outline" ? " selected" : ""}>Full outline</option></select></label>${x.fp ? `<label class="chk"><input type="checkbox" data-f="fpLaid"${x.fpLaid ? " checked" : ""}>Home tape is laid on the floor</label>` : ""}`) : ""}
 <label class="f">Note<textarea data-f="note" rows="2" placeholder="e.g. Returns here after every changeover">${esc(x.note || "")}</textarea></label>
 <div class="btns">${x.kind === "item" ? '<button data-a="tagItem">Red tag this</button>' : ""}<button data-a="del" class="danger">${inStd ? "Mark missing" : "Delete"}</button></div>
-<p class="small muted">${x.locked ? "Locked: unlock it from the toolbar under it to move or resize it. " : ""}Catalogue type: ${esc(x.type)}. Rotate, duplicate and lock from the toolbar under the selection.</p>
-${x.kind === "item" ? `<h3><span>Boards kept here</span><span class="count">${bds.length}</span></h3>${bds.map((b) => `<button class="irow" style="--c:#202C86" data-a="openBoard" data-id="${esc(b.id)}"><span>${esc(boardCode(b))} ${esc(b.name)}</span><span>${b.slots.length} slots</span></button>`).join("")}<div class="btns"><button data-a="newBoardFor">Add a board here</button></div>` : ""}`
+<p class="small muted">${x.locked ? "Locked: unlock it from the toolbar under it to move or resize it. " : ""}Catalogue type: ${esc(x.type)}. Rotate, duplicate and lock from the toolbar under the selection.</p>`
     );
   }
   if (t === "area") return paneArea(x);
