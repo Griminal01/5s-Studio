@@ -8,6 +8,12 @@ Lean tools for a production line (it started as 5S Studio), used to work out bef
 Everything runs in the browser. There is no server and no build step. Data is stored on the device
 (IndexedDB) and can be saved to / opened from a project file.
 
+## Offline and install
+
+Lean Studio works with no network once it has loaded once. In Chrome, Edge or Brave use *Install app* (or
+*Add to Home screen* on a phone) for an app icon and a window of its own. After an update a message says
+*A new version is ready. Reload to use it.* Notes on the domain and hosting are in `docs/DOMAIN.md`.
+
 ## How it is laid out
 
 Four sections along the top. **Setup** is done once: the factory map (plan image, scale, walls), then

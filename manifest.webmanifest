@@ -1,0 +1,21 @@
+{
+  "name": "Lean Studio",
+  "short_name": "Lean Studio",
+  "description": "Design 5S layouts and floor tape, set up lines and zones, define operator tasks and solve problems. Works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1c2250",
+  "theme_color": "#1c2250",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

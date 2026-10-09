@@ -55,7 +55,8 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 39-document-map | the Documents map tab: documents pinned, moved and opened over a faded copy of the standard layout, with a line to the item each is kept at. Document pins are off on the Layout by default |
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
-| 40-main | startup |
+| 40-main | startup; registers the service worker |
+| sw.js, manifest.webmanifest, icons/ | offline and install: `sw.js` caches every file `index.html` names (so a new script or stylesheet needs nothing extra), the deploy stamps `__BUILD__` and the css/js links with the commit id; anything outside `css/` and `js/` that the page needs must be added to the file list in `sw.js`. `tools/make-icons.cjs` redraws the PNG icons from `icons/icon.svg` |
 
 Removed features (formal audits, audit lines, TV, Boards and SMED) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
@@ -76,6 +77,7 @@ Read `docs/HANDOVER.md` first: what is built, what the review fixed, known limit
 ```bash
 npm run check && npm run lint && npm test
 ```
+`npm test` runs the smoke test and `tests/offline.cjs` (installs the service worker over http, switches the network off, reloads).
 The smoke test also opens `tests/fixtures/v7-backup.json` (made with the original file): old backups must keep opening.
 For UI changes, also load the page in Chromium (Playwright is preinstalled; do not run
 `playwright install`) and take screenshots at desktop (1600x900), phone (390x844) and TV (1920x1080).

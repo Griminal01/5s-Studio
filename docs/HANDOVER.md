@@ -44,6 +44,8 @@ placed, dragged and opened; the Layout's Document tool is gone and its document 
 
 The example model line (Settings, or the empty layout) fills every view.
 
+Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `docs/DOMAIN.md`. Live at leanstudio.app.
+
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
 ## Code audit (11 Oct)
