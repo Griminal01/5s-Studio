@@ -32,7 +32,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 05-storage | IndexedDB (`studio-5s`), per-account/per-project keys (`K()`), `validate()` migration, save |
 | 06-ui-helpers | `modal()` (fresh body each time; Enter never submits), `printWithPage()` for every print, `printView()`, `csv()` |
 | 07-canvas .. 11-side-panel | canvas, tools, sheets, render, side panel |
-| 12-views | switching between views |
+| 12-views | navigation: the `NAV` list (grouped sections) renders the header, the medium-width menu and the phone tab bar; `setView()`; badges; address-bar routing (`#/problems/<id>/why`, Back works). Add a new section by adding it to `NAV` |
 | 13-exports .. 16-app | PNG/CSV exports, save/open, settings and keys, `renderAll` and `init` |
 | 17-pins, 18-shared-helpers | pins on the drawing (actions, documents), shared form helpers |
 | 19-forms, 20-registers | red tag form and register, action form and register |

@@ -113,77 +113,143 @@ textarea {
   display: none !important;
 }
 
-/* top bar */
+/* top bar: one row; sections grouped; menu on medium screens; tab bar on phones */
 .top {
   background: var(--navy);
   color: #fff;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
+  gap: 14px;
+  padding: 6px 14px;
   flex: none;
+  min-height: 58px;
+}
+.top button,
+.top summary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+.top button:hover,
+.top summary:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.top button:disabled {
+  opacity: 0.4;
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-right: auto;
+  gap: 10px;
+  min-width: 0;
+  flex: 0 1 220px;
+}
+.brand > div {
   min-width: 0;
 }
 .brand img {
-  height: 36px;
+  height: 34px;
   background: #fff;
   border-radius: 4px;
   padding: 2px;
 }
 .brand h1 {
-  font: 600 20px/1 var(--disp);
+  font: 600 19px/1 var(--disp);
   margin: 0;
   white-space: nowrap;
 }
-.brand p {
-  margin: 3px 0 0;
-  font-size: 12px;
-  opacity: 0.75;
+#projectIdentity {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  border: 0 !important;
+  background: none !important;
+  padding: 2px 0 0 !important;
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.8;
+  text-align: left;
+  min-height: 0 !important;
+  text-decoration: underline dotted rgba(255, 255, 255, 0.5);
+  text-underline-offset: 3px;
 }
-.top button {
-  background: transparent;
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-.top button:hover {
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-.top .sep {
-  width: 1px;
-  align-self: stretch;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 2px 4px;
-}
-.views {
+.gnav {
   display: flex;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 3px;
-  margin-right: 8px;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
 }
-.views button {
+.ngrp {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+  padding: 3px 4px 4px;
+}
+.ncap {
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  padding: 0 6px;
+  line-height: 1.2;
+}
+.nbtns {
+  display: flex;
+  gap: 2px;
+}
+.top .nbtns button,
+.navsheet button,
+.tabbar button {
   border: 0;
   border-radius: 6px;
-  padding: 6px 16px;
+  padding: 5px 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.views button.on {
+.top .nbtns button.on {
   background: #fff;
   color: var(--navy);
   font-weight: 600;
 }
+.bdg {
+  background: var(--tape);
+  color: #1c2250;
+  border-radius: 9px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 17px;
+}
+.bdg.late {
+  background: #c3361a;
+  color: #fff;
+}
+.topr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex: none;
+}
 #saved {
   font-size: 11px;
   opacity: 0.7;
-  min-width: 90px;
-  text-align: right;
+  min-width: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top .ico .btxt {
+  margin-left: 5px;
 }
 .top .bkchip {
   background: var(--tape);
@@ -197,21 +263,174 @@ textarea {
   background: #fff;
   border-color: #fff;
 }
-.top .bkchip[hidden] {
+.top details.menu summary {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.filemenu .pop {
+  right: 0;
+  min-width: 210px;
+  color: var(--ink);
+}
+.top .filemenu .pop button {
+  color: var(--ink);
+  border: 0;
+  padding: 10px 10px;
+  min-height: 40px;
+}
+.top .filemenu .pop button:hover {
+  background: var(--soft);
+}
+/* the section menu (medium screens) and its bottom-sheet form (phones) */
+.navdrop {
+  display: none;
+  position: relative;
+  flex: 1 1 auto;
+}
+.navsheet {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(28, 34, 80, 0.22);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 6px 14px;
+}
+.nsg h3 {
+  margin: 4px 8px 4px;
+  font: 600 11px var(--disp);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.navsheet button {
+  width: 100%;
+  justify-content: space-between;
+  background: none;
+  color: var(--ink);
+  min-height: 44px;
+  font-size: 14px;
+}
+.navsheet button:hover {
+  background: var(--soft);
+}
+.navsheet button.on {
+  background: var(--navy);
+  color: #fff;
+}
+.tabbar {
   display: none;
 }
-.views .bdg {
-  margin-left: 7px;
-  background: var(--tape);
-  color: #1c2250;
-  border-radius: 9px;
-  padding: 0 6px;
-  font-size: 11px;
+#navBtn {
   font-weight: 600;
+  min-height: 40px;
 }
-.views .bdg.late {
-  background: #c3361a;
-  color: #fff;
+@media (max-width: 1500px) {
+  #saved {
+    display: none;
+  }
+}
+@media (max-width: 1380px) {
+  .gnav {
+    display: none;
+  }
+  .navdrop {
+    display: block;
+  }
+  .brand {
+    flex: 0 1 auto;
+  }
+  .top .ico .btxt {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .sheetbar {
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  .sheetbar input[type="date"] {
+    width: 138px;
+  }
+  .sheetbar .name {
+    flex-basis: 120px;
+  }
+  .top {
+    gap: 8px;
+    padding: 6px 10px;
+    min-height: 52px;
+  }
+  .navdrop {
+    display: contents;
+  }
+  #navBtn {
+    display: none;
+  }
+  .brand {
+    flex: 1 1 auto;
+  }
+  .top .ico,
+  .top details.menu summary,
+  .top button.usr {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .top button.usr {
+    max-width: 96px;
+  }
+  .tabbar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 16px rgba(28, 34, 80, 0.12);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tabbar button {
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 56px;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border-radius: 0;
+    position: relative;
+  }
+  .tabbar button.on {
+    color: var(--navy);
+    font-weight: 700;
+    box-shadow: inset 0 3px 0 var(--navy);
+  }
+  .tabbar .bdg {
+    position: absolute;
+    top: 4px;
+    left: calc(50% + 8px);
+  }
+  .navsheet {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    top: auto;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    grid-template-columns: 1fr;
+    max-height: 70vh;
+    overflow: auto;
+  }
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
 }
 .stripe {
   height: 7px;
@@ -496,7 +715,7 @@ h3 {
 .sheetbar .name {
   font: 600 16px var(--disp);
   border-color: transparent;
-  flex: 1 1 180px;
+  flex: 1 1 140px;
   padding: 5px 6px;
 }
 .sheetbar .name:hover,
@@ -1589,44 +1808,9 @@ dialog img.big {
   max-width: 90vw;
 }
 
-.top button,
-.views button {
-  white-space: nowrap;
-}
-.brand {
-  min-width: 0;
-}
-.brand p {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 1560px) {
-  .top {
-    gap: 6px;
-    padding: 8px 10px;
-  }
-  .top button {
-    padding: 6px 9px;
-  }
-  .views button {
-    padding: 6px 11px;
-  }
-  #saved {
-    display: none;
-  }
-  .brand p {
-    display: none;
-  }
-  .views {
-    margin-right: 2px;
-  }
-}
 @media (max-width: 1180px) {
   .studio {
     grid-template-columns: 208px minmax(0, 1fr) 300px;
-  }
-  .top .lbl {
-    display: none;
   }
 }
 @media (max-width: 880px) {
@@ -1657,17 +1841,6 @@ dialog img.big {
     border-left: 0;
     border-top: 1px solid var(--line);
   }
-  .brand p {
-    display: none;
-  }
-  .top {
-    flex-wrap: wrap;
-  }
-  /* all views reachable on a phone: the nav wraps instead of running off the screen */
-  .views {
-    flex-wrap: wrap;
-    max-width: 100%;
-  }
   /* touch: row buttons in the board and SMED tables at least 44 px */
   .bdtbl .bact button {
     min-width: 44px;
@@ -1691,6 +1864,8 @@ dialog img.big {
     background: #fff;
   }
   .top,
+  .tabbar,
+  .navsheet,
   .stripe,
   .days,
   .tools,
@@ -1981,13 +2156,6 @@ button:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.brand > div {
-  min-width: 0;
-}
-.brand p {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 button:focus-visible,
 input:focus-visible,
@@ -2446,17 +2614,6 @@ body.locked > *:not(#auth):not(dialog):not(#toast):not(script) {
 }
 #acTabs {
   margin-bottom: 12px;
-}
-
-/* narrower desktop windows: the header wraps onto a second row instead of being cut off */
-@media (max-width: 1500px) {
-  .top {
-    flex-wrap: wrap;
-    row-gap: 6px;
-  }
-  .brand {
-    flex: 1 1 260px;
-  }
 }
 
 /* problem solving */

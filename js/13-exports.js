@@ -168,8 +168,7 @@ async function exportPNG() {
     toast("Image export failed. Try Print instead.");
   }
 }
-$("#bPng").onclick = exportPNG;
-$("#bPrint").onclick = () => {
+function printSheet() {
   document.body.classList.remove("printing-doc");
   $("#printDoc").className = "";
   $("#pageStyle")?.remove();
@@ -185,4 +184,4 @@ $("#bPrint").onclick = () => {
       }
     }, 400);
   }, 60);
-};
+}

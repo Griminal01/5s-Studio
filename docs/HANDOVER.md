@@ -15,6 +15,8 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 | Red tags, Actions | Registers with pins, CSV and print |
 | Tracking | Daily checks over time: where items actually sit (drift map), suggested new homes, trend, movement-log CSV, print |
 
+Navigation (reworked 9 Oct): one list in `js/12-views.js` drives the grouped header (Design / Improve / Follow up), a section menu on medium screens and a bottom tab bar on phones. File actions are in a File menu; Print and Export image moved to the layout's Sheet menu. The address bar follows the view, so reload and Back keep your place.
+
 The example model line (Settings, or the empty layout) fills every view.
 
 ## Review done (two passes, all fixed and pushed)

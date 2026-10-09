@@ -2,13 +2,12 @@
 /* ============ project name, duplicate, item list controls ============ */
 function updateProjectIdentity() {
   if (!P) return;
-  $("#projectIdentity").textContent =
-    (P.projectName || "5S design project") +
-    " · Backup download: " +
+  $("#projectIdentity").textContent = P.projectName || "5S design project";
+  $("#projectIdentity").title =
+    "Click to rename the project. Last backup download: " +
     (P.lastBackupDownload
       ? new Date(P.lastBackupDownload).toLocaleString("en-GB")
       : "not yet");
-  $("#projectIdentity").title = "Click to rename the project";
 }
 $("#projectIdentity").onclick = async () => {
   const r = await modal(

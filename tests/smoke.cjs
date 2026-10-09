@@ -68,6 +68,61 @@ const VIEWS = [
     if (!visible) failures.push(`view "${v}" did not render`);
   }
 
+  // navigation: grouped sections, address bar follows the view, Back works, phone tab bar
+  await page.click('[data-view="layout"]');
+  await page.click('#gnav [data-view="problems"]');
+  const nav1 = await page.evaluate(() => ({
+    groups: document.querySelectorAll("#gnav .ngrp").length,
+    hash: location.hash,
+    cur: document.querySelector('#gnav [aria-current="page"]')?.dataset.view,
+    title: document.title,
+  }));
+  expect(
+    nav1.groups === 3 &&
+      nav1.hash === "#/problems" &&
+      nav1.cur === "problems" &&
+      /Problems/.test(nav1.title),
+    "navigation did not group or follow the view: " + JSON.stringify(nav1),
+  );
+  await page.goBack();
+  await page.waitForTimeout(250);
+  const nav2 = await page.evaluate(() => ({
+    view: ui.view,
+    hash: location.hash,
+  }));
+  expect(
+    nav2.view === "layout" && nav2.hash === "#/layout",
+    "browser Back did not return to the layout: " + JSON.stringify(nav2),
+  );
+  await page.evaluate(() => {
+    location.hash = "#/tags";
+  });
+  await page.waitForTimeout(250);
+  expect(
+    (await page.evaluate(() => ui.view)) === "tags",
+    "opening a #/tags link did not show the red tags",
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(250);
+  const nav3 = await page.evaluate(() => ({
+    bar: getComputedStyle(document.getElementById("tabbar")).display,
+    gnav: getComputedStyle(document.getElementById("gnav")).display,
+    tabs: document.querySelectorAll("#tabbar button").length,
+  }));
+  expect(
+    nav3.bar === "flex" && nav3.gnav === "none" && nav3.tabs === 5,
+    "phone navigation is not a tab bar: " + JSON.stringify(nav3),
+  );
+  await page.click("#tabMore");
+  await page.click('#navSheet [data-view="boards"]');
+  await page.waitForTimeout(250);
+  expect(
+    (await page.evaluate(() => ui.view)) === "boards",
+    "More did not open a section",
+  );
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.click('[data-view="layout"]');
+
   // daily check and red tag through the real forms
   await page.click('[data-add="daily"]');
   await page.fill('#dlgForm [name="checker"]', "Tester");

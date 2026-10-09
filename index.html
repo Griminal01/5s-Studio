@@ -20,66 +20,60 @@
         <div>
           <h1>5S Studio</h1>
           <button id="projectIdentity" aria-label="Rename project"></button>
-          <p>
-            Design the layout, tape, boards and documents; track where things
-            sit
-          </p>
         </div>
       </div>
-      <nav class="views" aria-label="View">
-        <button data-view="layout" class="on">Layout</button
-        ><button data-view="smed">SMED</button
-        ><button data-view="boards">Boards</button
-        ><button data-view="documents">
-          Documents<span class="bdg" id="bgDocs" hidden></span></button
-        ><button data-view="tags">
-          Red tags<span class="bdg" id="bgTags" hidden></span></button
-        ><button data-view="actions">
-          Actions<span class="bdg" id="bgActs" hidden></span></button
-        ><button data-view="problems">
-          Problems<span class="bdg" id="bgProbs" hidden></span></button
-        ><button data-view="tracking">Tracking</button>
-      </nav>
-      <button id="bQuickDup" title="Duplicate selected objects (Ctrl+D)">
-        Duplicate
-      </button>
-      <button id="bUndo" title="Undo (Ctrl+Z)">Undo</button>
-      <button id="bRedo" title="Redo (Ctrl+Y)">Redo</button>
-      <span class="sep"></span>
-      <button id="bSave" title="Download a backup file of everything">
-        Save project
-      </button>
-      <button
-        id="bOpen"
-        title="Open a project file (this studio or the older version)"
-      >
-        Open
-      </button>
-      <button id="bPng" title="Download the current sheet as an image">
-        Export image
-      </button>
-      <button id="bPrint" title="Print the current sheet">Print</button>
-      <button id="bSettings">Settings</button>
-      <button
-        id="userBtn"
-        class="usr"
-        title="Account, projects and team"
-      ></button>
-      <button
-        id="teamChip"
-        class="bkchip"
-        hidden
-        title="The team folder needs your permission again"
-      >
-        Team folder: reconnect
-      </button>
-      <span id="saved" aria-live="polite"></span>
-      <button
-        id="bkChip"
-        class="bkchip"
-        hidden
-        title="Download a backup file of everything"
-      ></button>
+      <nav class="gnav" id="gnav" aria-label="Sections"></nav>
+      <div class="navdrop" id="navDrop">
+        <button id="navBtn" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="navsheet" id="navSheet" hidden></div>
+      </div>
+      <div class="topr">
+        <span id="saved" aria-live="polite"></span>
+        <button
+          id="teamChip"
+          class="bkchip"
+          hidden
+          title="The team folder needs your permission again"
+        >
+          Team folder: reconnect
+        </button>
+        <button
+          id="bkChip"
+          class="bkchip"
+          hidden
+          title="Download a backup file of everything"
+        ></button>
+        <button id="bUndo" class="ico" title="Undo (Ctrl+Z)" aria-label="Undo">
+          <span aria-hidden="true">↶</span><span class="btxt">Undo</span>
+        </button>
+        <button id="bRedo" class="ico" title="Redo (Ctrl+Y)" aria-label="Redo">
+          <span aria-hidden="true">↷</span><span class="btxt">Redo</span>
+        </button>
+        <details class="menu filemenu" id="fileMenu">
+          <summary>File</summary>
+          <div class="pop">
+            <button
+              id="bSave"
+              title="Download a backup file of everything (Ctrl+S)"
+            >
+              Save project
+            </button>
+            <button
+              id="bOpen"
+              title="Open a project file (this studio or the older version)"
+            >
+              Open a project file…
+            </button>
+            <hr />
+            <button id="bSettings">Settings</button>
+          </div>
+        </details>
+        <button
+          id="userBtn"
+          class="usr"
+          title="Account, projects and team"
+        ></button>
+      </div>
     </header>
     <div class="stripe"></div>
     <section class="days" id="days" aria-label="Sheets"></section>
@@ -198,6 +192,9 @@
             >Compare with
             <select id="cmpSel"></select
           ></label>
+          <button id="bQuickDup" title="Duplicate selected objects (Ctrl+D)">
+            Duplicate
+          </button>
           <button
             id="bEditDraw"
             title="Add walls, columns and other fixed things to the drawing"
@@ -234,13 +231,13 @@
       </section>
 
       <aside class="side" aria-label="Details">
-        <div class="tabs" id="tabs">
+        <div class="tabs" id="tabs" role="tablist">
           <button data-tab="item">Item</button>
-          <button data-tab="check">Compare</button>
-          <button data-tab="move">Movement</button>
-          <button data-tab="mark">Marking</button>
           <button data-tab="areas">Areas</button>
-          <button data-tab="s5">5S &amp; notes</button>
+          <button data-tab="check">Compare</button>
+          <button data-tab="move">Routes</button>
+          <button data-tab="mark">Tape</button>
+          <button data-tab="s5">5S</button>
         </div>
         <div class="pane" id="pane"></div>
       </aside>
@@ -253,6 +250,7 @@
     <main class="trends" id="problemView" hidden></main>
     <main class="trends" id="trackView" hidden></main>
 
+    <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
     <dialog id="dlg">
       <form method="dialog" id="dlgForm">
         <h3 id="dlgTitle"></h3>

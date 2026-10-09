@@ -82,7 +82,7 @@ function renderSheetBar() {
       `<label><input type="checkbox" data-layer="${esc(k)}"${ui.layers[k] ? " checked" : ""}>${n}</label>`,
   ).join("");
   $("#sheetPop").innerHTML =
-    `<button data-sa="prop">New proposal from here</button>${s.kind === "proposal" ? '<button data-sa="std">Make this the standard</button>' : ""}${s.kind !== "standard" ? '<button data-sa="daily">Start today\'s check</button>' : ""}<hr><button data-sa="csv">Export deviations (CSV)</button><button data-sa="img">${D[s.drawing] ? "Replace the drawing" : "Add a drawing image"}</button><hr><button data-sa="del" class="danger"${s.kind === "standard" ? " disabled" : ""}>Delete this sheet</button>`;
+    `<button data-sa="prop">New proposal from here</button>${s.kind === "proposal" ? '<button data-sa="std">Make this the standard</button>' : ""}${s.kind !== "standard" ? '<button data-sa="daily">Start today\'s check</button>' : ""}<hr><button data-sa="print">Print this sheet</button><button data-sa="png">Export as an image</button><button data-sa="csv">Export deviations (CSV)</button><button data-sa="img">${D[s.drawing] ? "Replace the drawing" : "Add a drawing image"}</button><hr><button data-sa="del" class="danger"${s.kind === "standard" ? " disabled" : ""}>Delete this sheet</button>`;
 }
 $("#sName").onchange = () => {
   checkpoint();
@@ -116,6 +116,8 @@ $("#sheetPop").addEventListener("click", (e) => {
     std: makeStandard,
     daily: newDaily,
     csv: csvDeviations,
+    print: printSheet,
+    png: exportPNG,
     img: () => $("#fImage").click(),
     del: deleteSheet,
   })[a]();

@@ -13,20 +13,7 @@ function renderAll() {
   updateEditBan();
   $("#bUndo").disabled = !undoS.length;
   $("#bRedo").disabled = !redoS.length;
-  const openT = P.tags.filter((t) => t.status !== "Closed"),
-    openA = P.actions.filter((a) => !["Done", "Cancelled"].includes(a.status)),
-    liveD = P.documents.filter((d) => d.status !== "Withdrawn");
-  updateProbBadge();
-  for (const [id, n, late] of [
-    ["#bgTags", openT.length, openT.some(tagOverdue)],
-    ["#bgActs", openA.length, openA.some(actOverdue)],
-    ["#bgDocs", liveD.length, liveD.some(docOverdue)],
-  ]) {
-    const el = $(id);
-    el.hidden = !n;
-    el.textContent = n;
-    el.classList.toggle("late", late);
-  }
+  updateNavBadges();
   if (ui.view === "tags" || ui.view === "actions") renderRegister();
   else if (ui.view === "tracking") renderTracking();
   else if (ui.view === "boards") renderBoards();
@@ -192,5 +179,6 @@ async function init() {
   renderTools();
   setTool("select");
   renderAll();
+  if (!applyHash()) syncHash(false);
   if (held) await resolveHeld(bundle, readFailed || storageDown);
 }

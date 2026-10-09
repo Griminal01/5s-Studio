@@ -288,14 +288,11 @@ function addCause(p, cat, text) {
 }
 
 /* ---------- the view ---------- */
-function updateProbBadge() {
-  const open = P.problems.filter(probOpen),
-    el = $("#bgProbs");
-  if (!el) return;
-  el.hidden = !open.length;
-  el.textContent = open.length;
-  el.classList.toggle("late", open.some(probLate));
+function renderProblems(push = false) {
+  drawProblems();
+  if (ui.view === "problems") syncHash(push);
 }
+const updateProbBadge = updateNavBadges;
 const probPill = (st) =>
   pill(
     st,
@@ -358,7 +355,7 @@ function probRows() {
     })
     .join("")}</table>`;
 }
-function renderProblems() {
+function drawProblems() {
   const el = $("#problemView"),
     p = ui.prob.tab === "list" ? curProb() : null;
   const open = P.problems.filter(probOpen),
@@ -692,16 +689,16 @@ psView.addEventListener("click", (e) => {
   if ((b = t.closest("[data-ps-open]"))) {
     ui.prob.sel = b.dataset.psOpen;
     ui.prob.sub = "define";
-    return renderProblems();
+    return renderProblems(true);
   }
   if (t.closest("#psBack")) {
     ui.prob.sel = "";
-    return renderProblems();
+    return renderProblems(true);
   }
   if ((b = t.closest("[data-ps-tab]"))) {
     ui.prob.tab = b.dataset.psTab;
     ui.prob.sel = "";
-    return renderProblems();
+    return renderProblems(true);
   }
   if ((b = t.closest("[data-ps-sub]"))) {
     ui.prob.sub = b.dataset.psSub;
