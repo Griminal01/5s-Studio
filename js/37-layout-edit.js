@@ -22,7 +22,8 @@ const unionBox = (bs) => ({
   y1: Math.max(...bs.map((b) => b.y1)),
 });
 const visibleItem = (o) =>
-  o.kind !== "item" || !ui.hiddenCategories.has(itemCategoryId(o));
+  (o.kind !== "item" || !ui.hiddenCategories.has(itemCategoryId(o))) &&
+  scopeObj(o);
 
 /* ---------- the floating toolbar under the selection ---------- */
 const ALIGN = [

@@ -35,7 +35,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 05-storage | IndexedDB (`studio-5s`), per-account/per-project keys (`K()`), `validate()` migration, save |
 | 06-ui-helpers | `modal()` (fresh body each time; Enter never submits), `printWithPage()` for every print, `printView()`, `csv()` |
 | 07-canvas .. 11-side-panel | canvas, tools, sheets, render, side panel |
-| 12-views | navigation: the `NAV` list (grouped sections) renders the header, the medium-width menu and the phone tab bar; `setView()`; badges; address-bar routing (`#/problems/<id>/why`, Back works). Add a new section by adding it to `NAV` |
+| 12-views | navigation: three sections (5S, Document mapping, Improve) from the `NAV` list; section buttons in the header (`#gnav`) and phone tab bar, pages in the bar under it (`#subnav`), the last page per section remembered; `setView()`; badges; address-bar routing (`#/layout/<areaId>`, `#/problems/<id>/why`, Back works). Add a page by adding it to a section in `NAV` |
 | 13-exports .. 16-app | PNG/CSV exports, save/open, settings and keys, `renderAll` and `init` |
 | 17-pins, 18-shared-helpers | pins on the drawing (actions, documents), shared form helpers |
 | 19-forms, 20-registers | red tag form and register, action form and register |
@@ -47,7 +47,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 28-boards, 29-labels | boards (shadow boards, kanban racks) and slots; label printer output, board layout and 1:1 outline printing |
 | 30-smed, 31-smed-tools | SMED module (`P.smed`): changeover steps, schedule maths, Gantt charts, history, the four steps (Record, Separate, Improve, Standard work: `ui.smed.stage`, `setStep()`); stopwatch capture, work sheet printing |
 | 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
-| 34-areas | areas (`P.areas`): polygons on a drawing, item designation (`o.area`), layout check `outOfArea`, area pane and tab, A3 area sheets |
+| 34-areas | areas (`P.areas`): polygons on a drawing, item designation (`o.area`), layout check `outOfArea`, area pane and tab, A3 area sheets; **scope** (`ui.scope`, `setScope()`, `scopeObj/scopeMark/scopeBox`): the 5S pages show the whole factory or one area (layout draws only that area, registers filter to it). Document pages ignore scope: they are always the whole factory |
 | 35-problems, 36-problem-tools | problem solving module (`P.problems`, actions link by `a.prob`): list and detail tabs, 5-Why, fishbone SVG, countermeasures, review, Pareto, A3 print, CSV |
 | 38-problem-board | the problem solving board (one screen, like the whiteboard): statement, fishbone with likely causes, causes numbered with their actions (`a.cause`), hypothesis and confirmation, why chain and root cause, inline action list, board print on A3 |
 | 39-document-map | the Documents map tab: documents pinned, moved and opened over a faded copy of the standard layout, with a line to the item each is kept at. Document pins are off on the Layout by default |
@@ -58,7 +58,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 Removed features (formal audits, audit lines, TV) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
 checks, the drift map and areas were removed and restored; `validate()` brings parked tags back and
-turns old audit areas into plain areas. Project version is 7 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`).
+turns old audit areas into plain areas. Project version is 8 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a

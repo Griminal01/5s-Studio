@@ -394,7 +394,7 @@ function selectCategoryItems(id) {
   draw();
 }
 function categoryGroupsHTML(sh) {
-  const all = sh.objects.filter((o) => o.kind === "item");
+  const all = sh.objects.filter((o) => o.kind === "item" && scopeObj(o));
   const q = ui.itemQuery.trim().toLocaleLowerCase();
   const matches = (o) =>
     (!ui.itemFilter || itemCategoryId(o) === ui.itemFilter) &&

@@ -15,7 +15,16 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 | Red tags, Actions | Registers with pins, CSV and print |
 | Tracking | Daily checks over time: where items actually sit (drift map), suggested new homes, trend, movement-log CSV, print |
 
-Navigation (reworked 9 Oct): one list in `js/12-views.js` drives the grouped header (Design / Improve / Follow up), a section menu on medium screens and a bottom tab bar on phones. File actions are in a File menu; Print and Export image moved to the layout's Sheet menu. The address bar follows the view, so reload and Back keep your place.
+Navigation (reworked again, Sam's idea): three sections. **5S** = Layout, Boards, Tracking, Red tags, 5S actions;
+**Document mapping** = Document list, Factory map, Document actions; **Improve** = Problem solving, SMED (kept,
+last; Sam thinks it is not great, so it is a candidate to cut). One list (`NAV` in `js/12-views.js`) drives the
+header buttons, the phone tab bar and the page bar under it. 5S pages have an **Area picker**: whole factory, or
+one area, so a layout is not cluttered; the layout draws only that area, the registers filter to it, the address
+bar holds it (`#/layout/<areaId>`). Document pages are always the whole factory. Actions have a `stream`
+("5s", "doc", "improve"; problem-linked ones are "improve") and optionally a linked document `a.doc`; the 5S
+actions page and Document actions page filter on it. Project version 8. Not done: Tracking and Boards are not
+area-scoped, there is no whole-factory overview dashboard yet, nothing else added under Improve (ideas: an
+improvement log / kaizen list, one-point lessons, a factory overview).
 
 Layout editing (cleaned up 10 Oct, `js/37-layout-edit.js`): toolbar under the selection, smart guides,
 Shift-drag box select, align / space evenly, copy and paste across sheets, typed positions from the datum,

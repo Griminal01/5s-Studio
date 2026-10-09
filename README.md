@@ -9,6 +9,13 @@ Lean tools for a production line (it started as 5S Studio), used to work out bef
 Everything runs in the browser. There is no server and no build step. Data is stored on the device
 (IndexedDB) and can be saved to / opened from a project file.
 
+## How it is laid out
+
+Three sections along the top: **5S** (layout, boards, tracking, red tags, 5S actions), **Document mapping**
+(document list, factory map, document actions) and **Improve** (problem solving, SMED). In the 5S section
+an Area picker switches between the whole factory and one area, so a layout is not cluttered; document
+pages always show the whole factory.
+
 ## What is in it
 
 - **Layout**: scaled drawing with walls and fixed equipment, movable items, floor tape (with a tape

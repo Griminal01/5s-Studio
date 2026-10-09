@@ -1,100 +1,137 @@
 "use strict";
-/* ============ navigation: sections, views, badges, deep links ============ */
-// One list drives every place the sections are shown: the header (wide screens), a menu
-// (medium screens) and a tab bar at the bottom (phones). The address bar follows the view
-// (#/problems/<id>/why), so reloading keeps your place and the browser Back button works.
+/* ============ navigation: three sections, their pages, badges, deep links ============ */
+// Three sections (5S, Document mapping, Improve), each with its own pages in a bar under the header.
+// 5S pages can be scoped to one area (see setScope in 34-areas.js); the document map and the
+// overview always show the whole factory. The address bar follows the page (#/layout/<area>,
+// #/problems/<id>/board) so reload keeps your place and the browser Back button works.
 const NAV = [
   {
-    g: "Design",
+    id: "5s",
+    g: "5S",
+    short: "5S",
     items: [
       ["layout", "Layout"],
       ["boards", "Boards"],
-      ["documents", "Documents"],
-    ],
-  },
-  {
-    g: "Improve",
-    items: [
-      ["smed", "SMED"],
-      ["problems", "Problems"],
-    ],
-  },
-  {
-    g: "Follow up",
-    items: [
-      ["tags", "Red tags"],
-      ["actions", "Actions"],
       ["tracking", "Tracking"],
+      ["tags", "Red tags"],
+      ["actions", "5S actions"],
+    ],
+  },
+  {
+    id: "docs",
+    g: "Document mapping",
+    short: "Documents",
+    items: [
+      ["documents", "Document list"],
+      ["docmap", "Factory map"],
+      ["docactions", "Document actions"],
+    ],
+  },
+  {
+    id: "improve",
+    g: "Improve",
+    short: "Improve",
+    items: [
+      ["problems", "Problem solving"],
+      ["smed", "SMED"],
     ],
   },
 ];
 const NAV_ITEMS = NAV.flatMap((g) => g.items);
-const NAV_TABS = ["layout", "smed", "problems", "actions"]; // phone tab bar; the rest sit under More
+const SCOPED_VIEWS = ["layout", "boards", "tracking", "tags", "actions"];
+const sectionOf = (v) =>
+  NAV.find((g) => g.items.some((i) => i[0] === v)) || NAV[0];
 const navLabel = (v) => NAV_ITEMS.find((i) => i[0] === v)?.[1] || "";
-const navBtn = (v, l, cls = "") =>
-  `<button data-view="${v}" class="${cls}"${ui.view === v ? ' aria-current="page"' : ""}><span>${l}</span><span class="bdg" data-badge="${v}" hidden></span></button>`;
+const lastPage = { "5s": "layout", docs: "docmap", improve: "problems" };
+let subnavSig = "";
+
 function renderNav() {
-  $("#gnav").innerHTML = NAV.map(
-    (g) =>
-      `<div class="ngrp"><span class="ncap">${g.g}</span><div class="nbtns">${g.items.map(([v, l]) => navBtn(v, l)).join("")}</div></div>`,
-  ).join("");
-  $("#navSheet").innerHTML = NAV.map(
-    (g) =>
-      `<div class="nsg"><h3>${g.g}</h3>${g.items.map(([v, l]) => navBtn(v, l, "nsi")).join("")}</div>`,
-  ).join("");
-  $("#tabbar").innerHTML =
-    NAV_TABS.map((v) => navBtn(v, navLabel(v), "tab")).join("") +
-    `<button id="tabMore" class="tab" aria-haspopup="true"><span>More</span><span class="bdg" data-badge="more" hidden></span></button>`;
-  markNav();
-  updateNavBadges();
-}
-function markNav() {
-  $$("[data-view]").forEach((b) => {
-    const on = b.dataset.view === ui.view;
-    b.classList.toggle("on", on);
-    if (on) b.setAttribute("aria-current", "page");
-    else b.removeAttribute("aria-current");
-  });
-  $("#navBtn").innerHTML =
-    `<span>${esc(navLabel(ui.view))}</span><span aria-hidden="true"> ▾</span>`;
-  $("#tabMore")?.classList.toggle("on", !NAV_TABS.includes(ui.view));
+  const cur = sectionOf(ui.view);
+  const sec = (cls) =>
+    NAV.map(
+      (g) =>
+        `<button data-section="${g.id}" class="${cls}${g.id === cur.id ? " on" : ""}"${g.id === cur.id ? ' aria-current="true"' : ""}><span>${cls === "tab" ? g.short : g.g}</span><span class="bdg late" data-sbadge="${g.id}" hidden></span></button>`,
+    ).join("");
+  $("#gnav").innerHTML = sec("sec");
+  $("#tabbar").innerHTML = sec("tab");
+  renderSubnav(true);
   document.title = "Lean Studio · " + navLabel(ui.view);
 }
-/* counts on the section buttons: open and overdue things */
+/* the pages of the current section, and the area picker for 5S pages */
+function renderSubnav(force) {
+  const cur = sectionOf(ui.view),
+    areas = P ? areasOn(S()) : [],
+    sig = [
+      cur.id,
+      ui.view,
+      ui.scope,
+      areas.map((a) => a.id + a.name).join(),
+    ].join("|");
+  if (!force && sig === subnavSig) return;
+  subnavSig = sig;
+  $("#subnav").innerHTML =
+    `<div class="subpages" role="tablist">${cur.items
+      .map(
+        ([v, l]) =>
+          `<button data-view="${v}" role="tab" class="${v === ui.view ? "on" : ""}"${v === ui.view ? ' aria-current="page"' : ""}><span>${l}</span><span class="bdg" data-badge="${v}" hidden></span></button>`,
+      )
+      .join("")}</div>` +
+    (cur.id === "5s"
+      ? `<label class="scopepick" title="Work on one area at a time so the layout is not cluttered"><span>Area</span><select id="scopeSel" aria-label="Area to work on"><option value="">Whole factory</option>${areas.map((a) => `<option value="${esc(a.id)}"${a.id === ui.scope ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>`
+      : `<span class="subnote">${cur.id === "docs" ? "Always the whole factory" : ""}</span>`);
+  updateNavBadges();
+}
+/* counts on the page buttons (open things, red when something is late) and on the sections (late things) */
 function updateNavBadges() {
   if (!P) return;
-  const openT = P.tags.filter((t) => t.status !== "Closed"),
-    openA = P.actions.filter((a) => !["Done", "Cancelled"].includes(a.status)),
+  const open = (a) => !["Done", "Cancelled"].includes(a.status),
+    acts = (st) => P.actions.filter((a) => a.stream === st && open(a)),
+    openT = P.tags.filter((t) => t.status !== "Closed"),
     liveD = P.documents.filter((d) => d.status !== "Withdrawn"),
     openP = P.problems.filter(probOpen),
-    map = {
-      tags: [openT.length, openT.some(tagOverdue)],
-      actions: [openA.length, openA.some(actOverdue)],
-      documents: [liveD.length, liveD.some(docOverdue)],
-      problems: [openP.length, openP.some(probLate)],
+    pages = {
+      tags: [openT.length, openT.filter(tagOverdue).length],
+      actions: [acts("5s").length, acts("5s").filter(actOverdue).length],
+      documents: [liveD.length, liveD.filter(docOverdue).length],
+      docactions: [acts("doc").length, acts("doc").filter(actOverdue).length],
+      problems: [openP.length, openP.filter(probLate).length],
     };
-  // More: overdue things in the sections that are not on the tab bar
-  map.more = [0, NAV_ITEMS.some(([v]) => !NAV_TABS.includes(v) && map[v]?.[1])];
+  const late = (ids) => ids.reduce((n, v) => n + (pages[v]?.[1] || 0), 0),
+    sections = {
+      "5s": late(["tags", "actions"]),
+      docs: late(["documents", "docactions"]),
+      improve: late(["problems"]),
+    };
   $$("[data-badge]").forEach((el) => {
-    const more = el.dataset.badge === "more",
-      [n, late] = map[el.dataset.badge] || [0, false];
-    el.hidden = more ? !late : !n;
-    el.textContent = more ? "!" : n;
-    el.classList.toggle("late", late);
+    const [n, l] = pages[el.dataset.badge] || [0, 0];
+    el.hidden = !n;
+    el.textContent = n;
+    el.classList.toggle("late", l > 0);
   });
+  $$("[data-sbadge]").forEach((el) => {
+    const n = sections[el.dataset.sbadge] || 0;
+    el.hidden = !n;
+    el.textContent = n;
+    el.title = n + " overdue";
+  });
+  renderSubnav(false);
 }
 
 function setView(v, fromHash = false) {
   if (!NAV_ITEMS.some((i) => i[0] === v)) v = "layout";
   if (ui.editDrawing && v !== "layout") setEditDrawing(false);
+  const was = ui.view;
   ui.view = v;
+  lastPage[sectionOf(v).id] = v;
+  // the action pages differ only in which section's actions they show
+  if (v === "actions" || v === "docactions")
+    ui.reg.acts.stream = v === "docactions" ? "doc" : "5s";
   if (!fromHash) syncHash(true);
-  closeNavSheet();
-  markNav();
+  renderNav();
   $("#layoutView").hidden = v !== "layout";
-  const reg = v === "tags" || v === "actions";
+  const reg = v === "tags" || v === "actions" || v === "docactions";
   $("#regView").hidden = !reg;
-  $("#docView").hidden = v !== "documents";
+  $("#docView").hidden = v !== "documents" && v !== "docmap";
   $("#boardView").hidden = v !== "boards";
   $("#smedView").hidden = v !== "smed";
   $("#trackView").hidden = v !== "tracking";
@@ -105,44 +142,40 @@ function setView(v, fromHash = false) {
   else if (v === "tracking") renderTracking();
   else if (v === "boards") renderBoards();
   else if (v === "smed") renderSmed();
-  else if (v === "documents") renderDocuments();
+  else if (v === "documents" || v === "docmap") renderDocuments();
   else if (v === "problems") renderProblems();
   else {
-    ui.vb = ui.vb || null;
+    // coming back to the layout: re-fit when the area being worked on changed meanwhile
+    if (was !== "layout") ui.vb = null;
     draw();
   }
   window.scrollTo(0, 0);
 }
 
-/* ---- menus ---- */
-function closeNavSheet() {
-  $("#navSheet").hidden = true;
-  $("#navBtn").setAttribute("aria-expanded", "false");
-}
-function toggleNavSheet() {
-  const open = $("#navSheet").hidden;
-  $("#navSheet").hidden = !open;
-  $("#navBtn").setAttribute("aria-expanded", String(open));
-}
+/* ---- navigation events ---- */
 document.addEventListener("click", (e) => {
-  const b = e.target.closest("[data-view]");
-  if (b && b.closest("#gnav,#navSheet,#tabbar")) {
-    setView(b.dataset.view);
-    return;
+  const sec = e.target.closest("[data-section]");
+  if (sec && sec.closest("#gnav,#tabbar")) {
+    const g = NAV.find((x) => x.id === sec.dataset.section);
+    // open the page last used in that section
+    return void setView(
+      sectionOf(ui.view).id === g.id ? g.items[0][0] : lastPage[g.id],
+    );
   }
-  if (e.target.closest("#navBtn,#tabMore")) toggleNavSheet();
+  const b = e.target.closest("[data-view]");
+  if (b && b.closest("#subnav")) setView(b.dataset.view);
 });
-document.addEventListener("pointerdown", (e) => {
-  if (!$("#navSheet").hidden && !e.target.closest("#navDrop,#tabbar"))
-    closeNavSheet();
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !$("#navSheet").hidden) closeNavSheet();
+document.addEventListener("change", (e) => {
+  if (e.target.id === "scopeSel") {
+    if (ui.view !== "layout" && !SCOPED_VIEWS.includes(ui.view)) return;
+    setScope(e.target.value);
+  }
 });
 
-/* ---- the address bar follows the view ---- */
+/* ---- the address bar follows the page ---- */
 function hashFor() {
   let h = "#/" + ui.view;
+  if (SCOPED_VIEWS.includes(ui.view) && ui.scope) h += "/" + ui.scope;
   if (ui.view === "problems") {
     if (ui.prob.tab === "pareto") h += "/pareto";
     else if (ui.prob.sel) h += "/" + ui.prob.sel + "/" + ui.prob.sub;
@@ -160,6 +193,12 @@ function syncHash(push) {
 function applyHash() {
   const m = location.hash.match(/^#\/(\w+)(?:\/([^/]+))?(?:\/([^/]+))?/);
   if (!m || !NAV_ITEMS.some((i) => i[0] === m[1])) return false;
+  if (SCOPED_VIEWS.includes(m[1])) {
+    const a = m[2] && P.areas.find((x) => x.id === m[2]);
+    ui.scope = a ? a.id : "";
+    ui.reg.tags.area = ui.reg.acts.area = ui.scope;
+    ui.vb = null;
+  }
   if (m[1] === "problems") {
     ui.prob.sel = "";
     ui.prob.tab = "list";

@@ -143,8 +143,7 @@ function renderDocMap() {
 function showOnDocMap(d) {
   if (!d) return;
   dm.focus = d.id;
-  ui.reg.docs.tab = "map";
-  if (ui.view !== "documents") setView("documents");
+  if (ui.view !== "docmap") setView("docmap");
   else renderDocuments();
   requestAnimationFrame(() => {
     if (d.x == null || !dm.vb) return;
@@ -159,8 +158,7 @@ function showOnDocMap(d) {
 function startDocPin(id) {
   dm.place = id;
   dm.focus = id;
-  ui.reg.docs.tab = "map";
-  if (ui.view !== "documents") setView("documents");
+  if (ui.view !== "docmap") setView("docmap");
   else renderDocuments();
 }
 function placeDoc(p) {
@@ -271,7 +269,7 @@ document.addEventListener("keydown", (e) => {
   if (
     e.key === "Escape" &&
     dm.place &&
-    ui.view === "documents" &&
+    ui.view === "docmap" &&
     !$("#dlg").open
   ) {
     dm.place = "";
@@ -279,5 +277,5 @@ document.addEventListener("keydown", (e) => {
   }
 });
 window.addEventListener("resize", () => {
-  if (ui.view === "documents" && ui.reg.docs.tab === "map") drawDocMap();
+  if (ui.view === "docmap") drawDocMap();
 });

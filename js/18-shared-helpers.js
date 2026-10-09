@@ -73,6 +73,8 @@ const blankAct = (i) => ({
   tag: i.tag || "",
   prob: i.prob || "",
   cause: i.cause || "",
+  stream: i.prob ? "improve" : i.stream || "5s",
+  doc: i.doc || "",
   drawing: i.drawing || "",
   x: i.x ?? null,
   y: i.y ?? null,

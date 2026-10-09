@@ -7,6 +7,8 @@ const VIEWS = [
   "smed",
   "boards",
   "documents",
+  "docmap",
+  "docactions",
   "tags",
   "actions",
   "tracking",
@@ -35,6 +37,25 @@ const VIEWS = [
   await page.goto("file://" + path.resolve(__dirname, "..", "index.html"));
   const failures = [];
   const expect = (cond, msg) => cond || failures.push(msg);
+  // go to a page the way a person does: the section button, then the page in the bar under the header
+  const SECTION = {
+    layout: "5s",
+    boards: "5s",
+    tracking: "5s",
+    tags: "5s",
+    actions: "5s",
+    documents: "docs",
+    docmap: "docs",
+    docactions: "docs",
+    problems: "improve",
+    smed: "improve",
+  };
+  const go = async (v) => {
+    const cur = await page.evaluate(() => sectionOf(ui.view).id);
+    if (cur !== SECTION[v])
+      await page.click(`#gnav [data-section="${SECTION[v]}"]`);
+    await page.click(`#subnav [data-view="${v}"]`);
+  };
 
   // first visit: create the first account through the real sign-in screen
   await page.waitForSelector("#authForm", { timeout: 10000 });
@@ -49,7 +70,7 @@ const VIEWS = [
     "the account name is not shown in the header",
   );
   for (const v of VIEWS) {
-    await page.click(`[data-view="${v}"]`);
+    await go(v);
     await page.waitForTimeout(300);
     const visible = await page.evaluate((view) => {
       const ids = {
@@ -57,6 +78,8 @@ const VIEWS = [
         smed: "smedView",
         boards: "boardView",
         documents: "docView",
+        docmap: "docView",
+        docactions: "regView",
         tags: "regView",
         actions: "regView",
         tracking: "trackView",
@@ -68,21 +91,25 @@ const VIEWS = [
     if (!visible) failures.push(`view "${v}" did not render`);
   }
 
-  // navigation: grouped sections, address bar follows the view, Back works, phone tab bar
-  await page.click('[data-view="layout"]');
-  await page.click('#gnav [data-view="problems"]');
+  // navigation: three sections with their pages, address bar follows the page, Back works, phone tab bar
+  await go("layout");
+  await go("problems");
   const nav1 = await page.evaluate(() => ({
-    groups: document.querySelectorAll("#gnav .ngrp").length,
+    sections: document.querySelectorAll("#gnav [data-section]").length,
+    pages: [...document.querySelectorAll("#subnav [data-view]")]
+      .map((b) => b.dataset.view)
+      .join(),
     hash: location.hash,
-    cur: document.querySelector('#gnav [aria-current="page"]')?.dataset.view,
+    cur: document.querySelector('#gnav [aria-current="true"]')?.dataset.section,
     title: document.title,
   }));
   expect(
-    nav1.groups === 3 &&
+    nav1.sections === 3 &&
+      nav1.pages === "problems,smed" &&
       nav1.hash === "#/problems" &&
-      nav1.cur === "problems" &&
-      /Problems/.test(nav1.title),
-    "navigation did not group or follow the view: " + JSON.stringify(nav1),
+      nav1.cur === "improve" &&
+      /Problem/.test(nav1.title),
+    "navigation did not follow Sam's three sections: " + JSON.stringify(nav1),
   );
   await page.goBack();
   await page.waitForTimeout(250);
@@ -110,18 +137,17 @@ const VIEWS = [
     tabs: document.querySelectorAll("#tabbar button").length,
   }));
   expect(
-    nav3.bar === "flex" && nav3.gnav === "none" && nav3.tabs === 5,
-    "phone navigation is not a tab bar: " + JSON.stringify(nav3),
+    nav3.bar === "flex" && nav3.gnav === "none" && nav3.tabs === 3,
+    "phone navigation is not a three-section tab bar: " + JSON.stringify(nav3),
   );
-  await page.click("#tabMore");
-  await page.click('#navSheet [data-view="boards"]');
+  await page.click('#tabbar [data-section="docs"]');
   await page.waitForTimeout(250);
   expect(
-    (await page.evaluate(() => ui.view)) === "boards",
-    "More did not open a section",
+    (await page.evaluate(() => sectionOf(ui.view).id)) === "docs",
+    "the Documents tab did not open the document mapping section",
   );
   await page.setViewportSize({ width: 1600, height: 900 });
-  await page.click('[data-view="layout"]');
+  await go("layout");
 
   // daily check and red tag through the real forms
   await page.click('[data-add="daily"]');
@@ -299,7 +325,7 @@ const VIEWS = [
     "deleting an area should release its items: " + JSON.stringify(ar3),
   );
   // layout editing: toolbar under the selection, box select, align, copy/paste, typed position
-  await page.click('[data-view="layout"]');
+  await go("layout");
   await page.evaluate(() => {
     openSheet(STD().id);
     ui.sel = [];
@@ -389,7 +415,7 @@ const VIEWS = [
   });
 
   // problem solving: examples, the board (fishbone, numbered actions, whys, hypothesis), A3, Pareto
-  await page.click('[data-view="problems"]');
+  await go("problems");
   await page.waitForTimeout(200);
   const pr0 = await page.evaluate(() => ({
     n: P.problems.length,
@@ -501,7 +527,7 @@ const VIEWS = [
   await page.waitForTimeout(300);
   const pr2 = await page.evaluate(() => P.problems.at(-1).status);
   expect(pr2 === "Closed", "closing a problem did not work");
-  await page.click('[data-view="smed"]');
+  await go("smed");
   await page.click("#smedView .smedhead details.menu summary");
   await page.click("#smProblem");
   await page.click("#dlgOk");
@@ -515,14 +541,14 @@ const VIEWS = [
     pr3.co && pr3.kind === "Changeover" && pr3.view === "problems",
     "raising a problem from a changeover did not work: " + JSON.stringify(pr3),
   );
-  await page.click('[data-view="layout"]');
+  await go("layout");
   // documents live on their own map, not on the layout
-  await page.click('#gnav [data-view="layout"]');
+  await go("layout");
   const dm0 = await page.evaluate(() => ({
     layoutPins: document.querySelectorAll('#svg [data-pk="doc"]').length,
     docTool: !!document.querySelector('[data-tool="doc"]'),
   }));
-  await page.click('#gnav [data-view="documents"]');
+  await go("docmap");
   await page.waitForTimeout(300);
   const dm1 = await page.evaluate(() => ({
     mapPins: document.querySelectorAll('#dmSvg [data-pk="doc"]').length,
@@ -555,8 +581,61 @@ const VIEWS = [
     ),
     "pinning a document on the document map did not work",
   );
+  // scope: the whole factory, then one area, through the real picker
+  await go("layout");
+  const sc0 = await page.evaluate(() => {
+    const sh = STD(),
+      a = P.areas.find((x) => areaItems(x, sh).length);
+    return {
+      id: a && a.id,
+      all: document.querySelectorAll('#svg [data-t="obj"]').length,
+      scope: ui.scope,
+    };
+  });
+  expect(sc0.id && sc0.scope === "", "scope test needs an area with items");
+  await page.selectOption("#scopeSel", sc0.id);
+  await page.waitForTimeout(300);
+  const sc1 = await page.evaluate(() => ({
+    scope: ui.scope,
+    n: document.querySelectorAll('#svg [data-t="obj"]').length,
+    bar: !document.getElementById("scopeBar").hidden,
+    hash: location.hash,
+    tagArea: ui.reg.tags.area,
+  }));
+  expect(
+    sc1.scope === sc0.id &&
+      sc1.n > 0 &&
+      sc1.n < sc0.all &&
+      sc1.bar &&
+      sc1.hash.includes(sc0.id) &&
+      sc1.tagArea === sc0.id,
+    "choosing an area did not scope the layout: " +
+      JSON.stringify({ sc0, sc1 }),
+  );
+  // document pages are always the whole factory, whatever the 5S scope
+  await go("docactions");
+  const sc2 = await page.evaluate(() => ({
+    rows: document.querySelectorAll("#regTbl tr[data-actid]").length,
+    area: !!document.querySelector('#regView [data-f="area"]'),
+  }));
+  expect(
+    sc2.rows >= 3 && !sc2.area,
+    "document actions are hidden by the 5S area scope: " + JSON.stringify(sc2),
+  );
+  await go("layout");
+  await page.click("#scopeAll");
+  await page.waitForTimeout(300);
+  const sc3 = await page.evaluate(() => ({
+    scope: ui.scope,
+    n: document.querySelectorAll('#svg [data-t="obj"]').length,
+  }));
+  expect(
+    sc3.scope === "" && sc3.n === sc0.all,
+    "Show the whole factory did not bring everything back: " +
+      JSON.stringify({ sc0, sc3 }),
+  );
   // boards: edit a board through the real form, then build and "print" labels
-  await page.click('[data-view="boards"]');
+  await go("boards");
   await page.click('[data-bid] [data-bd="edit"]');
   const before = await page.evaluate(() => P.boards[0].slots.length);
   await page.click("#bdAdd");
@@ -593,7 +672,7 @@ const VIEWS = [
     "label page size was not set",
   );
   // SMED: edit a step, check the maths, use the stopwatch, build the work sheet
-  await page.click('[data-view="smed"]');
+  await go("smed");
   const sm0 = await page.evaluate(() => {
     const c = P.smed.changeovers[0],
       r = smedResult(c);
@@ -697,7 +776,7 @@ const VIEWS = [
     "the SMED work sheet did not build",
   );
   for (const v of VIEWS) {
-    await page.click(`[data-view="${v}"]`);
+    await go(v);
     await page.waitForTimeout(150);
   }
 

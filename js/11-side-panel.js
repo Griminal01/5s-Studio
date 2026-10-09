@@ -51,20 +51,26 @@ const cmpWords = (sh) =>
 const kv = (rows) =>
   `<div class="kv">${rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join("")}</div>`;
 function sheetStats(sh) {
-  return kv([
-    ["Movable items", sh.objects.filter((o) => o.kind === "item").length],
-    [
-      "Zones and keep-clear",
-      sh.objects.filter((o) => o.kind !== "item").length,
-    ],
-    [
-      "Floor tape",
-      sh.marks.length
-        ? fmtLen(sh.marks.reduce((a, m) => a + markLen(m), 0))
-        : "None",
-    ],
-    ["Routes", sh.routes.length],
-  ]);
+  const objs = sh.objects.filter((o) => scopeObj(o)),
+    marks = sh.marks.filter((m) => scopeMark(m)),
+    routes = sh.routes.filter((r) => scopeMark(r)),
+    a = scopeArea();
+  return (
+    (a
+      ? `<p class="small muted" style="margin:0 0 6px">Showing ${esc(a.name)} only. Counts are for this area.</p>`
+      : "") +
+    kv([
+      ["Movable items", objs.filter((o) => o.kind === "item").length],
+      ["Zones and keep-clear", objs.filter((o) => o.kind !== "item").length],
+      [
+        "Floor tape",
+        marks.length
+          ? fmtLen(marks.reduce((t, m) => t + markLen(m), 0))
+          : "None",
+      ],
+      ["Routes", routes.length],
+    ])
+  );
 }
 function paneItem() {
   const sh = S(),

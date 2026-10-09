@@ -14,11 +14,12 @@ function renderAll() {
   $("#bUndo").disabled = !undoS.length;
   $("#bRedo").disabled = !redoS.length;
   updateNavBadges();
-  if (ui.view === "tags" || ui.view === "actions") renderRegister();
+  if (ui.view === "tags" || ui.view === "actions" || ui.view === "docactions")
+    renderRegister();
   else if (ui.view === "tracking") renderTracking();
   else if (ui.view === "boards") renderBoards();
   else if (ui.view === "smed") renderSmed();
-  else if (ui.view === "documents") renderDocuments();
+  else if (ui.view === "documents" || ui.view === "docmap") renderDocuments();
   else if (ui.view === "problems") renderProblems();
   else draw();
   updateBackupChip();

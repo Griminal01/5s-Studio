@@ -205,12 +205,10 @@ function documentsHTML() {
     ownersD = [
       ...new Set(P.documents.map((d) => d.owner).filter(Boolean)),
     ].sort();
-  let h = `<header><div><h2>Documents in this area</h2><p class="muted" style="margin:4px 0 0">What information lives where: SOPs, one-point lessons, checklists and boards, with an owner and a review date.</p></div>
+  let h = `<header><div><h2>${ui.view === "docmap" ? "Document map: the whole factory" : "Document list"}</h2><p class="muted" style="margin:4px 0 0">What information lives where: SOPs, one-point lessons, checklists and boards, with an owner and a review date.</p></div>
     <div class="kpis"><div><b>${live.length}</b><span>In use</span></div><div><b class="${late.length ? "c-bad" : ""}">${late.length}</b><span>Review overdue</span></div><div><b>${soon.length}</b><span>Due in 30 days</span></div><div><b>${unplaced.length}</b><span>Not pinned</span></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pri" id="dNew">New document</button><button id="dMap">Print document map</button><button id="dList">Print list</button><button id="dCsv">Export CSV</button></div></header>`;
-  if (P.documents.length)
-    h += `<div class="psmode"><button data-dtab="map" class="${F.tab === "map" ? "on" : ""}">Map</button><button data-dtab="register" class="${F.tab !== "map" ? "on" : ""}">Register</button></div>`;
-  if (P.documents.length && F.tab === "map") return h + docMapHTML();
+  if (P.documents.length && ui.view === "docmap") return h + docMapHTML();
   if (!P.documents.length)
     return (
       h +
@@ -236,15 +234,10 @@ function documentsHTML() {
 function renderDocuments() {
   const el = $("#docView");
   el.innerHTML = documentsHTML();
-  if (ui.reg.docs.tab === "map") renderDocMap();
+  if (ui.view === "docmap") renderDocMap();
   const R = ui.reg.docs;
   el.onclick = (e) => {
     let b;
-    if ((b = e.target.closest("[data-dtab]"))) {
-      R.tab = b.dataset.dtab;
-      renderDocuments();
-      return;
-    }
     if ((b = e.target.closest("[data-docshow]"))) {
       showOnDocMap(pinObj("doc", b.dataset.docshow));
       return;

@@ -8,6 +8,7 @@ const ui = {
   itemQuery: "",
   itemFilter: "",
   itemArea: "",
+  scope: "", // "" = the whole factory, or the id of the area being worked on
   hiddenCategories: new Set(),
   editDrawing: false,
   wall: { th: 0.2 },
@@ -43,7 +44,7 @@ const ui = {
   },
   reg: {
     tags: { st: "open", owner: "", cat: "", area: "", q: "" },
-    acts: { st: "open", owner: "", s5: "", area: "", q: "" },
+    acts: { st: "open", owner: "", s5: "", area: "", stream: "5s", q: "" },
     docs: { tab: "map", st: "all", type: "", owner: "", area: "", q: "" },
   },
   layers: {
@@ -199,7 +200,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 7,
+    version: 8,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {

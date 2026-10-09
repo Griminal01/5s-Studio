@@ -215,9 +215,9 @@ function areaSelectHTML(items) {
   return `<label class="f">Area${items.length > 1 ? " (" + items.length + " items)" : ""}<select data-item-area aria-label="Area">${same === null ? '<option value="" selected disabled>Mixed</option>' : ""}<option value=""${same === "" ? " selected" : ""}>Automatic${items.length === 1 ? (cur ? " (inside " + esc(cur.name) + ")" : " (not inside an area)") : " (where it sits)"}</option><option value="-"${same === "-" ? " selected" : ""}>No area</option>${list.map((a) => `<option value="${esc(a.id)}"${same === a.id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>${out ? `<div class="status warn"><b>Outside its area:</b> designated to ${esc(out.a.name)} but sitting outside it.<button data-a="areaBack">Move it back into ${esc(out.a.name)}</button></div>` : ""}`;
 }
 /* ---- drawing ---- */
-function areaSVG(sh, k) {
+function areaSVG(sh, k, only) {
   let s = "";
-  for (const a of areasOn(sh)) {
+  for (const a of only ? [only] : areasOn(sh)) {
     const ps = a.pts.map((p) => p.x + "," + p.y).join(" "),
       n = areaItems(a, sh).length,
       top = a.pts.reduce((b, p) => (p.y < b.y ? p : b), a.pts[0]),
@@ -324,7 +324,7 @@ ${rowsFor("Documents here", "#0E7C86", st.docs, (d) => ({ l: docNo(d) + " " + d.
 ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " + t.title, v: t.status }))}
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
 <div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>
-<div class="btns"><button class="pri" data-a="areaPrint">Print area sheet</button><button data-a="areaProblem">Raise a problem here</button><button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete area</button></div>
+<div class="btns"><button class="pri" data-a="areaScope" title="Show only this area on the layout, so it is not cluttered">Work on this area</button><button data-a="areaPrint">Print area sheet</button><button data-a="areaProblem">Raise a problem here</button><button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete area</button></div>
 <p class="small muted">Drag the white dots to reshape it. Drag its dashed edge to move it. Items belong to the area they sit in unless you designate them; a designated item that leaves its area is flagged in the Compare tab and on the daily checks.</p>`;
 }
 function paneAreas() {
@@ -444,6 +444,12 @@ function areaAct(a, el) {
     }
     case "areaPrint":
       if (ar) printAreas([ar]);
+      break;
+    case "areaScope":
+      if (ar) {
+        if (ui.view !== "layout") setView("layout");
+        setScope(ar.id);
+      }
       break;
     case "areaProblem":
       if (ar) problemFromArea(ar);
@@ -651,3 +657,80 @@ function printAreas(list) {
     .join('<div class="pd"><div class="pdbreak"></div></div>');
   printWithPage(html, "", "size: A3 landscape; margin: 10mm");
 }
+
+/* ---------- scope: the whole factory, or one area at a time ---------- */
+// Layout work happens one area at a time so it is not cluttered; the document map and the
+// overview always show everything. The scope hides what is outside the area and fits the view to it.
+const scopeArea = () =>
+  ui.scope
+    ? P.areas.find((a) => a.id === ui.scope && a.drawing === S().drawing) ||
+      null
+    : null;
+const scopeMid = (m) => ({
+  x: m.pts.reduce((t, q) => t + q.x, 0) / m.pts.length,
+  y: m.pts.reduce((t, q) => t + q.y, 0) / m.pts.length,
+});
+const scopeObj = (o, a = scopeArea()) =>
+  !a || ptInPoly(o, a.pts) || (o.kind === "item" && o.area === a.id);
+const scopeMark = (m, a = scopeArea()) =>
+  !a || m.pts.some((p) => ptInPoly(p, a.pts)) || ptInPoly(scopeMid(m), a.pts);
+function scopeCmp(c, A) {
+  const inO = (o) => scopeObj(o, A),
+    inP = (p) => ptInPoly(p, A.pts),
+    inM = (m) => scopeMark(m, A);
+  return {
+    ...c,
+    ok: c.ok.filter(inO),
+    moved: c.moved.filter((m) => inO(m.o)),
+    extra: c.extra.filter(inO),
+    missing: c.missing.filter(inO),
+    tapeMissing: c.tapeMissing.filter(inM),
+    tapeExtra: c.tapeExtra.filter(inM),
+    blocked: c.blocked.filter((z) => inO(z.o)),
+    structure: c.structure.filter((z) => inO(z.o)),
+    walkBlock: c.walkBlock.filter((z) => inO(z.o)),
+    outOfArea: (c.outOfArea || []).filter((z) => inO(z.o)),
+    wallHits: c.wallHits.filter(inP),
+    aisleClash: c.aisleClash.filter(inP),
+    conflicts: c.conflicts.filter(inP),
+    aisleNarrow: c.aisleNarrow.filter(inM),
+    damaged: c.damaged.filter(inM),
+  };
+}
+/* a box round the area with a little room, in drawing units */
+function scopeBox(a) {
+  const b = areaBox(a),
+    pad = Math.max(b.x1 - b.x0, b.y1 - b.y0) * 0.06 + 6;
+  return { x0: b.x0 - pad, y0: b.y0 - pad, x1: b.x1 + pad, y1: b.y1 + pad };
+}
+function setScope(id, fromHash = false) {
+  const a = P.areas.find((x) => x.id === id && x.drawing === S().drawing);
+  ui.scope = a ? a.id : "";
+  ui.reg.tags.area = ui.reg.acts.area = ui.scope;
+  ui.sel = ui.sel.filter((i) => {
+    const f = find(i);
+    return !f || f.t !== "obj" || scopeObj(f.x);
+  });
+  ui.vb = null;
+  if (!fromHash) syncHash(false);
+  renderAll();
+}
+function scopeBarHTML() {
+  const a = scopeArea();
+  return a
+    ? `<span class="swatch" style="background:${esc(a.color)}"></span>Working on <b>${esc(a.name)}</b><button id="scopeAll">Show the whole factory</button>`
+    : "";
+}
+function updateScopeBar() {
+  const el = $("#scopeBar");
+  if (!el) return;
+  const h = scopeBarHTML();
+  el.hidden = !h;
+  if (el.dataset.h !== h) {
+    el.innerHTML = h;
+    el.dataset.h = h;
+  }
+}
+$("#canvas").addEventListener("click", (e) => {
+  if (e.target.closest("#scopeAll")) setScope("");
+});

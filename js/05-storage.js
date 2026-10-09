@@ -379,6 +379,11 @@ function validate(p) {
     a.tag = str(a.tag);
     a.prob = str(a.prob);
     a.cause = str(a.cause);
+    a.doc = str(a.doc);
+    // which section an action belongs to: 5S, document mapping, or improvement (linked to a problem)
+    a.stream = a.prob
+      ? "improve"
+      : pick(a.stream, ["5s", "doc"], a.doc ? "doc" : "5s");
     a.drawing = str(a.drawing);
     a.x = num(a.x);
     a.y = num(a.y);
@@ -633,7 +638,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 7;
+  p.version = 8;
   p.app = "5s-studio";
   return p;
 }

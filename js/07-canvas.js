@@ -178,7 +178,7 @@ function dimSVG(m, k, sh) {
   }
   return s;
 }
-const runNo = (sh, m) => sh.marks.indexOf(m) + 1;
+const runNo = (sh, m) => (sh._all || sh).marks.indexOf(m) + 1;
 function runSVG(m, sh, k) {
   const p = m.pts[0];
   return `<g pointer-events="none"><circle cx="${p.x}" cy="${p.y}" r="${7.5 * k}" fill="#1C2250" stroke="#fff" stroke-width="${1.2 * k}"/><text x="${p.x}" y="${p.y}" font-size="${9 * k}" font-family="Segoe UI,system-ui,sans-serif" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="central">${runNo(sh, m)}</text></g>`;
@@ -235,6 +235,18 @@ function overlaySVG(c, k) {
 }
 
 function buildSVG(sh, o) {
+  // working on one area: only what is inside it is drawn and checked
+  const A = o.scoped ? scopeArea() : null;
+  if (A) {
+    sh = {
+      ...sh,
+      _all: sh,
+      objects: sh.objects.filter((z) => scopeObj(z, A)),
+      marks: sh.marks.filter((m) => scopeMark(m, A)),
+      routes: sh.routes.filter((r) => scopeMark(r, A)),
+    };
+    if (o.cmp) o = { ...o, cmp: scopeCmp(o.cmp, A) };
+  }
   const dm = DM(sh),
     W = dm.w,
     H = dm.h,
@@ -260,7 +272,7 @@ function buildSVG(sh, o) {
   }
   if (L.grid)
     s += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid)" pointer-events="none"/>`;
-  if (L.areas) s += areaSVG(sh, k);
+  if (L.areas) s += areaSVG(sh, k, A);
   const midPos = s.length;
   if (L.objects)
     for (const z of sh.objects) if (z.kind !== "item") s += objSVG(z, k);
@@ -268,7 +280,7 @@ function buildSVG(sh, o) {
     for (const m of sh.marks) s += markSVG(m, k, u);
     const src = sh.kind === "daily" ? stdFor(sh).objects : sh.objects,
       HT = tapeOf(P.marking.homeType);
-    for (const f of src)
+    for (const f of A ? src.filter((z) => scopeObj(z, A)) : src)
       if (
         f.fp &&
         f.kind === "item" &&
@@ -342,7 +354,8 @@ function buildSVG(sh, o) {
     for (const c of IS.conflicts)
       s += `<g pointer-events="none"><circle cx="${c.x}" cy="${c.y}" r="${8 * k}" fill="${COL.bad}" stroke="#fff" stroke-width="${1.5 * k}"/>${txt(c.x, c.y, "!", 11 * k, k, { fill: "#fff" }).replace(/stroke="#fff"/, 'stroke="none"')}</g>`;
   }
-  for (const pn of pinList(sh)) s += pinSVG(pn, k);
+  for (const pn of pinList(sh))
+    if (!A || ptInPoly(pn.o, A.pts)) s += pinSVG(pn, k);
   {
     const editing = ui.editDrawing && !o.export && !ui.printing,
       fx = fixedSVG(sh, k, editing);
@@ -352,7 +365,12 @@ function buildSVG(sh, o) {
         s.slice(midPos) +
         "</g>" +
         fx
-      : s.slice(0, midPos) + fx + s.slice(midPos);
+      : s.slice(0, midPos) +
+        fx +
+        (A
+          ? `<path d="M-100000 -100000H100000V100000H-100000Z M${A.pts.map((p) => p.x + " " + p.y).join(" L")} Z" fill="#fff" fill-opacity=".72" fill-rule="evenodd" pointer-events="none"/>`
+          : "") +
+        s.slice(midPos);
   }
   if (!o.export) {
     // selection
@@ -445,12 +463,24 @@ function kNow() {
 }
 function fitView() {
   const r = svg.getBoundingClientRect(),
-    dm = DM();
+    dm = DM(),
+    A = scopeArea();
   if (!r.width || !r.height) return;
-  const sc = Math.min(r.width / (dm.w * 1.03), r.height / (dm.h * 1.05));
+  // the whole drawing, or a box round the area being worked on
+  const b = A
+    ? scopeBox(A)
+    : {
+        x0: -dm.w * 0.015,
+        y0: -dm.h * 0.025,
+        x1: dm.w * 1.015,
+        y1: dm.h * 1.025,
+      };
+  const bw = b.x1 - b.x0,
+    bh = b.y1 - b.y0,
+    sc = Math.min(r.width / bw, r.height / bh);
   ui.vb = { w: r.width / sc, x: 0, y: 0 };
-  ui.vb.x = dm.w / 2 - ui.vb.w / 2;
-  ui.vb.y = dm.h / 2 - vbH() / 2;
+  ui.vb.x = (b.x0 + b.x1) / 2 - ui.vb.w / 2;
+  ui.vb.y = (b.y0 + b.y1) / 2 - vbH() / 2;
 }
 function world(e) {
   const r = svg.getBoundingClientRect(),
@@ -502,15 +532,18 @@ function drawNow() {
     ui.drag?.mode === "pan" &&
     svg.dataset.renderSheet === sh.id &&
     Number(svg.dataset.renderScale) === k;
+  const pbox = scopeArea() ? scopeBox(scopeArea()) : null;
   svg.setAttribute(
     "viewBox",
     ui.printing
-      ? `0 0 ${pm.w} ${pm.h}`
+      ? pbox
+        ? `${pbox.x0} ${pbox.y0} ${pbox.x1 - pbox.x0} ${pbox.y1 - pbox.y0}`
+        : `0 0 ${pm.w} ${pm.h}`
       : `${ui.vb.x} ${ui.vb.y} ${ui.vb.w} ${vbH()}`,
   );
   if (!panOnly) {
     cmpCache = ref ? compare(sh, ref) : null;
-    svg.innerHTML = buildSVG(sh, { k, cmp: cmpCache });
+    svg.innerHTML = buildSVG(sh, { k, cmp: cmpCache, scoped: true });
     svg.dataset.renderSheet = sh.id;
     svg.dataset.renderScale = k;
   }
@@ -523,6 +556,7 @@ function drawNow() {
   $("#zlabel").textContent = Math.round((fitW / ui.vb.w) * 100) + "%";
   drawScale(k);
   positionSelbar();
+  updateScopeBar();
 }
 function drawScale(k) {
   const el = $("#scale"),

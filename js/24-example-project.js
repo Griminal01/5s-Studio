@@ -955,6 +955,35 @@ function makeExampleProject() {
     { s5: "sort" },
   );
 
+  /* ----- document actions: jobs on the documents themselves ----- */
+  {
+    const docId = (t) => p.documents.find((d) => d.title === t)?.id || "";
+    action(
+      "Review the packer guarding risk assessment, the review date has passed",
+      "Sam",
+      dayOffset(-3),
+      "High",
+      "Open",
+      { stream: "doc", doc: docId("Packer guarding and interlocks") },
+    );
+    action(
+      "Laminate the revised start-up SOP and fit it to the packer stand",
+      "Josh",
+      dayOffset(4),
+      "Medium",
+      "In progress",
+      { stream: "doc", doc: docId("Packer start-up and shutdown") },
+    );
+    action(
+      "Put a second copy of the exit route notice by the goods-in door",
+      "Sam",
+      dayOffset(10),
+      "Low",
+      "Open",
+      { stream: "doc", doc: docId("Emergency exit route") },
+    );
+  }
+
   /* ----- a proposal: swap the film racks to the infeed side ----- */
   const prop = JSON.parse(JSON.stringify(std));
   prop.id = uid();

@@ -119,7 +119,8 @@ function actFiltered() {
       if (f.st === "late" && !actOverdue(a)) return false;
       if (f.owner && a.owner !== f.owner) return false;
       if (f.s5 && a.s5 !== f.s5) return false;
-      if (!areaPass(f.area, a)) return false;
+      if (f.stream !== "all" && a.stream !== f.stream) return false;
+      if (ui.view !== "docactions" && !areaPass(f.area, a)) return false;
       if (
         q &&
         !(actNo(a) + " " + a.title + " " + a.owner + " " + a.note)
@@ -158,9 +159,13 @@ function actRows() {
 }
 function actionsHTML() {
   const F = ui.reg.acts,
-    open = P.actions.filter((a) => !["Done", "Cancelled"].includes(a.status)),
+    base =
+      F.stream === "all"
+        ? P.actions
+        : P.actions.filter((a) => a.stream === F.stream),
+    open = base.filter((a) => !["Done", "Cancelled"].includes(a.status)),
     late = open.filter(actOverdue),
-    done = P.actions.filter((a) => a.status === "Done"),
+    done = base.filter((a) => a.status === "Done"),
     rec = done.filter(
       (a) => a.done && daysBetween(a.done, today()) <= 30,
     ).length,
@@ -174,13 +179,14 @@ function actionsHTML() {
   const ownersA = [
     ...new Set(P.actions.map((a) => a.owner).filter(Boolean)),
   ].sort();
-  let h = `<header><div><h2>Action log</h2><p class="muted" style="margin:4px 0 0">Jobs from your designs, checks and red tags, with an owner and a due date.</p></div>
+  const doc = ui.view === "docactions";
+  let h = `<header><div><h2>${doc ? "Document actions" : "5S actions"}</h2><p class="muted" style="margin:4px 0 0">${doc ? "Jobs on the documents: review an SOP, replace a copy, fix a revision, put one where it is needed." : "Jobs from your layout, daily checks and red tags: mark a home, move an item, tidy, clean."} Each has an owner and a due date.</p></div>
     <div class="kpis"><div><b>${open.length}</b><span>Open</span></div><div><b class="${late.length ? "c-bad" : ""}">${late.length}</b><span>Overdue</span></div><div><b>${rec}</b><span>Done in 30 days</span></div><div><b>${ontime == null ? "–" : ontime + "%"}</b><span>Done on time</span></div></div>
     <div style="display:flex;gap:8px"><button class="pri" id="rNew">New action</button><button id="rCsv">Export CSV</button><button id="rPrint">Print</button></div></header>`;
-  if (!P.actions.length)
+  if (!base.length)
     return (
       h +
-      `<div class="emptybox"><b>No actions logged yet</b>Add actions from the 5S and notes tab on any sheet, or press A and click the drawing where the job is. Each gets an owner and a due date.<div style="margin-top:14px"><button class="pri" id="rNew2">New action</button></div></div>`
+      `<div class="emptybox"><b>No ${doc ? "document" : "5S"} actions yet</b>${doc ? "Add a job for a document: review an SOP, replace a worn copy, move it to where it is needed." : "Add actions from the 5S tab on any sheet, or press A and click the drawing where the job is."} Each gets an owner and a due date.<div style="margin-top:14px"><button class="pri" id="rNew2">New action</button></div></div>`
     );
   h += `<div class="filters"><label>Show<select data-f="st">${optsKV(
     [
@@ -192,7 +198,16 @@ function actionsHTML() {
     F.st,
   )}</select></label>
     <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersA.map((o) => [o, o])], F.owner)}</select></label>
-    <label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>${areaFilterHTML(F.area)}
+    <label>From<select data-f="stream">${optsKV(
+      [
+        ["5s", "5S"],
+        ["doc", "Documents"],
+        ["improve", "Problem solving"],
+        ["all", "Everything"],
+      ],
+      F.stream,
+    )}</select></label>
+    ${doc ? "" : `<label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>${areaFilterHTML(F.area)}`}
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Action, owner"></label></div>
     <div class="regtbl" id="regTbl">${actRows()}</div>`;
   return h;
@@ -220,7 +235,9 @@ function wireRegister(el) {
       return;
     }
     if (e.target.closest("#rNew,#rNew2")) {
-      isT ? newTag({}) : newAction({});
+      isT
+        ? newTag({})
+        : newAction({ stream: ui.view === "docactions" ? "doc" : "5s" });
       return;
     }
     if (e.target.closest("#rCsv")) isT ? csvTags() : csvActions();
