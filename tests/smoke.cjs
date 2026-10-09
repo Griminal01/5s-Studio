@@ -230,6 +230,59 @@ const VIEWS = [
   expect(ex.map > 10 && ex.list > 10, "document map or list did not print");
   expect(ex.overdue >= 1, "example should show an overdue document review");
   expect(ex.roundTrip, "example project changed when validated again");
+  // tape plan (A3, true scale), colour standard, and tape types from before version 12
+  const tp = await page.evaluate(() => {
+    const t0 = P.marking.types[0];
+    t0.supplier = "Supplier A";
+    t0.roll = 30;
+    applyMarking();
+    printTapePlan();
+    const d = document.getElementById("printDoc"),
+      svg = d.querySelector(".tpplan svg"),
+      vb = svg ? svg.getAttribute("viewBox").split(" ").map(Number) : [0, 0, 0],
+      out = {
+        page: document.getElementById("pageStyle")?.textContent || "",
+        plan: !!svg,
+        scale: svg
+          ? Math.round((vb[2] * mpu() * 1000) / parseFloat(svg.style.width))
+          : 0,
+        said: (d.textContent.match(/Scale 1:(\d+)/) || [])[1],
+        key: d.querySelectorAll(".tpside .tpt")[0]?.querySelectorAll("tr")
+          .length,
+        supplier: d.textContent.includes("Supplier A"),
+        runs: d.querySelectorAll(".tpruns tr").length - 1,
+      };
+    printColourStandard();
+    out.std = d.querySelectorAll(".cst tr").length - 1;
+    document.body.classList.remove("printing-doc");
+    const old = JSON.parse(JSON.stringify(P));
+    old.version = 11;
+    for (const t of old.marking.types)
+      for (const k of ["roll", "supplier", "code", "ref"]) delete t[k];
+    delete old.marking.std;
+    const v = validate(old);
+    out.migrated =
+      v.version === 12 &&
+      v.marking.types.every((t) => t.roll === 0 && t.supplier === "") &&
+      v.marking.std.no === "";
+    t0.supplier = "";
+    t0.roll = 0;
+    applyMarking();
+    return out;
+  });
+  expect(
+    tp.plan &&
+      /A3 landscape/.test(tp.page) &&
+      tp.scale > 0 &&
+      String(tp.scale) === tp.said &&
+      tp.key >= 5 &&
+      tp.supplier &&
+      tp.runs >= 8 &&
+      tp.std >= 7 &&
+      tp.migrated,
+    "tape plan, colour standard or version 12 migration is wrong: " +
+      JSON.stringify(tp),
+  );
   // areas: in the example, drawn with the real tool, designation, flags, print, old files
   const ar0 = await page.evaluate(() => {
     const sh = STD(),

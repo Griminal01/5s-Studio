@@ -72,7 +72,7 @@ function markSchedule(sh) {
       m
         ? Math.ceil(
             ((r.planned + r.worn) * m * (1 + P.marking.waste / 100)) /
-              P.marking.roll -
+              tapeOf(r.id).roll -
               1e-9,
           )
         : null;
@@ -171,7 +171,7 @@ function paneMark() {
   if (!sc.rows.length && !sh.marks.length)
     return (
       h +
-      `<p class="empty">No floor marking on this sheet yet. Use the Tape tool (T) to draw walkway edges, boxes, aisles and arrows, or give items a home marking. This tab then totals the tape, tracks what has been laid and prints a setting-out sheet.</p><div class="btns"><button data-a="editMarking">Marking standard</button></div>`
+      `<p class="empty">No floor marking on this sheet yet. Use the Tape tool (T) to draw walkway edges, boxes, aisles and arrows, or give items a home marking. This tab then totals the tape, tracks what has been laid and prints a setting-out sheet.</p><div class="btns"><button data-a="editMarking">Marking standard</button><button data-a="printColourStd">Print colour standard</button></div>`
     );
   h +=
     `<div class="meter"><i style="width:${sc.done}%;background:var(--ok)"></i></div>` +
@@ -191,14 +191,14 @@ function paneMark() {
       return `<tr><td><span class="tsw" style="display:inline-block;vertical-align:middle;margin-right:6px;background:${tswStyle(t)}"></span>${esc(t.n)}${r.homes ? `<span style="display:block;font-size:11px;color:var(--muted)">${r.homes} item home mark${r.homes > 1 ? "s" : ""}</span>` : ""}${r.arrows ? `<span style="display:block;font-size:11px;color:var(--muted)">${r.arrows} arrow${r.arrows > 1 ? "s" : ""}</span>` : ""}</td><td class="n">${F(r.len)}</td><td class="n">${F(r.planned + r.worn)}</td><td class="n">${ro == null ? "?" : ro}</td></tr>`;
     })
     .join("")}</table>
-    <p class="small muted" style="margin:0 0 10px">${m ? `Rolls are ${T.roll} m with ${T.waste}% allowance, for tape still to lay or relay.` : "Set the scale with Measure to get rolls to order."} Aisles count both edge lines.</p>`;
+    <p class="small muted" style="margin:0 0 10px">${m ? `Rolls to order for tape still to lay or relay, with ${T.waste}% allowance; roll lengths are in the marking standard.` : "Set the scale with Measure to get rolls to order."} Aisles count both edge lines.</p>`;
   const np = iss.aisleNarrow.length,
     bp = iss.walkBlock.length,
     cp = iss.aisleClash.length;
   if (np || bp || cp)
     h += `<div class="status bad"><b>Walkway problems.</b> ${[np && `${np} narrower than ${T.minAisle} m`, bp && `${bp} item${bp > 1 ? "s" : ""} blocking an aisle`, cp && `${cp} running into a wall or fixed object`].filter(Boolean).join(", ")}. Details are on the Check tab.</div>`;
-  h += `<div class="btns"><button class="pri" data-a="printMarking">Print marking sheet</button><button data-a="csvSchedule">Schedule CSV</button><button data-a="csvSetout">Setting-out CSV</button></div>
-    <div class="btns"><button data-a="editMarking">Marking standard</button><button data-a="setDatum">${dm.datum ? "Move datum" : "Set datum"}</button>${daily ? "" : '<button data-a="allLaid">Mark all as laid</button>'}</div>
+  h += `<div class="btns"><button class="pri" data-a="printTapePlan">Print tape plan (A3)</button><button data-a="printMarking">Setting-out sheet</button><button data-a="csvSchedule">Schedule CSV</button><button data-a="csvSetout">Setting-out CSV</button></div>
+    <div class="btns"><button data-a="editMarking">Marking standard</button><button data-a="printColourStd">Print colour standard</button><button data-a="setDatum">${dm.datum ? "Move datum" : "Set datum"}</button>${daily ? "" : '<button data-a="allLaid">Mark all as laid</button>'}</div>
     <p class="small muted">${dm.datum ? "Datum is set. Setting-out dimensions are measured from it." : "No datum set, so dimensions are measured from the top left corner of the drawing. Set one on a column or door frame that is easy to find on the floor."}${daily ? " On a daily check, set a run to Worn when tape needs relaying." : ""}</p>`;
   if (sh.marks.length)
     h += `<h3><span>Runs</span><span class="count">${sh.marks.length}</span></h3><table class="rt"><tr><th>Run</th><th>Tape</th><th class="n">Length</th><th>Status</th></tr>${sh.marks
@@ -229,10 +229,12 @@ async function markingModal() {
   let rows = clone(P.marking.types),
     homeSel = P.marking.homeType;
   const used = usedTypeIds();
-  const html = `<p class="small muted" style="margin-top:0">The colours and widths your site uses for floor marking. They feed the tape tool, the schedule and the printed marking sheet. Check them against your site standard before ordering tape.</p>
+  const sd = P.marking.std || {};
+  const html = `<p class="small muted" style="margin-top:0">The colours and widths your site uses for floor marking. They feed the tape tool, the schedule, the tape plan and the printed colour standard. Put your supplier's product codes and roll lengths on each type so the order list is right.</p>
+    <div class="row3 mkstd"><label class="f">Standard document number<input name="stdNo" value="${esc(sd.no || "")}" placeholder="e.g. FM-001"></label><label class="f">Revision<input name="stdRev" value="${esc(sd.rev || "")}" placeholder="e.g. A"></label><label class="f">Owner<input name="stdOwner" value="${esc(sd.owner || "")}" placeholder="Who keeps it up to date"></label></div>
     <div class="mkhead"><span>Name</span><span>Colour</span><span>Pattern</span><span>2nd</span><span>mm</span><span>Where it is used</span><span></span></div><div id="mkRows"></div>
     <div class="btns"><button type="button" id="mkAdd">Add a type</button><button type="button" id="mkReset">Reset to the default colours</button></div>
-    <h3>Ordering and checks</h3><div class="row3"><label class="f">Roll length (m)<input name="roll" type="number" min="1" step="1" value="${esc(P.marking.roll)}"></label><label class="f">Waste allowance (%)<input name="waste" type="number" min="0" step="1" value="${esc(P.marking.waste)}"></label><label class="f">Minimum aisle width (m)<input name="minAisle" type="number" min="0.3" step="0.1" value="${esc(P.marking.minAisle)}"></label></div>
+    <h3>Ordering and checks</h3><div class="row3"><label class="f">Default roll length (m)<input name="roll" type="number" min="1" step="1" value="${esc(P.marking.roll)}"></label><label class="f">Waste allowance (%)<input name="waste" type="number" min="0" step="1" value="${esc(P.marking.waste)}"></label><label class="f">Minimum aisle width (m)<input name="minAisle" type="number" min="0.3" step="0.1" value="${esc(P.marking.minAisle)}"></label></div>
     <label class="f">Tape used for item home marks<select name="homeType" id="mkHome"></select></label>`;
   const r = await modal("Floor marking standard", html, "Save standard", {
     wide: true,
@@ -250,6 +252,10 @@ async function markingModal() {
             pattern: pat,
             w: Math.max(5, Number(g("w").value) || 50),
             use: g("u").value.trim(),
+            ref: g("ref").value.trim(),
+            supplier: g("sup").value.trim(),
+            code: g("code").value.trim(),
+            roll: Math.max(0, Number(g("roll").value) || 0),
           };
         });
         const hs = $("#mkHome");
@@ -259,7 +265,7 @@ async function markingModal() {
         wrap.innerHTML = rows
           .map(
             (t, i) =>
-              `<div class="mkrow" data-id="${esc(t.id)}"><input data-k="name" value="${esc(t.name)}" aria-label="Name" required><input data-k="c" type="color" value="${esc(t.c)}" aria-label="Colour"><select data-k="p" aria-label="Pattern">${[
+              `<div class="mkrow" data-id="${esc(t.id)}"><div class="l1"><input data-k="name" value="${esc(t.name)}" aria-label="Name" required><input data-k="c" type="color" value="${esc(t.c)}" aria-label="Colour"><select data-k="p" aria-label="Pattern">${[
                 ["solid", "Solid"],
                 ["stripe", "Striped"],
                 ["dash", "Dashed"],
@@ -270,7 +276,7 @@ async function markingModal() {
                 )
                 .join(
                   "",
-                )}</select><input data-k="c2" type="color" value="${t.c2 || "#1C1C1C"}"${t.pattern === "stripe" ? "" : " disabled"} aria-label="Second colour" title="Second colour, used for striped tape"><input data-k="w" type="number" min="5" step="5" value="${esc(t.w)}" aria-label="Width in millimetres"><input data-k="u" value="${esc(t.use)}" aria-label="Where it is used" placeholder="Where it is used"><button type="button" data-rm="${esc(i)}"${used.has(t.id) || rows.length < 2 ? ` disabled title="${rows.length < 2 ? "Keep at least one type" : "In use on a sheet"}"` : ""}>Remove</button></div>`,
+                )}</select><input data-k="c2" type="color" value="${t.c2 || "#1C1C1C"}"${t.pattern === "stripe" ? "" : " disabled"} aria-label="Second colour" title="Second colour, used for striped tape"><input data-k="w" type="number" min="5" step="5" value="${esc(t.w)}" aria-label="Width in millimetres"><input data-k="u" value="${esc(t.use)}" aria-label="Where it is used" placeholder="Where it is used"><button type="button" data-rm="${esc(i)}"${used.has(t.id) || rows.length < 2 ? ` disabled title="${rows.length < 2 ? "Keep at least one type" : "In use on a sheet"}"` : ""}>Remove</button></div><div class="l2"><input data-k="ref" value="${esc(t.ref || "")}" aria-label="Colour reference" placeholder="Colour ref (e.g. RAL 1003)"><input data-k="sup" value="${esc(t.supplier || "")}" aria-label="Supplier" placeholder="Supplier"><input data-k="code" value="${esc(t.code || "")}" aria-label="Order code" placeholder="Order code"><input data-k="roll" type="number" min="0" step="1" value="${t.roll ? esc(t.roll) : ""}" aria-label="Roll length in metres" placeholder="Roll m (${esc(P.marking.roll)})"></div></div>`,
           )
           .join("");
         refreshHome();
@@ -313,6 +319,10 @@ async function markingModal() {
           pattern: "solid",
           w: 50,
           use: "",
+          roll: 0,
+          supplier: "",
+          code: "",
+          ref: "",
         });
         render();
         wrap.querySelector(".mkrow:last-child [data-k=name]").select();
@@ -336,6 +346,11 @@ async function markingModal() {
     waste: Math.max(0, Number(r.waste) || 0),
     minAisle: Math.max(0.3, Number(r.minAisle) || 1.2),
     homeType: rows.some((t) => t.id === r.homeType) ? r.homeType : rows[0].id,
+    std: {
+      no: String(r.stdNo || "").trim(),
+      rev: String(r.stdRev || "").trim(),
+      owner: String(r.stdOwner || "").trim(),
+    },
   };
   record("Marking standard changed", rows.length + " tape types");
   renderAll();
@@ -363,6 +378,10 @@ function csvSchedule() {
         "Laid m",
         "Worn m",
         "Rolls to order",
+        "Roll m",
+        "Colour ref",
+        "Supplier",
+        "Order code",
       ],
       ...sc.rows.map((r) => {
         const t = tapeOf(r.id);
@@ -379,6 +398,10 @@ function csvSchedule() {
           M(r.laid),
           M(r.worn),
           sc.rolls(r) ?? "",
+          t.roll,
+          t.ref,
+          t.supplier,
+          t.code,
         ];
       }),
     ],
@@ -429,38 +452,8 @@ function csvSetout() {
 }
 
 /* ----- printable marking sheet ----- */
-function printMarkingSheet() {
-  const sh = S();
-  if (
-    !sh.marks.length &&
-    !(sh.kind === "daily" ? stdFor(sh).objects : sh.objects).some((o) => o.fp)
-  ) {
-    toast(
-      "Nothing to print yet. Draw some tape or give items a home marking first.",
-    );
-    return;
-  }
-  const dm = DM(sh),
-    m = mpu(sh),
-    T = P.marking,
-    sc = markSchedule(sh),
-    so = settingOut(sh),
-    F = (v) => esc(fmtLen(v, sh));
-  const save = { ...ui.layers },
-    hid = ui.hiddenCategories;
-  ui.hiddenCategories = new Set(); // home tape for every item, whatever the item list is hiding
-  Object.assign(ui.layers, {
-    objects: false,
-    routes: false,
-    pins: false,
-    docs: false,
-    overlay: false,
-    marks: true,
-    fixed: true,
-    dims: false,
-    runs: false,
-    drawing: true,
-  });
+// the box round everything marked on a sheet (tape runs, aisles, item home marks); null if nothing is
+function markExtent(sh) {
   const xs = [],
     ys = [],
     add = (x, y) => {
@@ -479,12 +472,61 @@ function printMarkingSheet() {
       add(o.x - o.w / 2, o.y - o.h / 2);
       add(o.x + o.w / 2, o.y + o.h / 2);
     }
+  return xs.length
+    ? {
+        x0: Math.min(...xs),
+        x1: Math.max(...xs),
+        y0: Math.min(...ys),
+        y1: Math.max(...ys),
+      }
+    : null;
+}
+// the plan as printed for tape: walls and fixed objects, tape, home marks, run numbers, datum; no items
+function tapePlanSVG(sh, vb, k) {
+  const save = { ...ui.layers },
+    hid = ui.hiddenCategories;
+  ui.hiddenCategories = new Set(); // home tape for every item, whatever the item list is hiding
+  Object.assign(ui.layers, {
+    objects: false,
+    routes: false,
+    pins: false,
+    docs: false,
+    overlay: false,
+    areas: false,
+    marks: true,
+    fixed: true,
+    dims: false,
+    runs: false,
+    drawing: true,
+  });
+  try {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}">${buildSVG(sh, { k, cmp: null, export: true, runNos: true })}</svg>`;
+  } finally {
+    Object.assign(ui.layers, save);
+    ui.hiddenCategories = hid;
+  }
+}
+function printMarkingSheet() {
+  const sh = S();
+  if (
+    !sh.marks.length &&
+    !(sh.kind === "daily" ? stdFor(sh).objects : sh.objects).some((o) => o.fp)
+  ) {
+    toast(
+      "Nothing to print yet. Draw some tape or give items a home marking first.",
+    );
+    return;
+  }
+  const dm = DM(sh),
+    m = mpu(sh),
+    T = P.marking,
+    sc = markSchedule(sh),
+    so = settingOut(sh),
+    F = (v) => esc(fmtLen(v, sh));
+  const ext = markExtent(sh);
   let vb = [0, 0, dm.w, dm.h];
-  if (xs.length) {
-    let x0 = Math.min(...xs),
-      x1 = Math.max(...xs),
-      y0 = Math.min(...ys),
-      y1 = Math.max(...ys);
+  if (ext) {
+    let { x0, x1, y0, y1 } = ext;
     const pad = Math.max(x1 - x0, y1 - y0) * 0.12 + (m ? 3 / m : 25),
       asp = 1.75;
     x0 -= pad;
@@ -499,17 +541,11 @@ function printMarkingSheet() {
     else bh = bw / asp;
     vb = [cx - bw / 2, cy - bh / 2, bw, bh];
   }
-  let plan;
-  try {
-    plan = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}">${buildSVG(sh, { k: vb[2] / 1500, cmp: null, export: true, runNos: true })}</svg>`;
-  } finally {
-    Object.assign(ui.layers, save);
-    ui.hiddenCategories = hid;
-  }
+  const plan = tapePlanSVG(sh, vb, vb[2] / 1500);
   const sw = (t) =>
       `<span class="sw" style="background:${tswStyle(t)}"></span>`,
     u = m ? "m" : "u";
-  const html = `<div class="pd"><h1>Floor marking sheet</h1>
+  const html = `<div class="pd"><h1>Setting-out sheet</h1>
     <p class="pdm">${esc(sh.name)}, ${esc(fmtDate(sh.date))}. ${m ? "Scale set, lengths in metres." : "No scale set, so lengths are in drawing units."} Dimensions are measured from the ${dm.datum ? "datum marked on the plan" : "top left corner of the drawing"}. The plan is zoomed to the marked area.</p>
     <div class="pdplan">${plan}</div><div class="pdbreak"></div>
     <h2>Tape schedule</h2><table><tr><th>Tape</th><th>Pattern</th><th class="n">Width</th><th class="n">Runs</th><th class="n">Total</th><th class="n">To lay</th><th class="n">Rolls to order</th></tr>
@@ -521,7 +557,7 @@ function printMarkingSheet() {
       })
       .join("")}
     <tr><th colspan="4">Total</th><th class="n">${F(sc.tot.len)}</th><th class="n">${F(sc.tot.planned + sc.tot.worn)}</th><th></th></tr></table>
-    <p class="pdm">${m ? `Rolls are ${T.roll} m with a ${T.waste}% allowance, for tape still to lay or relay. Aisles count both edge lines.` : "Set the scale to calculate rolls."}</p>
+    <p class="pdm">${m ? `Rolls to order for tape still to lay or relay, with a ${T.waste}% allowance. Aisles count both edge lines.` : "Set the scale to calculate rolls."}</p>
     <h2>Setting out</h2><p class="pdm">East is to the right on the plan and South is down. Direction is in degrees clockwise from the top of the plan. Run numbers match the circles on the plan.</p>
     ${
       so

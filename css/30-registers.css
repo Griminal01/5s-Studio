@@ -291,7 +291,7 @@ dialog form {
 }
 
 .mkhead,
-.mkrow {
+.mkrow .l1 {
   display: grid;
   grid-template-columns: 1.5fr 44px 92px 44px 64px 1.5fr 76px;
   gap: 6px;
@@ -303,7 +303,44 @@ dialog form {
   margin-bottom: 4px;
 }
 .mkrow {
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.mkrow .l2 {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr 96px;
+  gap: 6px;
+  margin-top: 4px;
+}
+.mkrow .l2 input {
+  font-size: 12px;
+}
+/* phones: name and use get full rows, the small fields share one */
+@media (max-width: 600px) {
+  .mkhead {
+    display: none;
+  }
+  .mkrow .l1 {
+    grid-template-columns: 52px 1fr 52px 64px;
+  }
+  .mkrow .l1 [data-k="name"],
+  .mkrow .l1 [data-k="u"] {
+    grid-column: 1 / -1;
+  }
+  .mkrow .l1 button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+  .mkrow .l2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mkstd {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mkstd label:first-child {
+    grid-column: 1 / -1;
+  }
 }
 .mkrow input[type="color"] {
   padding: 2px;

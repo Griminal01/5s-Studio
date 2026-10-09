@@ -48,6 +48,19 @@ Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `do
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
+## Tape plan (9 Oct, `js/23-tape-plan.js`)
+
+The Tape tab prints a **tape plan** on one A3 sheet: the plan at a true scale (the smallest of 1:50, 1:75,
+1:100, 1:125 ... that fits, with a scale bar; print at 100% for it to measure true), run numbers and the datum,
+a colour key, an order list (supplier, order code, metres to lay, roll length, rolls), the runs with their start
+points, and a title block with Checked and Approved boxes. The full point by point setting-out is the
+**Setting-out sheet** (was "marking sheet"). **Print colour standard** prints the marking standard as an A4
+document to sign: big swatches (stripes on the diagonal), colour, width, colour reference, supplier, code, roll.
+Each tape type now has a colour reference, supplier, order code and its own roll length (project version 12).
+The team is setting up its colour standard and buying tape from one supplier: put that supplier's codes and
+roll lengths into the marking standard; nothing supplier-specific is in the code. Not done: printed on a real
+A3 printer; pre-cut shapes (corners, feet, arrows) are only counted, not ordered as products.
+
 ## Code audit (11 Oct)
 
 Four independent read-through reviews plus random-click runs. Fixed: the Settings dialog could not be saved

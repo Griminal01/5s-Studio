@@ -39,48 +39,48 @@ Tiny helpers used everywhere: $ / $$ (querySelector), uid, clone, clamp, esc (HT
 - 51 `pad2(n) =>`
 - 52 `clipText(t, n) =>`
 
-## js/01-catalogue.js (585 lines)
+## js/01-catalogue.js (591 lines)
 Fixed lists and their helpers: floor tape types (DEFAULT_TYPES, TAPE, tapeOf, applyMarking), the equipment library LIB, 5S steps S5, red tag / action / task / document constants and numbering (tagNo, actNo, docNo), item categories (normalizeItemCategories, itemCategoryId, manageItemCategories dialo…
 
 - 7 `DEFAULT_TYPES` floor marking standard: types are editable, TAPE is rebuilt from P.marking on every render
-- 72 `TAPE`
-- 73 `edgeFor(t)`
-- 83 `applyMarking(p = P)`
-- 97 `tapeOf(id) =>`
-- 98 `LIB`
-- 150 `S5`
-- 159 `TAG_CATS` red tags
-- 167 `TAG_DISP`
-- 177 `TAG_ST`
-- 178 `tagNo(t) =>`
-- 179 `tagOverdue(t) =>`
-- 181 `ACT_ST`
-- 183 `actNo(a) =>`
-- 184 `actOverdue(a) =>`
-- 188 `TASK_FREQ` operator tasks: the jobs the people working in a zone do, each linked to the items it uses
-- 199 `TASK_WHO`
-- 206 `taskNo(t) =>`
-- 209 `DOC_TYPES` documents that live in a zone
-- 222 `DOC_FORMATS`
-- 232 `DOC_ST`
-- 233 `docNo(d) =>`
-- 234 `docOverdue(d) =>`
-- 237 `daysBetween(a, b) =>` whole days from a to b; "" when either date is missing, so no NaN reaches the screen
-- 243 `fmtD(s) =>`
-- 257 `DEFAULT_ITEM_CATEGORIES` Initial groups are suggestions from names. Existing colours are retained until applied.
-- 266 `suggestedCategory(o)`
-- 296 `normalizeItemCategories(project)`
-- 331 `itemCategoryId(o)`
-- 336 `itemCategoryOptions(value)`
-- 344 `categoryAssignmentHTML(items)`
-- 350 `assignSelectedCategory(id)`
-- 368 `updateCategoryColour(id, colour)`
-- 382 `applyCategoryColour(id, colour)`
-- 402 `selectCategoryItems(id)`
-- 410 `categoryGroupsHTML(sh)`
-- 483 `async manageItemCategories()`
+- 74 `TAPE` what to order for a tape type: roll is metres per roll (0 the standard's default roll length), supplier and c…
+- 75 `edgeFor(t)`
+- 85 `applyMarking(p = P)`
+- 103 `tapeOf(id) =>`
+- 104 `LIB`
+- 156 `S5`
+- 165 `TAG_CATS` red tags
+- 173 `TAG_DISP`
+- 183 `TAG_ST`
+- 184 `tagNo(t) =>`
+- 185 `tagOverdue(t) =>`
+- 187 `ACT_ST`
+- 189 `actNo(a) =>`
+- 190 `actOverdue(a) =>`
+- 194 `TASK_FREQ` operator tasks: the jobs the people working in a zone do, each linked to the items it uses
+- 205 `TASK_WHO`
+- 212 `taskNo(t) =>`
+- 215 `DOC_TYPES` documents that live in a zone
+- 228 `DOC_FORMATS`
+- 238 `DOC_ST`
+- 239 `docNo(d) =>`
+- 240 `docOverdue(d) =>`
+- 243 `daysBetween(a, b) =>` whole days from a to b; "" when either date is missing, so no NaN reaches the screen
+- 249 `fmtD(s) =>`
+- 263 `DEFAULT_ITEM_CATEGORIES` Initial groups are suggestions from names. Existing colours are retained until applied.
+- 272 `suggestedCategory(o)`
+- 302 `normalizeItemCategories(project)`
+- 337 `itemCategoryId(o)`
+- 342 `itemCategoryOptions(value)`
+- 350 `categoryAssignmentHTML(items)`
+- 356 `assignSelectedCategory(id)`
+- 374 `updateCategoryColour(id, colour)`
+- 388 `applyCategoryColour(id, colour)`
+- 408 `selectCategoryItems(id)`
+- 416 `categoryGroupsHTML(sh)`
+- 489 `async manageItemCategories()`
 
-## js/02-state.js (335 lines)
+## js/02-state.js (336 lines)
 Global state: the open project P and the UI state ui (view, selection ui.sel, viewbox ui.vb, layers, scope). Sheet shortcuts S() current sheet, STD() standard, DM(sh) its drawing, stdFor(daily). Units: mpu/upm, toUser/fromUser, fmtLen. newProject(), record() journal, undo: checkpoint() / restore(),…
 
 - 6 `P`
@@ -106,13 +106,13 @@ Global state: the open project P and the UI state ui (view, selection ui.sel, vi
 - 183 `pruneRevisions(p = P)` only daily checks use revisions: drop the ones no check points at any more
 - 191 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
 - 206 `newProject()`
-- 261 `record(action, detail)`
-- 271 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
-- 278 `trimHistory(stack)`
-- 291 `checkpoint()`
-- 296 `restore(from, to)`
-- 316 `find(id, sh = S()` find element by id in active sheet
-- 334 `selected() =>`
+- 262 `record(action, detail)`
+- 272 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
+- 279 `trimHistory(stack)`
+- 292 `checkpoint()`
+- 297 `restore(from, to)`
+- 317 `find(id, sh = S()` find element by id in active sheet
+- 335 `selected() =>`
 
 ## js/03-geometry.js (285 lines)
 Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles.
@@ -152,7 +152,7 @@ Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everyt
 - 254 `safeImage(value)` Keep raster drawings untouched; sanitize SVG drawings before embedding them.
 - 328 `imageMap(value)`
 
-## js/05-storage.js (832 lines)
+## js/05-storage.js (843 lines)
 Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(), autosave save() / flushSave() / runSave() with a localStorage fallback, validate(p) migrates every older project shape (bump the version here), migrateLegacy() for v6 files, keepStorage(), the second-tab warning (tab…
 
 - 8 `idb` One transaction keeps project metadata and media consistent after interruption.
@@ -171,12 +171,12 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 164 `on window beforeunload`
 - 171 `normMark(m, types)`
 - 193 `validate(p)`
-- 670 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
-- 766 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
-- 775 `TAB_ID`
-- 778 `tabTell(kind)`
-- 784 `tabWarn(text, reload = false)`
-- 820 `deviceId()`
+- 681 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
+- 777 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
+- 786 `TAB_ID`
+- 789 `tabTell(kind)`
+- 795 `tabWarn(text, reload = false)`
+- 831 `deviceId()`
 
 ## js/06-ui-helpers.js (117 lines)
 Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
@@ -234,13 +234,13 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 1279 `cancelDraft()`
 - 1285 `updateHint()`
 
-## js/08-actions.js (345 lines)
+## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
 
 - 5 `addItem(def, at)`
 - 60 `act(a, el)`
-- 274 `restoreMissing(ref)`
-- 287 `setField(f, v)`
+- 280 `restoreMissing(ref)`
+- 293 `setField(f, v)`
 
 ## js/09-sheets.js (138 lines)
 Sheets: the standard, proposals and daily checks. openSheet(), newDaily(), newProposal(), makeStandard(), deleteSheet().
@@ -462,7 +462,7 @@ drawing editor: walls, fixed objects, cover-ups, labels
 - 239 `on #editBanDone onclick`
 - 241 `paneFixed()`
 
-## js/23-floor-marking.js (545 lines)
+## js/23-floor-marking.js (581 lines)
 floor marking: schedule, setting-out, standard
 
 - 3 `tswStyle(t) =>`
@@ -476,9 +476,21 @@ floor marking: schedule, setting-out, standard
 - 161 `paneMark()`
 - 221 `usedTypeIds()` marking standard editor
 - 228 `async markingModal()`
-- 346 `csvSchedule()` exports
-- 388 `csvSetout()`
-- 432 `printMarkingSheet()` printable marking sheet
+- 361 `csvSchedule()` exports
+- 411 `csvSetout()`
+- 456 `markExtent(sh)` printable marking sheet the box round everything marked on a sheet (tape runs, aisles, item home marks); null…
+- 485 `tapePlanSVG(sh, vb, k)` the plan as printed for tape: walls and fixed objects, tape, home marks, run numbers, datum; no items
+- 509 `printMarkingSheet()`
+
+## js/23-tape-plan.js (192 lines)
+The A3 sheet someone lays floor tape from: the plan drawn to a true scale (1:50, 1:100 ...) with run numbers and the datum, a colour key, the order list (supplier, code, metres, rolls), the runs with their start points, a scale bar and a title block for sign-off. printTapePlan() makes it; the full …
+
+- 8 `TP_PAGE`
+- 14 `patName(t) =>`
+- 21 `tpScale(ext, m)` the smallest standard scale at which the marked area fits the plan box: 1:n
+- 29 `tpScaleBar(n)` a scale bar about 50 mm long in round metres, drawn in real millimetres
+- 40 `printTapePlan()`
+- 168 `printColourStandard()` the colour standard: every tape type as a document to review and sign
 
 ## js/24-example-project.js (1264 lines)
 A made-up but realistic line so you can see every feature filled in: walls, machines, items with home marks, floor tape, routes, documents, actions and a proposal to compare. Dates are relative to today, so the document review warnings always show something. Open it from the empty layout or Setting…
@@ -874,7 +886,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/00-base.css** (115 lines): 
 - **css/10-header.css** (509 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
 - **css/20-layout.css** (778 lines): 1 sheet strip · 84 studio · 531 side
-- **css/30-registers.css** (355 lines): 1 trends · 103 registers, drift · 316 5S view
+- **css/30-registers.css** (392 lines): 1 trends · 103 registers, drift · 319 phones: name and use get full rows, the small fields share one · 353 5S view
 - **css/40-dialogs.css** (605 lines): 1 dialog · 398 tracking charts and red tag photos · 441 boards and labels · 589 SMED
 - **css/50-accounts.css** (98 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (226 lines): 1 problem solving
@@ -882,3 +894,4 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card
 - **css/85-document-map.css** (108 lines): 1 document map: documents on their own map
 - **css/90-tasks-present.css** (238 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden
+- **css/95-tape-plan.css** (167 lines): 1 tape plan (A3) and colour standard: print only, the #printDoc box is hidden on …

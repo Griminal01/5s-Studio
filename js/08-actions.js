@@ -210,6 +210,12 @@ function act(a, el) {
     case "printMarking":
       printMarkingSheet();
       break;
+    case "printTapePlan":
+      printTapePlan();
+      break;
+    case "printColourStd":
+      printColourStandard();
+      break;
     case "csvSchedule":
       csvSchedule();
       break;

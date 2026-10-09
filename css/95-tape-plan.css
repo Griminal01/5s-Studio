@@ -1,0 +1,166 @@
+/* tape plan (A3) and colour standard: print only, the #printDoc box is hidden on screen */
+.tplan {
+  height: 279mm; /* one A3 page, never two */
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 282mm 1fr;
+  gap: 5mm;
+  font-size: 8pt;
+  color: #1c2250;
+}
+.tplan h1,
+.cstd h1 {
+  font-size: 15pt;
+  margin: 0;
+}
+.tphead {
+  display: flex;
+  align-items: baseline;
+  gap: 4mm;
+  margin-bottom: 2mm;
+}
+.tphead span {
+  font-size: 10pt;
+  color: #555;
+}
+.tpplan {
+  width: 282mm;
+  height: 232mm;
+  border: 0.4mm solid #1c2250;
+  overflow: hidden;
+}
+.tpplan svg {
+  display: block;
+}
+.tpfoot {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  margin-top: 1.5mm;
+  font-size: 7pt;
+  color: #444;
+}
+.tpbar {
+  flex: none;
+  overflow: visible;
+}
+.tpbar text {
+  fill: #1c2250;
+  font-family:
+    Segoe UI,
+    system-ui,
+    sans-serif;
+}
+.tpside h2 {
+  font-size: 10pt;
+  margin: 0 0 1.5mm;
+  padding-top: 1mm;
+  border-top: 0.4mm solid #1c2250;
+}
+.tpside h2 small {
+  font-weight: 400;
+  color: #555;
+}
+.tpside > :first-child {
+  margin-top: 0;
+}
+.tpt {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 3mm;
+}
+.tpt th,
+.tpt td {
+  border-bottom: 0.2mm solid #ccd;
+  padding: 0.8mm 1mm;
+  text-align: left;
+  vertical-align: top;
+}
+.tpt th {
+  font-size: 7pt;
+  color: #555;
+  font-weight: 600;
+}
+.tpt .n {
+  text-align: right;
+  white-space: nowrap;
+}
+.tpt .tot td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+.tpsub {
+  display: block;
+  font-size: 6.5pt;
+  color: #666;
+}
+.tpsw {
+  display: inline-block;
+  width: 9mm;
+  height: 2.6mm;
+  border: 0.2mm solid #555;
+  vertical-align: middle;
+  margin-right: 1.5mm;
+}
+.tpnote {
+  font-size: 7pt;
+  color: #444;
+  margin: 0 0 2.5mm;
+}
+.tpblock {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2mm;
+}
+.tpblock th,
+.tpblock td {
+  border: 0.3mm solid #1c2250;
+  padding: 1.2mm 1.5mm;
+  height: 5mm;
+  text-align: left;
+  font-size: 7.5pt;
+}
+.tpblock th {
+  width: 14mm;
+  background: #eef0f8;
+  font-weight: 600;
+}
+.cstd {
+  font-size: 9pt;
+  color: #1c2250;
+}
+.cstd .cst td {
+  padding: 2mm 1.5mm;
+  vertical-align: middle;
+}
+.csw {
+  display: inline-block;
+  width: 34mm;
+  height: 9mm;
+  border: 0.3mm solid #555;
+}
+.cstd .tpblock td {
+  height: 8mm;
+}
+.cstd .cshead td {
+  height: 6mm;
+}
+.tpside {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.tpbottom {
+  margin-top: auto;
+}
+.tpruns td {
+  font-size: 7pt;
+  padding: 0.6mm 1mm;
+}
+.tpruns .tpnm {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 44mm;
+}

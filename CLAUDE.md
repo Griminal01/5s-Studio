@@ -47,7 +47,8 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 17-pins, 18-shared-helpers | pins on the drawing (actions, documents), shared form helpers |
 | 19-forms, 20-registers | red tag form and register, action form and register |
 | 21-documents | documents register, form, pins, document map and list printing |
-| 22-drawing-editor, 23-floor-marking | walls and fixed objects; tape schedule, setting-out, print |
+| 22-drawing-editor, 23-floor-marking | walls and fixed objects; tape schedule, setting-out sheet, marking standard editor (`markingModal`) |
+| 23-tape-plan | `printTapePlan()`: one A3 sheet at a true scale (1:n chosen to fit, scale bar, print at 100%) with colour key, order list, runs and a title block; `printColourStandard()`: the marking standard as an A4 document to sign. Print styles in `css/95-tape-plan.css` |
 | 24-example-project | `makeExampleProject()` and `loadExample()` |
 | 25-tracking, 27-drift-map | Tracking view: checks over time, charts, "where things actually sit" |
 | 26-project-ui | project name, duplicate, item list controls |
@@ -70,7 +71,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 Removed features (formal audits, audit lines, TV, Boards and SMED) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
 checks, the drift map and areas were removed and restored; `validate()` parks `boards`, `smed` and `labels` untouched (git history at `c0594d8^` has the code); it brings parked tags back and
-turns old audit areas into plain areas. Project version is 11 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`; 11 added `a.locked` on lines and zones).
+turns old audit areas into plain areas. Project version is 12 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`; 11 added `a.locked` on lines and zones; 12 added ordering details on tape types (`roll`, `supplier`, `code`, `ref`) and `P.marking.std` (the colour standard's number, revision, owner)).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a
@@ -94,4 +95,4 @@ For UI changes, also load the page in Chromium (Playwright is preinstalled; do n
 
 ## Git
 Develop on the branch you were given. Do not open PRs unless asked. Commit small, one change each.
-Do not put company, site or product names in code, docs, tests or file names: the repo is published on GitHub Pages.
+Do not put company, site or product names in code, docs, tests or file names: the repo is published on GitHub Pages. Supplier names and product codes are data the team types into the marking standard, never defaults in the code.
