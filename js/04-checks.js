@@ -214,7 +214,11 @@ function cmpSheet() {
   const s = S();
   if (ui.cmp === "auto") return s.kind === "standard" ? null : stdFor(s);
   if (!ui.cmp) return null;
-  return P.sheets.find((x) => x.id === ui.cmp && x.id !== s.id) || null;
+  // a choice that is the sheet itself (or has been deleted) compares with the standard, as the picker shows
+  return (
+    P.sheets.find((x) => x.id === ui.cmp && x.id !== s.id) ||
+    (s.kind === "standard" ? null : stdFor(s))
+  );
 }
 const scoreCls = (v) =>
   v == null

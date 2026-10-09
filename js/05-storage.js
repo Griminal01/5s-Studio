@@ -76,11 +76,20 @@ function save() {
   $("#saved").textContent = "Saving…";
   saveT = setTimeout(flushSave, 350);
 }
-async function flushSave() {
+let saveDone = Promise.resolve();
+// Resolves when everything edited so far is saved. If a save is already running its loop
+// picks up the newer edits, so callers that switch project afterwards can rely on this.
+function flushSave() {
   clearTimeout(saveT);
   saveT = null;
-  if (holdSave || saveRunning || !savePending || !P) return;
+  if (holdSave || !P) return saveDone;
+  if (saveRunning) return saveDone;
+  if (!savePending) return saveDone;
   saveRunning = true;
+  saveDone = runSave();
+  return saveDone;
+}
+async function runSave() {
   try {
     while (savePending) {
       savePending = false;
@@ -106,6 +115,8 @@ async function flushSave() {
           localStorage.removeItem(recoveryKey());
         } catch {}
       } catch (error) {
+        // the images were not written to the database: they stay dirty until a write succeeds
+        dirtyImg = dirtyImg || mediaDirty;
         try {
           localStorage.setItem(
             recoveryKey(),
@@ -511,6 +522,14 @@ function validate(p) {
       for (const a of mine) if (a.no <= 0) a.no = ++p.counters[key];
     }
   }
+  // every record needs its own id, or editing or deleting one would hit several
+  for (const list of [p.tags, p.actions, p.documents, p.problems]) {
+    const seen = new Set();
+    for (const x of list) {
+      if (!x.id || seen.has(x.id)) x.id = uid();
+      seen.add(x.id);
+    }
+  }
   // operator tasks: the jobs done in a zone, each linked to the items it uses (by item ref)
   {
     const zoneIds = new Set(
@@ -569,7 +588,7 @@ function validate(p) {
     s.notes = String(s.notes || "");
     s.actions = String(s.actions || "");
     s.s5 = s.s5 || {};
-    s.photos = Array.isArray(s.photos) ? s.photos : [];
+    s.photos = photos(s.photos);
     s.shift = String(s.shift || "");
     s.checker = String(s.checker || "");
     delete s.reviewedAreas;

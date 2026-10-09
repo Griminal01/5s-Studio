@@ -1130,6 +1130,7 @@ details.menu[open] summary {
   left: 50%;
   top: 10px;
   transform: translateX(-50%);
+  width: max-content; /* otherwise it wraps into half the canvas width and covers it on a phone */
   background: var(--ink);
   color: #fff;
   padding: 7px 8px 7px 14px;
@@ -3407,4 +3408,15 @@ table.keys td {
   .sfields select {
     min-height: 44px;
   }
+}
+@media (pointer: coarse) {
+  .regtbl button,
+  .hint button,
+  .scopebar button {
+    min-height: 44px;
+  }
+}
+.scopebar {
+  flex-wrap: wrap;
+  max-width: calc(100% - 20px);
 }

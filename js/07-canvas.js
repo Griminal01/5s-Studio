@@ -394,7 +394,7 @@ function buildSVG(sh, o) {
           : "") +
         s.slice(midPos);
   }
-  if (!o.export) {
+  if (!o.export && !ui.printing) {
     // selection
     for (const id of ui.sel) {
       const f = find(id, sh);
@@ -644,6 +644,7 @@ svg.addEventListener("pointerdown", (e) => {
   svg.setPointerCapture(e.pointerId);
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (ptrs.size === 2) {
+    ui.tap = null; // the first finger of a pinch is not a click
     const [a, b] = [...ptrs.values()];
     if (ui.drag?.moved && ui.drag.mode !== "pan") renderAll();
     ui.drag = null;
@@ -661,16 +662,13 @@ svg.addEventListener("pointerdown", (e) => {
     startPan(e, false);
     return;
   }
-  if (ui.tool === "datum") {
-    setDatum(p);
-    return;
-  }
-  if (ui.tool === "doc" || ui.tool === "action" || ui.tool === "tag") {
-    placePin(p);
+  if (ui.tool !== "select" && e.pointerType === "touch") {
+    // a finger: wait to see whether it is a tap or the start of a pinch or pan
+    ui.tap = { id: e.pointerId, x: e.clientX, y: e.clientY, e, p };
     return;
   }
   if (ui.tool !== "select") {
-    addDraftPoint(e, p);
+    placeOrDraw(e, p);
     return;
   }
   const t = e.target.closest("[data-t]");
@@ -772,6 +770,8 @@ function startPan(e, clickClears) {
 svg.addEventListener("pointermove", (e) => {
   if (ptrs.has(e.pointerId))
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ui.tap && Math.hypot(e.clientX - ui.tap.x, e.clientY - ui.tap.y) > 8)
+    ui.tap = null; // it moved: not a tap
   if (ui.pinch && ptrs.size === 2) {
     const [a, b] = [...ptrs.values()],
       pi = ui.pinch,
@@ -808,7 +808,13 @@ svg.addEventListener("pointermove", (e) => {
     }
     return;
   }
-  if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 3) return;
+  // a finger wobbles more than a mouse: do not count a tap as a move
+  if (
+    !d.moved &&
+    Math.hypot(e.clientX - d.sx, e.clientY - d.sy) <
+      (e.pointerType === "mouse" ? 3 : 8)
+  )
+    return;
   if (d.mode === "pan") {
     d.moved = true;
     const r = svg.getBoundingClientRect(),
@@ -912,6 +918,12 @@ svg.addEventListener("pointermove", (e) => {
 function endDrag(e) {
   ptrs.delete(e.pointerId);
   if (ptrs.size < 2) ui.pinch = null;
+  if (ui.tap && ui.tap.id === e.pointerId) {
+    const t = ui.tap;
+    ui.tap = null;
+    if (e.type === "pointerup" && !ptrs.size) placeOrDraw(t.e, t.p);
+    return;
+  }
   const d = ui.drag;
   if (!d) return;
   ui.drag = null;
@@ -930,7 +942,7 @@ function endDrag(e) {
       const it = pinObj(d.pk, d.id);
       record("Moved pin", it ? pinLabel(d.pk, it) : "");
       renderAll();
-    } else openPin(d.pk, d.id);
+    } else if (e.type === "pointerup") openPin(d.pk, d.id);
     return;
   }
   if (d.mode === "pan") {
@@ -953,6 +965,7 @@ function endDrag(e) {
 }
 svg.addEventListener("pointerup", endDrag);
 svg.addEventListener("pointercancel", endDrag);
+svg.addEventListener("lostpointercapture", endDrag);
 svg.addEventListener("pointerleave", () => {
   if (ui.hover && !ui.drag) {
     ui.hover = null;
@@ -1009,6 +1022,12 @@ function setTool(t, level) {
   updateHint();
   draw();
   renderSide();
+}
+function placeOrDraw(e, p) {
+  if (ui.tool === "datum") setDatum(p);
+  else if (ui.tool === "doc" || ui.tool === "action" || ui.tool === "tag")
+    placePin(p);
+  else addDraftPoint(e, p);
 }
 function addDraftPoint(e, p) {
   const now = Date.now(),
@@ -1187,7 +1206,7 @@ async function finishDraft() {
       if (n) {
         const q = await modal(
           "Resize items to match the new scale?",
-          `<p style="margin-top:0">${n} item${n > 1 ? "s and zones are" : " or zone is"} already on this drawing (walls and fixed objects count too). Resize ${n > 1 ? "them" : "it"} so sizes are true metres?</p><p class="small muted">${prev ? "Sizes stay as real metres at the new scale." : "Items placed before a scale was set were drawn at an assumed size, so this is usually what you want."} Positions do not move.</p>`,
+          `<p style="margin-top:0">${n} item${n > 1 ? "s and marked areas are" : " or marked area is"} already on this drawing (walls and fixed objects count too). Resize ${n > 1 ? "them" : "it"} so sizes are true metres?</p><p class="small muted">${prev ? "Sizes stay as real metres at the new scale." : "Items placed before a scale was set were drawn at an assumed size, so this is usually what you want."} Positions do not move.</p>`,
           "Resize",
           { cancel: "Leave sizes alone" },
         );
@@ -1198,6 +1217,9 @@ async function finishDraft() {
               o.w *= f;
               o.h *= f;
             }
+          // aisle widths are drawing units too: they scale with the items
+          for (const s of sheets)
+            for (const m of s.marks) if (m.kind === "aisle") m.width *= f;
           for (const o of DM().fixed || []) {
             if (o.t === "wall") o.th *= f;
             else {
@@ -1207,11 +1229,14 @@ async function finishDraft() {
             }
           }
           if (STD().drawing === did)
-            for (const rv of Object.values(P.revisions))
+            for (const rv of Object.values(P.revisions)) {
               for (const o of rv.objects) {
                 o.w *= f;
                 o.h *= f;
               }
+              for (const m of rv.marks || [])
+                if (m.kind === "aisle") m.width *= f;
+            }
           record("Items resized to scale", "x" + n2(f));
         }
       }

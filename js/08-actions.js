@@ -41,6 +41,13 @@ function addItem(def, at) {
     if (category?.c) o.c = category.c;
   }
   checkpoint();
+  // working on one zone: a new item lands inside it (the middle of it if the view's centre is outside)
+  const A = scopeArea();
+  if (A && !scopeObj(o, A)) {
+    const c = areaCentre(A);
+    o.x = snapV(c.x, sh);
+    o.y = snapV(c.y, sh);
+  }
   sh.objects.push(o);
   ui.sel = [id];
   ui.tab = "item";
@@ -124,6 +131,7 @@ function act(a, el) {
       }
       ui.sel = ids;
       record("Duplicated", ids.length + " item(s)");
+      widenIfOutside(ids);
       renderAll();
       break;
     }

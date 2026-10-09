@@ -345,6 +345,20 @@ async function openProject(pid) {
 }
 async function deleteProject(pid) {
   await flushSave();
+  // the project that opens next must be readable: never put a blank one over unreadable data
+  if (pid === PID) {
+    const rest = IDX.list.filter((e) => e.id !== pid);
+    if (rest.length)
+      try {
+        await readProject(rest.at(-1).id);
+      } catch {
+        toast(
+          "Nothing was deleted: the next project in your list could not be read. Open that one first to see what is wrong.",
+          7000,
+        );
+        return;
+      }
+  }
   await idb.removePrefix(projPrefix(pid));
   try {
     localStorage.removeItem(recoveryKey(pid));

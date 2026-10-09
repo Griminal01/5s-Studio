@@ -18,6 +18,7 @@ const ui = {
   tool: "select",
   areaLevel: "zone",
   fromSetup: "",
+  tap: null,
   sel: [],
   tab: "item",
   cmp: "auto",
@@ -297,7 +298,11 @@ function restore(from, to) {
   D = snapshot.drawings;
   PH = snapshot.photos;
   dirtyImg = true;
-  ui.vb = null;
+  // keep the zoom and pan: undo should not throw the view back to the whole factory
+  if (ui.scope && !scopeArea()) {
+    ui.scope = "";
+    ui.vb = null;
+  }
   ui.sel = ui.sel.filter((id) => find(id));
   ui.draft = null;
   renderAll();

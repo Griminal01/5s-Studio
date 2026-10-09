@@ -125,6 +125,7 @@ async function deleteSheet() {
   );
   if (!r) return;
   checkpoint();
+  if (ui.cmp === s.id) ui.cmp = "auto";
   P.sheets = P.sheets.filter((x) => x !== s);
   pruneRevisions();
   P.active = STD().id;

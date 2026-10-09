@@ -161,7 +161,8 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     const st = snapStep(S()) * (e.shiftKey ? 10 : 1),
       [dx, dy] = arrows.map((v) => v * st);
-    checkpoint();
+    if (!selected().some((f) => !f.x.locked)) return;
+    if (!e.repeat) checkpoint(); // one undo step for a held key
     for (const f of selected()) {
       if (f.x.locked) continue;
       if (f.t === "obj") {

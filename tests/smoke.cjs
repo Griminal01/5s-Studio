@@ -258,15 +258,15 @@ const VIEWS = [
   await page.keyboard.press("q");
   const bb = await page.locator("#svg").boundingBox();
   for (const [a, b] of [
-    [0.05, 0.05],
-    [0.12, 0.05],
-    [0.12, 0.12],
-    [0.05, 0.12],
+    [0.4, 0.4],
+    [0.47, 0.4],
+    [0.47, 0.47],
+    [0.4, 0.47],
   ]) {
     await page.mouse.click(bb.x + bb.width * a, bb.y + bb.height * b);
     await page.waitForTimeout(450);
   }
-  await page.mouse.click(bb.x + bb.width * 0.05, bb.y + bb.height * 0.05);
+  await page.mouse.click(bb.x + bb.width * 0.4, bb.y + bb.height * 0.4);
   await page.waitForTimeout(400);
   const ar1 = await page.evaluate(() => ({
     n: areasOn().length,
@@ -763,6 +763,49 @@ const VIEWS = [
     document.getElementById("printDoc").className = "";
   });
 
+  // audit fixes: Reshape on the map, the settings dialog, the red tag register under a scope
+  await go("zones");
+  await page.click('#setupView [data-su="edit"]');
+  const rs = await page.evaluate(() => ({ view: ui.view, sel: ui.sel.length }));
+  expect(
+    rs.view === "layout" && rs.sel === 1,
+    "Reshape on the map did not select the zone: " + JSON.stringify(rs),
+  );
+  await page.evaluate(() => setScope(areasOn(STD())[0].id));
+  const tg = await page.evaluate(() => {
+    const n = P.tags.length;
+    P.tags.push({
+      ...clone(P.tags[0]),
+      id: uid(),
+      no: ++P.counters.tag,
+      x: null,
+      y: null,
+    });
+    setView("tags");
+    const rows = document.querySelectorAll("#regTbl tr[data-tag]").length;
+    P.tags.pop();
+    P.counters.tag--;
+    setScope("");
+    return { n, rows };
+  });
+  expect(
+    tg.rows >= 1,
+    "a red tag with no pin vanished under a zone scope: " + JSON.stringify(tg),
+  );
+  await page.click("#fileMenu summary");
+  await page.click("#bSettings");
+  await page.fill('#dlgBody [name="walk"]', "1.37");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  const st = await page.evaluate(() => ({
+    open: document.getElementById("dlg").open,
+    walk: P.settings.walk,
+  }));
+  expect(
+    !st.open && st.walk === 1.37,
+    "the settings dialog could not be saved: " + JSON.stringify(st),
+  );
+  await go("layout");
   // scope: the whole factory, one zone, then one line, through the Showing picker
   await go("layout");
   const sc0 = await page.evaluate(() => {

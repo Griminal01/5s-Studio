@@ -446,7 +446,9 @@ function printMarkingSheet() {
     sc = markSchedule(sh),
     so = settingOut(sh),
     F = (v) => esc(fmtLen(v, sh));
-  const save = { ...ui.layers };
+  const save = { ...ui.layers },
+    hid = ui.hiddenCategories;
+  ui.hiddenCategories = new Set(); // home tape for every item, whatever the item list is hiding
   Object.assign(ui.layers, {
     objects: false,
     routes: false,
@@ -502,6 +504,7 @@ function printMarkingSheet() {
     plan = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}">${buildSVG(sh, { k: vb[2] / 1500, cmp: null, export: true, runNos: true })}</svg>`;
   } finally {
     Object.assign(ui.layers, save);
+    ui.hiddenCategories = hid;
   }
   const sw = (t) =>
       `<span class="sw" style="background:${tswStyle(t)}"></span>`,

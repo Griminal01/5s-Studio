@@ -42,6 +42,22 @@ placed, dragged and opened; the Layout's Document tool is gone and its document 
 
 The example model line (Settings, or the empty layout) fills every view.
 
+## Code audit (11 Oct)
+
+Four independent read-through reviews plus random-click runs. Fixed: the Settings dialog could not be saved
+(number steps) and "New empty project" did nothing; the on-canvas hint covered the drawing on a phone so
+touch drawing failed (and a tap on a draw tool now waits to see if it is a pinch); Reshape on the map threw;
+scoped views lost layout checks, drifted items, and left hidden tape selected; red tags, actions and problems
+with no place vanished under a scope; countermeasures changed section wrongly when a problem was deleted or an
+action linked; A3 fishbone dropped starred causes; Pareto dates used UTC; aisle widths were not rescaled when
+the scale was set; Compare with the sheet itself showed nothing; delete or "refresh my copy" could remove data
+before the replacement was known good; images could be dropped after a failed database write; record ids are
+now unique after validate. Dead CSS from Boards and SMED removed.
+
+Known and not fixed: two browser tabs open on one account can overwrite each other (no lock); two people on
+different computers with the same username write the same team file name; "Show" on a task and several
+dialogs lose unsaved edits if you leave through a button inside the dialog (Settings Scale/Logo).
+
 ## Review done (two passes, all fixed and pushed)
 
 Highlights: phones showed no drawing (from v7); Enter in any dialog field cancelled it and lost what

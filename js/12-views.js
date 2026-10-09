@@ -243,10 +243,7 @@ function applyHash() {
     ui.scope = a ? a.id : "";
     ui.vb = null;
     dm.vb = null;
-    ui.sel = ui.sel.filter((i) => {
-      const f = find(i);
-      return !f || f.t !== "obj" || scopeObj(f.x);
-    });
+    ui.sel = ui.sel.filter(selectableInScope);
   }
   if (m[1] === "problems") {
     ui.prob.sel = "";

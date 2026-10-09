@@ -195,6 +195,7 @@ async function openTeamFile(en) {
   await openTeammateBundle(j, en.user, en.project);
 }
 async function openTeammateBundle(j, user, proj) {
+  let refresh = false;
   const mine = IDX.list.find(
     (x) => x.from && nameKey(x.from) === nameKey(user) && x.src === proj,
   );
@@ -206,14 +207,19 @@ async function openTeammateBundle(j, user, proj) {
       { cls: "mid" },
     );
     if (!r) return;
-    if (r.m === "refresh") await deleteProject(mine.id);
+    refresh = r.m === "refresh";
   }
   try {
     await importBundle(j, proj, user, proj);
-    toast(`Opened ${user}'s project as a copy in your list.`);
   } catch {
-    toast("That is not a project file this studio can open.");
+    toast(
+      "That is not a project file this studio can open. Your copy was not changed.",
+    );
+    return;
   }
+  // the old copy goes only once the new one has opened
+  if (refresh) await deleteProject(mine.id);
+  toast(`Opened ${user}'s project as a copy in your list.`);
 }
 $("#fTeam").onchange = async () => {
   const f = $("#fTeam").files[0];

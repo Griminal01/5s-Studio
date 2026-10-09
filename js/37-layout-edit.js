@@ -289,8 +289,8 @@ function selectInBox(m) {
       ? DM(sh).fixed || []
       : [
           ...(ui.layers.objects ? sh.objects.filter(visibleItem) : []),
-          ...(ui.layers.marks ? sh.marks : []),
-          ...(ui.layers.routes ? sh.routes : []),
+          ...(ui.layers.marks ? sh.marks.filter((m) => scopeMark(m)) : []),
+          ...(ui.layers.routes ? sh.routes.filter((r) => scopeMark(r)) : []),
         ],
     ids = list
       .map((x) => find(x.id))
@@ -379,6 +379,7 @@ function pasteClip() {
   ui.sel = ids;
   ui.tab = "item";
   record("Pasted", ids.length + " item(s)");
+  widenIfOutside(ids);
   renderAll();
 }
 

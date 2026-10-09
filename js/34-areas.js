@@ -816,13 +816,21 @@ function scopeBox(a) {
     pad = Math.max(b.x1 - b.x0, b.y1 - b.y0) * 0.28 + 6;
   return { x0: b.x0 - pad, y0: b.y0 - pad, x1: b.x1 + pad, y1: b.y1 + pad };
 }
+/* a selected thing that the scope hides must not stay selected: it could not be seen but could be deleted */
+function selectableInScope(i) {
+  const f = find(i),
+    A = scopeArea();
+  if (!f || !A) return true;
+  if (f.t === "obj") return scopeObj(f.x, A);
+  if (f.t === "mark" || f.t === "route") return scopeMark(f.x, A);
+  if (f.t === "area")
+    return f.x.id === A.id || (isLine(A) && f.x.parent === A.id);
+  return true;
+}
 function setScope(id, fromHash = false) {
   const a = P.areas.find((x) => x.id === id && x.drawing === S().drawing);
   ui.scope = a ? a.id : "";
-  ui.sel = ui.sel.filter((i) => {
-    const f = find(i);
-    return !f || f.t !== "obj" || scopeObj(f.x);
-  });
+  ui.sel = ui.sel.filter(selectableInScope);
   ui.vb = null;
   dm.vb = null;
   if (!fromHash) syncHash(false);
@@ -871,4 +879,16 @@ function ensureVisible(x, y) {
   const A = scopeArea();
   if (A && !ptInPoly({ x, y }, A.pts)) setScope("");
   if (!ui.vb) fitView();
+}
+
+/* things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are not lost */
+function widenIfOutside(ids) {
+  const A = scopeArea();
+  if (!A) return;
+  if (ids.some((id) => !selectableInScope(id))) {
+    ui.scope = "";
+    ui.vb = null;
+    syncHash(false);
+    toast("Placed outside the zone, so the whole factory is showing.");
+  }
 }
