@@ -5,8 +5,7 @@
 Lean Studio (formerly 5S Studio) is a **design tool for the model line**, used by Josh and Sam to work out, before touching the floor:
 
 1. **5S design**: what the area should look like, where floor tape goes, and which items and documents live where.
-2. **SMED**: designing faster changeovers.
-3. **Problem solving**: structured analysis (A3, 5-Why, fishbone) that feeds actions.
+2. **Problem solving**: structured analysis (A3, 5-Why, fishbone) that feeds actions.
 
 Mobile auditing, the factory TV dashboard and cloud sync are **deferred** until IT and existing systems are known. They stay designed (section 7) so we can expand later, but nothing in the first phases depends on them. Everything below works offline, local-first, with no IT involvement.
 
@@ -58,7 +57,7 @@ Goal: Josh and Sam can sit down, design the model line area, and print what the 
 | 1.1 **Model line sample project** ✅ | `js/24-example-project.js`: walls, machines, items with home marks, tape, routes, 14 documents, actions and a proposal. Loadable from Settings or the empty layout, and used by the smoke test (no layout problems, documents print, data round-trips) | S |
 | 1.2 **Tape plan review and print** | Walk through the existing floor-marking schedule and setting-out with a real area. Produce one A3 "tape plan" page: scaled drawing, colour legend, each strip with length/width/colour, measurements from datum, total tape per colour and rolls to order. Check against the company's actual tape colour standard | M |
 | 1.3 **Documents in the area** ✅ | A document register: title, type (SOP, OPL, checklist, changeover sheet, risk assessment, KPI), owner, revision, review date, format/size, quantity, holder. Place each as a pin on the drawing linked to its holder (document stand, board, noticeboard). Printable "document map" and list; warn when review date has passed. Next: a shared-template field and a "last checked on the floor" date | M |
-| 1.4 **Items and shadow boards** ✅ | Boards view: numbered slots with type, part no., qty, min/max and size; location codes (`SB-01-03`); auto-packed layout with a "does it fit" check; labels for a label printer (one label per page, Brother TZe / Dymo / Zebra / custom), CSV for label software, scaled layout print, 1:1 outlines on A4 or A3. Next: QR / barcode on kanban labels, board photos, and a drag-to-arrange editor | M |
+| 1.4 **Items and shadow boards** ✅ (removed in version 9, data parked) | Boards view: numbered slots with type, part no., qty, min/max and size; location codes (`SB-01-03`); auto-packed layout with a "does it fit" check; labels for a label printer (one label per page, Brother TZe / Dymo / Zebra / custom), CSV for label software, scaled layout print, 1:1 outlines on A4 or A3. Next: QR / barcode on kanban labels, board photos, and a drag-to-arrange editor | M |
 | 1.5 **Design variants side by side** | Proposals exist; add a side-by-side view of two proposals with differences listed (distance walked, floor area, tape needed) so a design decision can be argued from numbers | M |
 | 1.6 **Floor plan import** | Place a photo/PDF/PNG of the real floor as the drawing background with scale calibration, so tape and items are designed on the true space | M |
 | 1.7 **Working as two people** | `docs/WORKFLOW.md`: one master file in a shared folder; "Save as" with date and initials; a change note on each save (the app already has a journal); a warning when opening a file older than the one in the browser. A real merge feature is not needed for two users | S |
@@ -69,9 +68,9 @@ Goal: Josh and Sam can sit down, design the model line area, and print what the 
 
 ---
 
-## 4. Phase 2: SMED  |  next
+## 4. Phase 2: SMED  |  removed (version 9)
 
-Design a faster changeover and check it against the layout. Built as a module (1.8).
+SMED was built (changeover record, timeline, convert and compare, standard work, history) and then removed again because it was not earning its place. Its data is kept in `project.parked.smed` and the code is in git history before commit `c0594d8`. The table below is kept for reference if it is ever restored.
 
 | Item | Detail | Size |
 |---|---|---|
@@ -142,11 +141,11 @@ Earlier answers that still apply when these resume: TV is a mini PC or the TV's 
 ## 9. Suggested order
 
 1. ✅ **1.1** model line sample project and **1.3** documents. Then **1.8** module registry.
-2. ✅ **1.4** shadow boards and labels. Then confirm the real label printer size and print a test label.
+2. ✅ **1.4** shadow boards and labels (later removed).
 3. **1.2** tape plan print review (with Sam and a real tape colour standard).
 4. **1.7** shared workflow doc, **1.5** side-by-side, **1.6** floor plan import.
-5. ✅ **Phase 2 SMED** core (2.1, 2.3, 2.4, 2.6, 2.7). Next for SMED: video-timestamped steps (2.2).
-6. ✅ **Phase 3 problem solving** and **areas**. Next: try them on a real problem.
+5. ✅ **Phase 2 SMED** core, later removed.
+6. ✅ **Phase 3 problem solving**, **lines and zones** and **operator tasks**. Next: try them on a real problem.
 7. Revisit section 7 with IT.
 
 ## 10. Questions for Josh and Sam
