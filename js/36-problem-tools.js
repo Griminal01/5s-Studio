@@ -23,8 +23,8 @@ function fishboneSVG(p) {
     H = 560,
     SY = 280,
     COL = ["#202C86", "#0E7C86", "#6B3FA0"],
-    top = [FISH[0], FISH[1], FISH[2]],
-    bot = [FISH[3], FISH[4], FISH[5]],
+    top = FISH_TOP.map((k) => FISH.find((f) => f[0] === k)),
+    bot = FISH_BOT.map((k) => FISH.find((f) => f[0] === k)),
     ROWS = 5;
   const font = 'font-family="Segoe UI,system-ui,sans-serif"';
   let s = `<svg class="fishsvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fishbone diagram for ${esc(p.title)}">`;
@@ -61,24 +61,6 @@ function fishboneSVG(p) {
   drawSide(bot, false);
   return s + "</svg>";
 }
-function probFishHTML(p) {
-  return `<p class="small" style="margin:10px 0 6px">Brainstorm every possible cause under each branch before judging any of them. Then mark the ones the evidence points to as <b>likely</b> (red on the diagram), and start a 5-Why from them.</p>
-  <div class="fishwrap">${fishboneSVG(p)}</div>
-  <div class="fishcards">${FISH.map(
-    ([k, name, hint]) =>
-      `<section class="block"><h3>${name} <span class="count">${p.fish[k].length}</span></h3><p class="small muted" style="margin:0 0 6px">${esc(hint)}</p>${p.fish[
-        k
-      ]
-        .map(
-          (c) =>
-            `<div class="cause"><input data-fc="${k}:${esc(c.id)}" value="${esc(c.text)}" aria-label="Cause"><label class="chk" title="Mark as a likely cause"><input type="checkbox" data-fl="${k}:${esc(c.id)}"${c.likely ? " checked" : ""}>Likely</label><button type="button" data-pa="fish-why" data-a1="${k}" data-a2="${esc(c.id)}" title="Start a 5-Why from this cause">Why?</button><button type="button" data-pa="fish-del" data-a1="${k}" data-a2="${esc(c.id)}" aria-label="Remove this cause">✕</button></div>`,
-        )
-        .join(
-          "",
-        )}<div class="cause add"><input data-fadd="${k}" placeholder="Add a cause, press Enter" aria-label="Add a cause under ${esc(name)}"><button type="button" data-pa="fish-add" data-a1="${k}">Add</button></div></section>`,
-  ).join("")}</div>`;
-}
-
 /* ---------- Pareto ---------- */
 function paretoData() {
   const f = ui.prob;
@@ -262,6 +244,8 @@ function printProblem(p) {
     <section><h3>3 Target</h3>${para(p.target, "Not written yet.")}</section>
     <section><h3>4 Root cause analysis</h3>
       ${whys.length ? `<ol class="a3why">${whys.map((w) => `<li><b>${esc(w.text)}</b>${w.evidence.trim() ? `<span>${esc(w.evidence)}</span>` : ""}</li>`).join("")}</ol>` : '<p class="pdm">No 5-Why recorded.</p>'}
+      ${p.hypothesis.trim() ? `<p><b>Hypothesis:</b> ${esc(p.hypothesis)}</p>` : ""}
+      ${p.confirm.trim() ? `<p><b>Confirmed by:</b> ${esc(p.confirm)}</p>` : ""}
       ${p.root.trim() ? `<div class="a3root"><b>Root cause:</b> ${esc(p.root)}${p.rootCheck ? `<br><span>${esc(ROOT_CHECKS.find((c) => c[0] === p.rootCheck)[1])}</span>` : ""}</div>` : ""}
       ${probCauseCount(p) ? `<div class="a3fish">${fishboneSVG(p)}</div>` : ""}
     </section>

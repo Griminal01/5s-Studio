@@ -26,11 +26,12 @@ const ui = {
     focus: "",
     all: false,
   },
-  smed: { sel: "", tab: "plan" },
+  smed: { sel: "", tab: "plan", stage: "record" },
   prob: {
     sel: "",
     tab: "list",
-    sub: "define",
+    sub: "board",
+    newCause: "",
     st: "open",
     owner: "",
     area: "",
@@ -198,7 +199,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 6,
+    version: 7,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {

@@ -166,8 +166,7 @@ function applyHash() {
     if (m[2] === "pareto") ui.prob.tab = "pareto";
     else if (m[2] && P.problems.some((x) => x.id === m[2])) {
       ui.prob.sel = m[2];
-      if (["define", "why", "fish", "act", "review"].includes(m[3]))
-        ui.prob.sub = m[3];
+      if (["board", "details"].includes(m[3])) ui.prob.sub = m[3];
     }
   }
   setView(m[1], true);

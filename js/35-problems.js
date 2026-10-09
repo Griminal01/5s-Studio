@@ -31,10 +31,13 @@ const PROB_RESULTS = [
 ];
 const ROOT_CHECKS = [
   ["", "Not tested yet"],
-  ["yes", "Yes: fixing it stops the problem"],
-  ["unsure", "Not sure: needs a trial or more evidence"],
-  ["no", "No: it is only part of the story"],
+  ["yes", "Confirmed: fixing it stops the problem"],
+  ["unsure", "Not sure yet: needs a trial or more evidence"],
+  ["no", "Disproved: look at the next likely cause"],
 ];
+/* where each branch sits on the board: the same layout as a whiteboard fishbone */
+const FISH_TOP = ["machine", "method", "material"],
+  FISH_BOT = ["environment", "people", "measurement"];
 const MAX_WHYS = 8;
 const actFin = (a) => ["Done", "Cancelled"].includes(a.status);
 const probNo = (p) => "PS-" + String(p.no).padStart(3, "0");
@@ -103,6 +106,8 @@ function normProblem(x) {
         evidence: s(w.evidence),
       })),
     root: s(x.root),
+    hypothesis: s(x.hypothesis),
+    confirm: s(x.confirm),
     rootCheck: ROOT_CHECKS.some((c) => c[0] === x.rootCheck) ? x.rootCheck : "",
     fish: Object.fromEntries(
       FISH.map(([k]) => [
@@ -157,7 +162,7 @@ async function newProblem(over = {}) {
   P.problems.push(p);
   ui.prob.sel = p.id;
   ui.prob.tab = "list";
-  ui.prob.sub = "define";
+  ui.prob.sub = "board";
   record("Problem raised", probNo(p) + " " + p.title);
   renderAll();
   setView("problems");
@@ -258,6 +263,8 @@ function setProb(f, v) {
     save();
     const t = $("#psTitle");
     if (t) t.textContent = probNo(p) + " · " + p.title;
+    const fh = $("#psHead");
+    if (fh) fh.textContent = p.title;
     updateProbBadge();
   }
 }
@@ -266,16 +273,6 @@ function lightEdit(what) {
   if (!p) return;
   record("Problem updated", probNo(p) + " (" + what + ")");
   save();
-}
-function addWhy(p, text = "") {
-  if (p.whys.length >= MAX_WHYS)
-    return toast("Eight whys is plenty. Look at the last one.");
-  checkpoint();
-  p.whys.push({ id: uid(), text, evidence: "" });
-  lightEdit("why");
-  renderProblems();
-  const ins = $$("#problemView [data-why$=':text']");
-  ins.at(-1)?.focus();
 }
 function addCause(p, cat, text) {
   text = text.trim();
@@ -405,27 +402,12 @@ function drawProblems() {
 }
 
 function probDetailHTML(p) {
-  const pr = probProgress(p),
-    sub = ui.prob.sub,
-    tabs = [
-      ["define", "1 Define", ""],
-      ["why", "2 5-Why", p.whys.length ? p.whys.length : ""],
-      ["fish", "3 Fishbone", probCauseCount(p) || ""],
-      ["act", "4 Countermeasures", pr.n ? pr.done + "/" + pr.n : ""],
-      ["review", "5 Review and close", ""],
-    ];
-  const ar = probArea(p);
-  let h = `<div class="smedhead"><div><button id="psBack">← All problems</button><div class="smtitle" style="margin-top:8px"><span id="psTitle">${esc(probNo(p))} · ${esc(p.title)}</span> ${probPill(p.status)}</div><p class="small muted" style="margin:2px 0 0">${[p.category, ar?.name, p.owner && "Owner " + p.owner, "Raised " + fmtD(p.raised), probDays(p) + " days" + (p.status === "Closed" ? " to close" : " open")].filter(Boolean).map(esc).join(" · ")}</p></div>
-    <div class="btns" style="margin:0"><button class="pri" data-pa="print">Print A3 report</button>${ar ? '<button data-pa="area-show">Show the area</button>' : ""}<button class="danger" data-pa="del">Delete</button></div></div>
-    <div class="psteps">${tabs.map(([k, l, b]) => `<button data-ps-sub="${k}" class="${sub === k ? "on" : ""}">${l}${b !== "" ? `<span class="count">${b}</span>` : ""}</button>`).join("")}</div>`;
-  h += {
-    define: probDefineHTML,
-    why: probWhyHTML,
-    fish: probFishHTML,
-    act: probActHTML,
-    review: probReviewHTML,
-  }[sub](p);
-  return h;
+  const sub = ui.prob.sub === "details" ? "details" : "board",
+    ar = probArea(p);
+  return `<div class="smedhead"><div><button id="psBack">← All problems</button></div>
+    <div class="btns" style="margin:0"><button class="pri" data-pb="print-board" title="The board as it looks here, on one A3 page">Print board</button><button data-pa="print" title="Background, analysis, countermeasures and follow-up on one A3 page">Print A3 report</button>${ar ? '<button data-pa="area-show">Show the area</button>' : ""}<button class="danger" data-pa="del">Delete</button></div></div>
+    <div class="psteps"><button data-ps-sub="board" class="${sub === "board" ? "on" : ""}">Board</button><button data-ps-sub="details" class="${sub === "details" ? "on" : ""}">A3 details and close</button></div>
+    ${sub === "board" ? boardHTML(p) : probDetailsHTML(p)}`;
 }
 const pf = (p, k, label, attrs = "") =>
   `<label class="f">${label}<input data-pf="${k}" value="${esc(p[k])}"${attrs}></label>`;
@@ -436,16 +418,14 @@ function probChips(list, key, nameOf) {
     ? `<div class="pchips">${list.map((id) => `<span class="pchip">${esc(nameOf(id))}<button type="button" data-pa="rm-${key}" data-a1="${esc(id)}" aria-label="Remove">×</button></span>`).join("")}</div>`
     : "";
 }
-function probDefineHTML(p) {
+function probDetailsHTML(p) {
   const co = P.smed.changeovers.find((c) => c.id === p.co),
     docs = P.documents.filter((d) => !p.docs.includes(d.id)),
     stdItems = STD().objects.filter(
       (o) => o.kind === "item" && !p.items.includes(o.ref),
     );
   return `<div class="psform">
-  <div class="row2">${pf(p, "title", "What is the problem?")}<label class="f">Status<select data-pf="status">${opts(PROB_ST, p.status)}</select></label></div>
-  <div class="row3">${pf(p, "owner", "Owner", ' list="owners"')}${pf(p, "team", "Team (who helps)")}<label class="f">Raised<input data-pf="raised" type="date" value="${esc(p.raised)}"></label></div>
-  <div class="row3"><label class="f">Kind of problem (groups the Pareto)<input data-pf="category" list="probCats" value="${esc(p.category)}"></label><label class="f">Where<select data-pf="area">${optsKV([["", "Not set"], ...P.areas.map((a) => [a.id, a.name])], p.area)}</select></label><label class="f">Times it has happened<input data-pf="count" type="number" min="0" step="1" value="${esc(p.count || "")}"></label></div>
+  <div class="row3">${pf(p, "team", "Team (who helps)")}<label class="f">Kind of problem (groups the Pareto)<input data-pf="category" list="probCats" value="${esc(p.category)}"></label><label class="f">Times it has happened<input data-pf="count" type="number" min="0" step="1" value="${esc(p.count || "")}"></label></div>
   <div class="row3"><label class="f">Minutes lost in total<input data-pf="mins" type="number" min="0" step="1" value="${esc(p.mins || "")}"></label><label class="f">Linked red tag<select data-pf="tag">${optsKV([["", "None"], ...P.tags.map((t) => [t.id, tagNo(t) + " " + t.title])], p.tag)}</select></label><label class="f">Linked changeover<select data-pf="co">${optsKV([["", "None"], ...P.smed.changeovers.map((c) => [c.id, coCode(c) + " " + c.name])], p.co)}</select></label></div>
   ${co ? `<label class="f">Step of that changeover<select data-pf="step">${optsKV([["", "The whole changeover"], ...co.steps.map((s, i) => [s.id, i + 1 + ". " + (s.name || "step")])], p.step)}</select></label>` : ""}
   <datalist id="probCats">${PROB_CATS.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>${ownerList()}
@@ -460,70 +440,23 @@ function probDefineHTML(p) {
     <div><label class="f">Items on the layout<select data-padd="items"><option value="">Add an item…</option>${stdItems.map((o) => `<option value="${esc(o.ref)}">${esc(o.label)}</option>`).join("")}</select></label>${probChips(p.items, "items", (ref) => STD().objects.find((o) => o.ref === ref)?.label || "(removed)")}</div></div>
   </section>
   <section class="block wide"><h3>Photos <span class="count">${p.photos.length}</span></h3>${p.photos.length ? `<div class="photos">${p.photos.map((ph) => (PH[ph.id] ? `<button type="button" data-pa="photo-view" data-a1="${esc(ph.id)}" title="${esc(ph.cap || "Photo")}"><img src="${esc(PH[ph.id])}" alt="${esc(ph.cap || "Photo")}"></button>` : "")).join("")}</div>` : '<p class="small muted" style="margin:0">Show what it looks like when it goes wrong.</p>'}<div class="btns"><button type="button" data-pa="photo-add">Add photos</button><input type="file" id="psPhIn" accept="image/*" multiple hidden></div></section>
+  ${probReviewHTML(p)}
   </div>`;
-}
-
-function probWhyHTML(p) {
-  const w = p.whys,
-    chain = [...w.map((x) => x.text.trim()).filter(Boolean)].reverse();
-  let h = `<p class="small" style="margin:10px 0 4px">Ask <b>why</b> of each answer, not of the problem again. Stay with facts you can check, and write down the evidence. Stop when the answer is something you can fix that would stop it coming back. If an answer is "the operator forgot", ask why the process let that happen.</p>
-  <div class="whys"><div class="why prob"><span class="wn">Problem</span><div><b>${esc(p.title)}</b></div></div>`;
-  w.forEach((x, i) => {
-    h += `<div class="why"><span class="wn">Why ${i + 1}?</span><div><div class="wq">${i === 0 ? "Why does this happen?" : "Why did that happen?"}</div><input data-why="${i}:text" value="${esc(x.text)}" placeholder="Because…" aria-label="Why ${i + 1}"><input data-why="${i}:evidence" value="${esc(x.evidence)}" placeholder="Evidence: what did you see, measure or check?" aria-label="Evidence for why ${i + 1}"></div><button type="button" data-pa="why-del" data-a1="${i}" aria-label="Remove why ${i + 1}">✕</button></div>`;
-  });
-  h += `</div><div class="btns"><button class="pri" data-pa="why-add"${w.length >= MAX_WHYS ? " disabled" : ""}>${w.length ? "Add another why" : "Ask the first why"}</button>${w.length ? '<button data-pa="why-root">The last answer is the root cause</button>' : ""}</div>`;
-  h += `<section class="block wide root"><h3>Root cause</h3>${pt(p, "root", "", "The thing that, if it is fixed, stops the problem coming back. Write it as a cause, not as a solution.", 2)}
-  <label class="f">Test: if we fix this, does the problem stop?<select data-pf="rootCheck">${optsKV(ROOT_CHECKS, p.rootCheck)}</select></label>
-  ${chain.length > 1 ? `<p class="small muted" style="margin:6px 0 0">Read it back, from the root: ${chain.map((c) => `<b>${esc(c)}</b>`).join(" <span aria-hidden='true'>→</span> ")} <span aria-hidden="true">→</span> <b>${esc(p.title)}</b>. Does each step really cause the next?</p>` : ""}</section>`;
-  const likely = probLikely(p);
-  if (likely.length)
-    h += `<section class="block wide"><h3>Likely causes from the fishbone</h3><p class="small muted" style="margin-top:0">Start a 5-Why from one of these${w.length ? " (this replaces the chain above)" : ""}.</p>${likely.map((c) => `<button class="irow" style="--c:#c3361a" data-pa="why-seed" data-a1="${esc(c.id)}"><span>${esc(c.text)}</span><span>${esc(c.cat)}</span></button>`).join("")}</section>`;
-  return h;
-}
-
-function probActHTML(p) {
-  const list = probActs(p).sort(
-      (a, b) =>
-        actFin(a) - actFin(b) ||
-        (a.due || "9999").localeCompare(b.due || "9999"),
-    ),
-    pr = probProgress(p),
-    free = P.actions.filter((a) => !a.prob && !actFin(a));
-  let h = "";
-  if (p.root)
-    h += `<div class="status extra" style="margin-top:10px"><b>Root cause:</b> ${esc(p.root)}</div>`;
-  else
-    h += `<div class="status warn" style="margin-top:10px">No root cause written yet. <button data-ps-sub="why">Go to the 5-Why</button></div>`;
-  h += `<p class="small" style="margin:8px 0">Each countermeasure should remove or reduce a cause. Prefer fixes that make the problem impossible (a guide, a gauge, a changed layout) over reminders and retraining. They are normal actions, so they also show in the Actions register.</p>`;
-  if (pr.n)
-    h += `<div class="meter"><i style="width:${Math.round((pr.done / pr.n) * 100)}%;background:var(--ok)"></i></div><p class="small muted" style="margin:4px 0 8px">${pr.done} of ${pr.n} done${pr.late ? `, <b class="late-t">${pr.late} overdue</b>` : ""}</p>`;
-  if (pr.n && pr.done === pr.n && p.status === "Countermeasures")
-    h += `<div class="status ok"><b>Everything is done.</b> Check the fix worked.<button data-pa="to-verify">Move to Verifying</button></div>`;
-  h += list.length
-    ? `<table class="tbl" style="width:100%"><tr><th>No.</th><th>Countermeasure</th><th>Owner</th><th>Due</th><th>Status</th><th></th></tr>${list
-        .map((a) => {
-          const fin = actFin(a);
-          return `<tr class="click" data-pa="act-open" data-a1="${esc(a.id)}"><td><b>${esc(actNo(a))}</b></td><td class="t"><b>${esc(a.title)}</b>${a.note ? `<span class="sub">${esc(a.note)}</span>` : ""}</td><td>${esc(a.owner) || '<span class="muted">none</span>'}</td><td>${fin ? esc(fmtD(a.done)) : dueCell(a.due, actOverdue(a))}</td><td>${pill(a.status, a.status === "Done" ? "done" : a.status === "In progress" ? "prog" : a.status === "Cancelled" ? "" : "open")}</td><td><button data-pa="act-unlink" data-a1="${esc(a.id)}" title="Keep the action but take it off this problem">Unlink</button></td></tr>`;
-        })
-        .join("")}</table>`
-    : `<p class="empty">No countermeasures yet.</p>`;
-  h += `<div class="btns"><button class="pri" data-pa="act-add">Add a countermeasure</button>${free.length ? `<select id="psLink" aria-label="Link an existing action"><option value="">Link an existing action…</option>${free.map((a) => `<option value="${esc(a.id)}">${esc(actNo(a) + " " + a.title)}</option>`).join("")}</select>` : ""}</div>`;
-  return h;
 }
 
 function probReviewHTML(p) {
   const pr = probProgress(p),
     closed = p.status === "Closed";
-  return `<div class="psform">
-  <div class="status ${pr.n && pr.done === pr.n ? "ok" : "extra"}" style="margin-top:10px">${pr.n ? `<b>${pr.done} of ${pr.n}</b> countermeasures done.` : "<b>No countermeasures yet.</b>"} Wait long enough after the last one to be sure: a fix that has only run for a day has not been tested.</div>
+  return `<section class="block wide"><h3>Review and close</h3>
+  <div class="status ${pr.n && pr.done === pr.n ? "ok" : "extra"}" style="margin-top:0">${pr.n ? `<b>${pr.done} of ${pr.n}</b> countermeasures done.` : "<b>No countermeasures yet.</b>"} Wait long enough after the last one to be sure: a fix that has only run for a day has not been tested.</div>
   <div class="row2"><label class="f">Effectiveness check on<input data-pf="checkOn" type="date" value="${esc(p.checkOn)}"></label><label class="f">Result<select data-pf="result">${optsKV(PROB_RESULTS, p.result)}</select></label></div>
   ${pt(p, "after", "What do the numbers say now?", "Same measure as the current state: how often, how long, how many. Compare with the target.")}
-  ${pt(p, "standard", "What did we change so it stays fixed?", "Standard work, a document, a board, floor tape, a layout change. Link the document under Define.")}
+  ${pt(p, "standard", "What did we change so it stays fixed?", "Standard work, a document, a board, floor tape, a layout change. Link the document above.")}
   ${pt(p, "lessons", "What did we learn? Where else does it apply?", "Other lines, machines or areas with the same weakness.")}
   <div class="btns">${closed ? '<button data-pa="reopen">It came back: reopen</button>' : `${p.status !== "Verifying" ? '<button data-pa="to-verify">Move to Verifying</button>' : ""}<button class="pri" data-pa="close">Close this problem</button>`}</div>
   ${p.recur.length ? `<p class="small muted">Came back on: ${p.recur.map((d) => esc(fmtD(d))).join(", ")}.</p>` : ""}
   ${closed ? `<p class="small muted">Closed on ${esc(fmtD(p.closed))}, ${probDays(p)} days after it was raised.</p>` : ""}
-  </div>`;
+  </section>`;
 }
 
 /* ---------- events ---------- */
@@ -598,14 +531,6 @@ function probAction(name, a1, a2) {
       areaAct("areaOpen", { dataset: { id: ar.id } });
       return;
     }
-    case "why-add":
-      return p && addWhy(p);
-    case "why-del":
-      if (!p) return;
-      checkpoint();
-      p.whys.splice(+a1, 1);
-      lightEdit("why");
-      return renderProblems();
     case "why-root": {
       const last = p?.whys
         .map((x) => x.text.trim())
@@ -617,14 +542,6 @@ function probAction(name, a1, a2) {
       lightEdit("root cause");
       return renderProblems();
     }
-    case "why-seed": {
-      const c = probLikely(p).find((x) => x.id === a1);
-      if (!c) return;
-      checkpoint();
-      p.whys = [{ id: uid(), text: c.text, evidence: "" }];
-      lightEdit("why");
-      return renderProblems();
-    }
     case "fish-add": {
       const inp = $(`#problemView [data-fadd="${a1}"]`);
       return p && addCause(p, a1, inp ? inp.value : "");
@@ -633,6 +550,7 @@ function probAction(name, a1, a2) {
       if (!p) return;
       checkpoint();
       p.fish[a1] = p.fish[a1].filter((c) => c.id !== a2);
+      for (const a of probActs(p)) if (a.cause === a2) a.cause = "";
       lightEdit("fishbone");
       return renderProblems();
     }
@@ -642,8 +560,9 @@ function probAction(name, a1, a2) {
       checkpoint();
       p.whys = [{ id: uid(), text: c.text, evidence: "" }];
       lightEdit("why");
-      ui.prob.sub = "why";
-      return renderProblems();
+      renderProblems();
+      $('#problemView [data-why="1:text"]')?.focus();
+      return;
     }
     case "act-add":
       return (
@@ -688,7 +607,7 @@ psView.addEventListener("click", (e) => {
   if (t.closest("select,input,textarea")) return;
   if ((b = t.closest("[data-ps-open]"))) {
     ui.prob.sel = b.dataset.psOpen;
-    ui.prob.sub = "define";
+    ui.prob.sub = "board";
     return renderProblems(true);
   }
   if (t.closest("#psBack")) {
@@ -733,11 +652,19 @@ psView.addEventListener("change", (e) => {
   if (!p) return;
   if (el.dataset.pf) return setProb(el.dataset.pf, el.value);
   if (el.dataset.why !== undefined) {
-    const [i, k] = el.dataset.why.split(":"),
-      w = p.whys[+i];
-    if (!w) return;
+    const [i, k] = el.dataset.why.split(":");
+    if (+i >= MAX_WHYS) return;
     checkpoint();
-    w[k] = el.value;
+    while (p.whys.length <= +i)
+      p.whys.push({ id: uid(), text: "", evidence: "" });
+    p.whys[+i][k] = el.value;
+    // empty boxes at the end are not part of the chain
+    while (
+      p.whys.length &&
+      !p.whys.at(-1).text.trim() &&
+      !p.whys.at(-1).evidence.trim()
+    )
+      p.whys.pop();
     return lightEdit("why");
   }
   if (el.dataset.fc) {

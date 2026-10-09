@@ -388,7 +388,7 @@ const VIEWS = [
     draw();
   });
 
-  // problem solving: examples, the real forms, 5-Why, fishbone, countermeasures, A3, Pareto
+  // problem solving: examples, the board (fishbone, numbered actions, whys, hypothesis), A3, Pareto
   await page.click('[data-view="problems"]');
   await page.waitForTimeout(200);
   const pr0 = await page.evaluate(() => ({
@@ -410,20 +410,50 @@ const VIEWS = [
   await page.fill('#dlgForm [name="title"]', "Smoke problem");
   await page.click("#dlgOk");
   await page.waitForTimeout(300);
-  await page.click('[data-ps-sub="why"]');
-  await page.click('[data-pa="why-add"]');
+  // the board: fishbone cause -> numbered action, why chain, hypothesis, all on one screen
+  await page.fill('[data-fadd="machine"]', "Worn bearing");
+  await page.press('[data-fadd="machine"]', "Enter");
+  await page.click('[data-pb="likely"]');
+  await page.click('[data-pb="cause-act"]');
+  await page.fill("#paTitle", "Replace bearing");
+  await page.press("#paTitle", "Enter");
+  await page.waitForTimeout(200);
   await page.fill('[data-why="0:text"]', "Because A");
   await page.press('[data-why="0:text"]', "Tab");
   await page.click('[data-pa="why-root"]');
-  await page.click('[data-ps-sub="fish"]');
-  await page.fill('[data-fadd="machine"]', "Worn bearing");
-  await page.press('[data-fadd="machine"]', "Enter");
-  await page.check('[data-fl^="machine:"]');
-  await page.click('[data-ps-sub="act"]');
-  await page.click('[data-pa="act-add"]');
-  await page.fill('#dlgForm [name="title"]', "Replace bearing");
-  await page.click("#dlgOk");
-  await page.waitForTimeout(300);
+  await page.fill('[data-pf="hypothesis"]', "The bearing is worn");
+  await page.press('[data-pf="hypothesis"]', "Tab");
+  const prb = await page.evaluate(() => ({
+    num: document.querySelectorAll(".pboard .cnum").length,
+    cause: P.actions.at(-1).cause === P.problems.at(-1).fish.machine[0]?.id,
+  }));
+  expect(
+    prb.num >= 2 && prb.cause,
+    "an action raised from a cause is not numbered on both: " +
+      JSON.stringify(prb),
+  );
+  const prp = await page.evaluate(() => {
+    printBoard(P.problems.at(-1));
+    const out = {
+      fish: document.querySelectorAll("#printDoc .fcol").length,
+      inputs: document.querySelectorAll("#printDoc input, #printDoc textarea")
+        .length,
+      text:
+        document
+          .getElementById("printDoc")
+          .textContent.includes("WORN BEARING") ||
+        document
+          .getElementById("printDoc")
+          .textContent.includes("Worn bearing"),
+    };
+    document.body.classList.remove("printing-doc");
+    document.getElementById("pageStyle")?.remove();
+    return out;
+  });
+  expect(
+    prp.fish === 6 && prp.inputs === 0 && prp.text,
+    "the board did not print as plain text: " + JSON.stringify(prp),
+  );
   const pr1 = await page.evaluate(() => {
     const x = P.problems.at(-1),
       a = P.actions.at(-1);
@@ -432,6 +462,7 @@ const VIEWS = [
       title: x.title,
       whys: x.whys.length,
       root: x.root,
+      hyp: x.hypothesis,
       cause: x.fish.machine[0]?.likely,
       linked: a.prob === x.id && a.source === probNo(x),
       a3: document.querySelectorAll("#printDoc .a3cols section").length,
@@ -450,6 +481,7 @@ const VIEWS = [
     pr1.title === "Smoke problem" &&
       pr1.whys === 1 &&
       pr1.root === "Because A" &&
+      pr1.hyp === "The bearing is worn" &&
       pr1.cause &&
       pr1.linked,
     "the 5-Why, fishbone or countermeasure link did not work: " +
@@ -463,13 +495,14 @@ const VIEWS = [
     "the A3 report did not build: " + JSON.stringify(pr1),
   );
   expect(pr1.roundTrip, "problems changed when validated again");
-  await page.click('[data-ps-sub="review"]');
+  await page.click('[data-ps-sub="details"]');
   await page.click('[data-pa="close"]');
   await page.click("#dlgOk"); // closing early asks first
   await page.waitForTimeout(300);
   const pr2 = await page.evaluate(() => P.problems.at(-1).status);
   expect(pr2 === "Closed", "closing a problem did not work");
   await page.click('[data-view="smed"]');
+  await page.click("#smedView .smedhead details.menu summary");
   await page.click("#smProblem");
   await page.click("#dlgOk");
   await page.waitForTimeout(300);
@@ -549,6 +582,42 @@ const VIEWS = [
     sm1.dur === 300 && sm1.now > sm0.now,
     "editing a step time did not change the stopped time",
   );
+  // the four SMED steps: quick add in Record, one tap in Separate and Improve
+  const smN = await page.evaluate(() => curCO().steps.length);
+  await page.fill("#smQName", "Sweep the area");
+  await page.fill("#smQDur", "1:30");
+  await page.press("#smQName", "Enter");
+  await page.click('[data-stage="separate"]');
+  await page.click(
+    '#smSteps tr:last-of-type [data-seg="type"][data-v="after"]',
+  );
+  await page.click('[data-stage="improve"]');
+  await page.click(
+    '#smSteps tr[data-i="0"] [data-seg="plan"][data-v="eliminate"]',
+  );
+  const smS = await page.evaluate(() => {
+    const c = curCO();
+    return {
+      n: c.steps.length,
+      last:
+        c.steps.at(-1).name +
+        "/" +
+        c.steps.at(-1).dur +
+        "/" +
+        c.steps.at(-1).type,
+      plan: c.steps[0].plan,
+      charts: document.querySelectorAll("#smViz .gantt").length,
+    };
+  });
+  expect(
+    smS.n === smN + 1 &&
+      smS.last === "Sweep the area/90/after" &&
+      smS.plan === "eliminate" &&
+      smS.charts === 2,
+    "the SMED Record, Separate or Improve steps did not work: " +
+      JSON.stringify(smS),
+  );
+  await page.click('[data-stage="record"]');
   await page.click("#smTimer");
   await page.click('[data-tm="startBefore"]');
   await page.fill("#tmName", "Prep tools");

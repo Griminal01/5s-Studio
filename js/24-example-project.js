@@ -1062,6 +1062,11 @@ function makeExampleProject() {
         p.problems.push(x);
         return x;
       },
+      // the id of a cause, found by the start of its text
+      cid = (x, start) =>
+        Object.values(x.fish)
+          .flat()
+          .find((c) => c.text.startsWith(start))?.id || "",
       cm = (x, title, owner, due, status, extra = {}) =>
         action(title, owner, due, "High", status, {
           source: probNo(x),
@@ -1089,6 +1094,10 @@ function makeExampleProject() {
           "Operators check the splice and the film tension by hand after every reel change until the standard is in place.",
         root: "Unwind brake tension is not set or checked at reel change: it is not in the standard work and there is no gauge at the unwind.",
         rootCheck: "yes",
+        hypothesis:
+          "Uneven unwind tension after a reel change lets the film wander off the rollers. Test: set the brake with a gauge on every reel change for a week of nights.",
+        confirm:
+          "6 reel changes on nights with the tension set by gauge: no jams. 2 without the gauge: 1 jam.",
         docs: [docId("Packer start-up and shutdown")].filter(Boolean),
         items: [items["Film reel rack"].ref],
         checkOn: dayOffset(40),
@@ -1139,6 +1148,7 @@ function makeExampleProject() {
       "Josh",
       dayOffset(5),
       "In progress",
+      { cause: cid(jam, "Reel change steps") },
     );
     cm(
       jam,
@@ -1146,6 +1156,7 @@ function makeExampleProject() {
       "Sam",
       dayOffset(12),
       "Open",
+      { cause: cid(jam, "No tension gauge") },
     );
     cm(
       jam,
@@ -1153,6 +1164,7 @@ function makeExampleProject() {
       "Sam",
       dayOffset(-2),
       "Done",
+      { cause: cid(jam, "Left tracking roller") },
     );
     cm(
       jam,
@@ -1183,6 +1195,9 @@ function makeExampleProject() {
         containment: "Next format is staged at the line the shift before.",
         root: "Parts and tools are fetched with the machine stopped because the next format kit is never staged and the tools have no home.",
         rootCheck: "yes",
+        hypothesis:
+          "The stop is long because parts and tools are fetched after the machine stops. Test: stage the kit before the stop on the next trial.",
+        confirm: "Trial 2 with the kit staged: 12 minutes less stopped.",
         checkOn: dayOffset(-1),
         after:
           "Trials 2 and 3 on the SMED history chart show the stopped time coming down.",
@@ -1215,7 +1230,7 @@ function makeExampleProject() {
       "Josh",
       dayOffset(-6),
       "Done",
-      { done: dayOffset(-8) },
+      { done: dayOffset(-8), cause: cid(slow, "Everything is done") },
     );
     cm(
       slow,
@@ -1223,7 +1238,7 @@ function makeExampleProject() {
       "Sam",
       dayOffset(-4),
       "Done",
-      { done: dayOffset(-5) },
+      { done: dayOffset(-5), cause: cid(slow, "Next format parts") },
     );
 
     const clean = prob(
@@ -1244,6 +1259,9 @@ function makeExampleProject() {
         target: "Complete on every start.",
         root: "The cleaning kit has no home and nothing shows what is missing, so it walks to other lines.",
         rootCheck: "yes",
+        hypothesis:
+          "The kit walks because it has no home and nobody can see what is missing.",
+        confirm: "Shadow board fitted: complete on 12 starts out of 12.",
         checkOn: dayOffset(-14),
         result: "yes",
         after: "Complete on every start for the last 12 shifts.",
@@ -1273,7 +1291,7 @@ function makeExampleProject() {
       "Sam",
       dayOffset(-30),
       "Done",
-      { done: dayOffset(-24) },
+      { done: dayOffset(-24), cause: cid(clean, "Cleaning station has no") },
     );
     cm(
       clean,
@@ -1281,7 +1299,7 @@ function makeExampleProject() {
       "Josh",
       dayOffset(-20),
       "Done",
-      { done: dayOffset(-16) },
+      { done: dayOffset(-16), cause: cid(clean, "No kit count") },
     );
 
     prob({

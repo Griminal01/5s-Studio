@@ -378,6 +378,7 @@ function validate(p) {
     a.source = str(a.source);
     a.tag = str(a.tag);
     a.prob = str(a.prob);
+    a.cause = str(a.cause);
     a.drawing = str(a.drawing);
     a.x = num(a.x);
     a.y = num(a.y);
@@ -632,7 +633,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 6;
+  p.version = 7;
   p.app = "5s-studio";
   return p;
 }
