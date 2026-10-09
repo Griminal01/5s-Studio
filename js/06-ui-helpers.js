@@ -85,9 +85,9 @@ function printWithPage(html, cls, pageCss) {
 /* print what a view shows (registers, Tracking) without its buttons and filters */
 function printView(el, pageCss = "size: A4 landscape; margin: 10mm") {
   const c = el.cloneNode(true);
-  c.querySelectorAll("button, select, input, .filters, .dctl, .btns").forEach(
-    (n) => n.remove(),
-  );
+  c.querySelectorAll(
+    "button:not(.irow), select, input, .filters, .dctl, .btns",
+  ).forEach((n) => n.remove());
   printWithPage(
     `<div class="pd pdview"><p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}</p>${c.innerHTML}</div>`,
     "",

@@ -489,6 +489,7 @@ function areaAct(a, el) {
       ui.tab = "item";
       const c = areaCentre(x),
         b = areaBox(x);
+      ensureVisible(c.x, c.y);
       ui.vb.w = Math.max((b.x1 - b.x0) * 1.5, DM().w * 0.1);
       centreOn(c.x, c.y, false);
       renderSide();
@@ -776,27 +777,37 @@ const scopeObj = (o, a = scopeArea()) =>
       (isLine(a) && P.areas.find((z) => z.id === o.area)?.parent === a.id)));
 const scopeMark = (m, a = scopeArea()) =>
   !a || m.pts.some((p) => ptInPoly(p, a.pts)) || ptInPoly(scopeMid(m), a.pts);
-function scopeCmp(c, A) {
+/* the layout checks (blocked, walls, aisles...) kept to what touches the scope */
+function scopeIssues(c, A) {
   const inO = (o) => scopeObj(o, A),
     inP = (p) => ptInPoly(p, A.pts),
-    inM = (m) => scopeMark(m, A);
+    inM = (m) => scopeMark(m, A),
+    f = (k, fn) => (c[k] ? { [k]: c[k].filter(fn) } : {});
   return {
     ...c,
+    ...f("blocked", (z) => inO(z.o)),
+    ...f("structure", (z) => inO(z.o)),
+    ...f("walkBlock", (z) => inO(z.o)),
+    ...f("outOfArea", (z) => inO(z.o)),
+    ...f("wallHits", inP),
+    ...f("aisleClash", inP),
+    ...f("conflicts", inP),
+    ...f("aisleNarrow", inM),
+    ...f("damaged", inM),
+  };
+}
+function scopeCmp(c, A) {
+  const inO = (o) => scopeObj(o, A),
+    inM = (m) => scopeMark(m, A);
+  return {
+    ...scopeIssues(c, A),
     ok: c.ok.filter(inO),
-    moved: c.moved.filter((m) => inO(m.o)),
+    // an item that has drifted out of the zone is exactly what a check is for: keep it
+    moved: c.moved.filter((m) => inO(m.o) || inO(m.r)),
     extra: c.extra.filter(inO),
     missing: c.missing.filter(inO),
     tapeMissing: c.tapeMissing.filter(inM),
     tapeExtra: c.tapeExtra.filter(inM),
-    blocked: c.blocked.filter((z) => inO(z.o)),
-    structure: c.structure.filter((z) => inO(z.o)),
-    walkBlock: c.walkBlock.filter((z) => inO(z.o)),
-    outOfArea: (c.outOfArea || []).filter((z) => inO(z.o)),
-    wallHits: c.wallHits.filter(inP),
-    aisleClash: c.aisleClash.filter(inP),
-    conflicts: c.conflicts.filter(inP),
-    aisleNarrow: c.aisleNarrow.filter(inM),
-    damaged: c.damaged.filter(inM),
   };
 }
 /* a box round the area with a little room, in drawing units */
@@ -849,7 +860,15 @@ const scopePass = (p, keepUnplaced = false) =>
 /* a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line */
 function scopeProblem(p) {
   const a = scopeArea();
-  if (!a) return true;
+  // a problem with no "where" shows everywhere, so a new one never vanishes from the list
+  if (!a || !p.area) return true;
   if (p.area === a.id) return true;
   return isLine(a) && P.areas.find((z) => z.id === p.area)?.parent === a.id;
+}
+
+/* about to look at a point: widen the view to the whole factory if it is outside what is being shown */
+function ensureVisible(x, y) {
+  const A = scopeArea();
+  if (A && !ptInPoly({ x, y }, A.pts)) setScope("");
+  if (!ui.vb) fitView();
 }

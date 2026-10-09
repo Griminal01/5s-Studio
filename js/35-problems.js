@@ -142,7 +142,7 @@ async function newProblem(over = {}) {
   const r = await modal(
     "New problem",
     `<label class="f">What is the problem?<input name="title" required value="${esc(over.title || "")}" placeholder="e.g. Film jams at the infeed after a reel change"></label>
-    <div class="row2"><label class="f">Kind of problem<input name="category" list="probCats" value="${esc(over.category || "")}" placeholder="Pick or type"></label><label class="f">Where<select name="area">${optsKV([["", "Not set"], ...P.areas.map((a) => [a.id, a.name])], over.area || "")}</select></label></div>
+    <div class="row2"><label class="f">Kind of problem<input name="category" list="probCats" value="${esc(over.category || "")}" placeholder="Pick or type"></label><label class="f">Where<select name="area">${optsKV([["", "Not set"], ...P.areas.map((a) => [a.id, a.name])], over.area ?? (ui.scope || ""))}</select></label></div>
     <div class="row2"><label class="f">Owner<input name="owner" list="owners" value="${esc(over.owner || "")}"></label><label class="f">Raised<input name="raised" type="date" value="${esc(over.raised || today())}"></label></div>
     <datalist id="probCats">${PROB_CATS.map((c) => `<option value="${esc(c)}">`).join("")}</datalist>${ownerList()}
     <p class="small muted">You fill in the rest, the 5-Why and the fishbone, on the next screen.</p>`,
@@ -225,6 +225,8 @@ async function deleteProblem(p) {
   checkpoint();
   for (const a of probActs(p)) {
     a.prob = "";
+    a.cause = "";
+    a.stream = a.doc ? "doc" : "5s"; // it goes back to the register it would be in on reload
     if (a.source === probNo(p)) a.source = "";
   }
   for (const ph of p.photos) delete PH[ph.id];
@@ -364,9 +366,20 @@ function drawProblems() {
     return;
   }
   if (p) {
+    // a half-typed new action survives a re-render of the same problem (starring a cause, a status change...)
+    const draft =
+      el.dataset.draftFor === p.id
+        ? ["paTitle", "paWho", "paWhen"].map((id) => [id, $("#" + id)?.value])
+        : [];
     el.innerHTML = h + probDetailHTML(p);
+    el.dataset.draftFor = p.id;
+    for (const [id, v] of draft) {
+      const f = $("#" + id);
+      if (f && v != null) f.value = v;
+    }
     return;
   }
+  delete el.dataset.draftFor;
   const t = ui.prob.tab;
   h += `<div class="psmode"><button data-ps-tab="list" class="${t === "list" ? "on" : ""}">Problems</button><button data-ps-tab="pareto" class="${t === "pareto" ? "on" : ""}">Pareto: what to attack first</button></div>`;
   if (t === "pareto") h += paretoHTML();
@@ -544,11 +557,20 @@ function probAction(name, a1, a2) {
     case "fish-why": {
       const c = p?.fish[a1].find((x) => x.id === a2);
       if (!c) return;
-      checkpoint();
-      p.whys = [{ id: uid(), text: c.text, evidence: "" }];
-      lightEdit("why");
-      renderProblems();
-      $('#problemView [data-why="1:text"]')?.focus();
+      const go = () => {
+        checkpoint();
+        p.whys = [{ id: uid(), text: c.text, evidence: "" }];
+        lightEdit("why");
+        renderProblems();
+        $('#problemView [data-why="1:text"]')?.focus();
+      };
+      const n = p.whys.filter((w) => w.text.trim() || w.evidence.trim()).length;
+      if (!n) return go();
+      modal(
+        "Start the why chain from this cause?",
+        `<p style="margin-top:0">This replaces the ${n} answer${n > 1 ? "s" : ""} already in the why chain. You can undo straight after.</p>`,
+        "Replace",
+      ).then((ok) => ok && go());
       return;
     }
     case "act-add":
@@ -685,6 +707,8 @@ psView.addEventListener("change", (e) => {
     if (!a) return;
     checkpoint();
     a.prob = p.id;
+    a.cause = "";
+    a.stream = "improve";
     a.source = a.source || probNo(p);
     record("Countermeasure linked", actNo(a) + " to " + probNo(p));
     renderAll();

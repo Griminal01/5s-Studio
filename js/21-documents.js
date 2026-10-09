@@ -86,11 +86,13 @@ async function docModal(d, isNew) {
           ($("#docPin").onclick = () => {
             after = "pin";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#docShow") &&
           ($("#docShow").onclick = () => {
             after = "show";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#docDel") &&
           ($("#docDel").onclick = () => {
@@ -259,7 +261,7 @@ function renderDocuments() {
   };
   el.onchange = (e) => {
     const k = e.target.dataset.f;
-    if (!k) return;
+    if (!k || k === "q") return; // search is handled as you type; a rebuild here would eat the next click
     R[k] = e.target.value;
     renderDocuments();
   };
@@ -294,25 +296,27 @@ function csvDocuments() {
         "Notes",
         "Zone",
       ],
-      ...P.documents.map((d) => [
-        docNo(d),
-        d.title,
-        d.type,
-        d.ref,
-        d.rev,
-        d.owner,
-        d.issued,
-        d.review,
-        docOverdue(d) ? "Yes" : "No",
-        d.format,
-        d.qty,
-        holderName(d),
-        d.where,
-        d.status,
-        d.x != null ? "Yes" : "No",
-        d.note,
-        pinAreaName(d),
-      ]),
+      ...P.documents
+        .filter((d) => scopePass(d, true))
+        .map((d) => [
+          docNo(d),
+          d.title,
+          d.type,
+          d.ref,
+          d.rev,
+          d.owner,
+          d.issued,
+          d.review,
+          docOverdue(d) ? "Yes" : "No",
+          d.format,
+          d.qty,
+          holderName(d),
+          d.where,
+          d.status,
+          d.x != null ? "Yes" : "No",
+          d.note,
+          pinAreaName(d),
+        ]),
     ],
     "LeanStudio_documents.csv",
   );
@@ -331,7 +335,7 @@ const DOC_HEAD = (last = "Kept at") =>
   `<th>No.</th><th>Document</th><th>Type</th><th>Rev</th><th>Owner</th><th>Review by</th><th>Format</th><th>${last}</th>`;
 function printDocumentList() {
   const rows = P.documents
-    .filter((d) => d.status !== "Withdrawn")
+    .filter((d) => d.status !== "Withdrawn" && scopePass(d, true))
     .sort(
       (a, b) =>
         (holderName(a) || "\uffff").localeCompare(holderName(b) || "\uffff") ||
@@ -349,7 +353,7 @@ function printDocumentList() {
     groups.get(k).push(d);
   }
   printWithPage(
-    `<div class="pd"><h1>Documents in the area</h1>
+    `<div class="pd"><h1>Documents: ${esc(scopeArea()?.name || "the whole factory")}</h1>
     <p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}. ${rows.length} document${rows.length > 1 ? "s" : ""} in use. Tick when the right revision is in place.</p>
     ${[...groups]
       .map(

@@ -240,7 +240,19 @@ $("#setupView").addEventListener("change", (e) => {
   checkpoint();
   a[f] = v;
   record(isLine(a) ? "Line changed" : "Zone changed", a.name);
-  renderAll();
+  if (f === "name" || f === "owner") {
+    // keep the cards as they are, so the next click or Tab is not lost to a rebuild
+    $("#setupView .splan svg")?.replaceWith(
+      Object.assign(document.createElement("div"), {
+        innerHTML: setupPlanSVG(
+          STD(),
+          ui.view === "lines" ? "lines" : ui.view === "zones" ? "zones" : "map",
+        ),
+      }).firstChild,
+    );
+    renderSubnav(true);
+    save();
+  } else renderAll();
 });
 async function setupDelete(id) {
   const a = P.areas.find((x) => x.id === id);

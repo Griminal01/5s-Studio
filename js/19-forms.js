@@ -63,11 +63,13 @@ async function tagModal(t, isNew) {
           ($("#tagPin").onclick = () => {
             after = "pin";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#tagShow") &&
           ($("#tagShow").onclick = () => {
             after = "show";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#tagDel") &&
           ($("#tagDel").onclick = () => {
@@ -170,11 +172,13 @@ async function actionModal(a, isNew) {
           ($("#actPin").onclick = () => {
             after = "pin";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#actShow") &&
           ($("#actShow").onclick = () => {
             after = "show";
             $("#dlgOk").click();
+            if ($("#dlg").open) after = ""; // blocked by validation: do not act later
           });
         $("#actDel") &&
           ($("#actDel").onclick = () => {

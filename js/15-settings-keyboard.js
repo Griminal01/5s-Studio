@@ -3,11 +3,12 @@
 $("#bSettings").onclick = async () => {
   const s = P.settings,
     m = mpu();
+  let next = ""; // a second dialog opens only after this one has finished closing
   const r = await modal(
     "Settings",
-    `<div class="row2"><label class="f">Counts as moved beyond (${m ? "m" : "drawing units"})<input name="tol" type="number" step="0.1" min="0.05" value="${m ? s.tolM : s.tolU}"></label><label class="f">Or turned more than (°)<input name="rot" type="number" step="5" min="1" value="${esc(s.rotTol)}"></label></div>
-    <div class="row2"><label class="f">Score is green above (%)<input name="target" type="number" min="1" max="100" value="${esc(s.target)}"></label><label class="f">Walking speed (m/s)<input name="walk" type="number" step="0.1" min="0.3" value="${esc(s.walk)}"></label></div>
-    <label class="f">Shift length (hours)<input name="shiftH" type="number" step="0.5" min="1" value="${esc(s.shiftH)}"></label>
+    `<div class="row2"><label class="f">Counts as moved beyond (${m ? "m" : "drawing units"})<input name="tol" type="number" step="any" min="0.05" value="${m ? s.tolM : s.tolU}"></label><label class="f">Or turned more than (°)<input name="rot" type="number" step="any" min="1" value="${esc(s.rotTol)}"></label></div>
+    <div class="row2"><label class="f">Score is green above (%)<input name="target" type="number" min="1" max="100" value="${esc(s.target)}"></label><label class="f">Walking speed (m/s)<input name="walk" type="number" step="any" min="0.3" value="${esc(s.walk)}"></label></div>
+    <label class="f">Shift length (hours)<input name="shiftH" type="number" step="any" min="1" value="${esc(s.shiftH)}"></label>
     <h3>Scale</h3><p class="small muted" style="margin:0 0 6px">${m ? `10 m = ${Math.round(10 / m)} drawing units on this drawing.` : "Not set on this drawing yet."}</p>
     <div class="btns"><button type="button" id="stScale">Set scale with Measure</button>${m ? '<button type="button" id="stClear">Clear scale</button>' : ""}</div>
     <h3>Branding</h3><div class="btns"><button type="button" id="stLogo">Add logo</button>${P.logo ? '<button type="button" id="stNoLogo">Remove logo</button>' : ""}</div><p class="small muted" style="margin:0">Use an approved logo file, not a screenshot.</p>
@@ -40,21 +41,26 @@ $("#bSettings").onclick = async () => {
             renderAll();
           });
         $("#stExample").onclick = () => {
+          next = "example";
           d.close("cancel");
-          loadExample();
         };
-        $("#stReset").onclick = async () => {
+        $("#stReset").onclick = () => {
+          next = "reset";
           d.close("cancel");
-          const r = await modal(
-            "New empty project",
-            '<label class="f">Name<input name="n" required placeholder="e.g. Packing line, big redesign"></label><p class="small muted">It is added to My projects. Nothing you have is changed.</p>',
-            "Create",
-          );
-          if (r) await startNewProject(r.n.trim());
         };
       },
     },
   );
+  if (next === "example") return void loadExample();
+  if (next === "reset") {
+    const q = await modal(
+      "New empty project",
+      '<label class="f">Name<input name="n" required placeholder="e.g. Packing line, big redesign"></label><p class="small muted">It is added to My projects. Nothing you have is changed.</p>',
+      "Create",
+    );
+    if (q) await startNewProject(q.n.trim());
+    return;
+  }
   if (!r) return;
   checkpoint();
   const num = (v, d) => (Number(v) > 0 ? Number(v) : d);

@@ -22,8 +22,7 @@ const esc = (s) =>
       })[c],
   );
 const n2 = (v) => Math.round(v * 100) / 100;
-const today = () => {
-  const d = new Date();
+const today = (d = new Date()) => {
   return (
     d.getFullYear() +
     "-" +

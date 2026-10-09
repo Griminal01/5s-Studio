@@ -407,6 +407,13 @@ function selectCategoryItems(id) {
 function categoryGroupsHTML(sh) {
   const all = sh.objects.filter((o) => o.kind === "item" && scopeObj(o));
   const q = ui.itemQuery.trim().toLocaleLowerCase();
+  // a zone filter that points at a deleted zone is no filter
+  if (
+    ui.itemArea &&
+    ui.itemArea !== "none" &&
+    !P.areas.some((a) => a.id === ui.itemArea)
+  )
+    ui.itemArea = "";
   const matches = (o) =>
     (!ui.itemFilter || itemCategoryId(o) === ui.itemFilter) &&
     (!ui.itemArea ||

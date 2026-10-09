@@ -20,7 +20,7 @@ function tagFiltered() {
       if (f.st === "late" && !tagOverdue(t)) return false;
       if (f.owner && t.owner !== f.owner) return false;
       if (f.cat && t.cat !== f.cat) return false;
-      if (!scopePass(t)) return false;
+      if (!scopePass(t, true)) return false;
       if (
         q &&
         !(
@@ -66,9 +66,10 @@ function tagRows() {
 }
 function tagsHTML() {
   const F = ui.reg.tags,
-    open = P.tags.filter((t) => t.status !== "Closed"),
+    mine = P.tags.filter((t) => scopePass(t, true)),
+    open = mine.filter((t) => t.status !== "Closed"),
     late = open.filter(tagOverdue),
-    closed = P.tags.filter((t) => t.status === "Closed"),
+    closed = mine.filter((t) => t.status === "Closed"),
     rec = closed.filter(
       (t) => t.closed && daysBetween(t.closed, today()) <= 30,
     ).length,
@@ -118,7 +119,7 @@ function actFiltered() {
       if (f.st === "done" && !fin) return false;
       if (f.st === "late" && !actOverdue(a)) return false;
       if (f.owner && a.owner !== f.owner) return false;
-      if (f.s5 && a.s5 !== f.s5) return false;
+      if (f.s5 && ui.view !== "docactions" && a.s5 !== f.s5) return false;
       if (f.stream !== "all" && a.stream !== f.stream) return false;
       if (!scopePass(a, true)) return false;
       if (
@@ -245,7 +246,7 @@ function wireRegister(el) {
   };
   el.onchange = (e) => {
     const k = e.target.dataset.f;
-    if (!k) return;
+    if (!k || k === "q") return; // search is handled as you type; a rebuild here would eat the next click
     R[k] = e.target.value;
     renderRegister();
   };
@@ -276,25 +277,27 @@ function csvTags() {
         "Notes",
         "Zone",
       ],
-      ...P.tags.map((t) => [
-        tagNo(t),
-        t.raised,
-        t.by,
-        t.title,
-        t.cat,
-        t.reason,
-        t.disp,
-        t.owner,
-        t.due,
-        t.status,
-        t.closed,
-        t.status === "Closed"
-          ? daysBetween(t.raised || t.closed, t.closed || today())
-          : daysBetween(t.raised || today(), today()),
-        t.x != null ? "Yes" : "No",
-        t.note,
-        pinAreaName(t),
-      ]),
+      ...P.tags
+        .filter((t) => scopePass(t, true))
+        .map((t) => [
+          tagNo(t),
+          t.raised,
+          t.by,
+          t.title,
+          t.cat,
+          t.reason,
+          t.disp,
+          t.owner,
+          t.due,
+          t.status,
+          t.closed,
+          t.status === "Closed"
+            ? daysBetween(t.raised || t.closed, t.closed || today())
+            : daysBetween(t.raised || today(), today()),
+          t.x != null ? "Yes" : "No",
+          t.note,
+          pinAreaName(t),
+        ]),
     ],
     "LeanStudio_red_tag_register.csv",
   );
@@ -318,24 +321,26 @@ function csvActions() {
         "Notes",
         "Zone",
       ],
-      ...P.actions.map((a) => [
-        actNo(a),
-        a.raised,
-        a.title,
-        s5name(a.s5),
-        a.pri,
-        a.owner,
-        a.due,
-        a.status,
-        a.done,
-        sheetLabel(a.sheet),
-        P.tags.find((t) => t.id === a.tag)
-          ? tagNo(P.tags.find((t) => t.id === a.tag))
-          : "",
-        actOverdue(a) ? "Yes" : "No",
-        a.note,
-        pinAreaName(a),
-      ]),
+      ...P.actions
+        .filter((a) => scopePass(a, true))
+        .map((a) => [
+          actNo(a),
+          a.raised,
+          a.title,
+          s5name(a.s5),
+          a.pri,
+          a.owner,
+          a.due,
+          a.status,
+          a.done,
+          sheetLabel(a.sheet),
+          P.tags.find((t) => t.id === a.tag)
+            ? tagNo(P.tags.find((t) => t.id === a.tag))
+            : "",
+          actOverdue(a) ? "Yes" : "No",
+          a.note,
+          pinAreaName(a),
+        ]),
     ],
     "LeanStudio_action_log.csv",
   );

@@ -42,7 +42,8 @@ function fishboneSVG(p) {
         col = COL[i % 3];
       s += `<line x1="${cx}" y1="${y0}" x2="${cx + 130}" y2="${SY}" stroke="${col}" stroke-width="3.5" stroke-linecap="round"/>`;
       s += `<rect x="${cx - 70}" y="${y0 - (up ? 26 : -2)}" width="140" height="26" rx="13" fill="${col}"/><text x="${cx}" y="${y0 - (up ? 13 : -15)}" ${font} font-size="14" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="central">${esc(name)}</text>`;
-      const causes = p.fish[k];
+      // starred (likely) causes first, so they are never the ones cut off
+      const causes = [...p.fish[k]].sort((a, b) => !!b.likely - !!a.likely);
       causes.slice(0, ROWS).forEach((c, j) => {
         const yy = up ? 78 + j * 42 : H - 78 - j * 42,
           bxx = cx + (130 * (yy - y0)) / (SY - y0);
@@ -55,7 +56,7 @@ function fishboneSVG(p) {
         });
       });
       if (causes.length > ROWS)
-        s += `<text x="${cx - 60}" y="${up ? 78 + ROWS * 42 - 20 : H - 78 - ROWS * 42 + 28}" ${font} font-size="11" fill="#5E6584">+ ${causes.length - ROWS} more, see the list</text>`;
+        s += `<text x="${cx - 60}" y="${up ? 78 + ROWS * 42 - 20 : H - 78 - ROWS * 42 + 28}" ${font} font-size="11" fill="#5E6584">+ ${causes.length - ROWS} more, see the problem board</text>`;
     });
   drawSide(top, true);
   drawSide(bot, false);
@@ -68,7 +69,7 @@ function paretoData() {
   if (f.range !== "all") {
     const d = new Date();
     d.setDate(d.getDate() - Number(f.range));
-    cutoff = d.toISOString().slice(0, 10);
+    cutoff = today(d); // local date, like the dates on problems
   }
   const rows = P.problems.filter(
       (p) =>
@@ -194,7 +195,9 @@ function paretoHTML() {
       h +
       `<p class="empty">Nothing to chart. Raise problems and fill in <b>Times it has happened</b> and <b>Minutes lost</b> on each.</p></section></div>`
     );
-  const few = d.list.filter((e, i) => i === 0 || d.list[i - 1].cum < 0.8);
+  const few = d.list
+    .slice(0, 10)
+    .filter((e, i) => i === 0 || d.list[i - 1].cum < 0.8);
   h += `${d.fell ? `<p class="small muted">Nothing has minutes or counts filled in yet, so this counts problems. Add <b>Minutes lost</b> on each problem for a truer picture.</p>` : ""}${paretoSVG(d)}
   <p>${few.length === 1 ? `<b>${esc(few[0].k)}</b> alone is` : `The first <b>${few.length}</b> bars (${few.map((e) => esc(e.k)).join(", ")}) are`} <b>${Math.round(few.at(-1).cum * 100)}%</b> of ${esc(unit)}. Start there; navy bars are the vital few, the orange line is the running total.</p>
   <table class="tbl" style="width:100%"><tr><th>${esc({ category: "Kind of problem", area: "Where", owner: "Owner", status: "Status" }[f.by])}</th><th class="n">Problems</th><th class="n">${esc(unit)}</th><th class="n">Share</th><th class="n">Running total</th></tr>${d.list.map((e) => `<tr><td>${esc(e.k)}</td><td class="n">${e.n}</td><td class="n">${Math.round(e.v * 10) / 10}</td><td class="n">${Math.round((e.v / d.total) * 100)}%</td><td class="n">${Math.round(e.cum * 100)}%</td></tr>`).join("")}</table></section></div>`;

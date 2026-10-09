@@ -64,6 +64,10 @@ function act(a, el) {
       for (const f of live) {
         f.arr.splice(f.arr.indexOf(f.x), 1);
         if (f.t === "area") {
+          if (ui.scope === f.x.id) {
+            ui.scope = "";
+            ui.vb = null;
+          }
           if (isLine(f.x))
             for (const z of P.areas) if (z.parent === f.x.id) z.parent = "";
           releaseArea(f.x.id);
@@ -300,6 +304,10 @@ function setField(f, v) {
     val = Math.max(1, Math.round(Number(v)) || 30);
   } else if (f === "trips") {
     val = Math.max(0.1, Number(v) || 1);
+  }
+  if (t === "area" && f === "name" && !String(v).trim()) {
+    renderSide();
+    return;
   }
   checkpoint();
   if (f === "home") {

@@ -482,6 +482,7 @@ pane.addEventListener("click", (e) => {
         ui.hiddenCategories.delete(itemCategoryId(f.x));
       ui.sel = [b.dataset.sel];
     }
+    ensureVisible(x, y);
     centreOn(x, y);
     renderSide();
   }

@@ -242,6 +242,11 @@ function applyHash() {
     const a = m[2] && P.areas.find((x) => x.id === m[2]);
     ui.scope = a ? a.id : "";
     ui.vb = null;
+    dm.vb = null;
+    ui.sel = ui.sel.filter((i) => {
+      const f = find(i);
+      return !f || f.t !== "obj" || scopeObj(f.x);
+    });
   }
   if (m[1] === "problems") {
     ui.prob.sel = "";
@@ -253,6 +258,7 @@ function applyHash() {
     }
   }
   setView(m[1], true);
+  renderSide();
   return true;
 }
 window.addEventListener("popstate", () => {

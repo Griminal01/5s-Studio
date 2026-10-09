@@ -103,6 +103,7 @@ function showOnLayout(o) {
     STD();
   if (ui.view !== "layout") setView("layout");
   if (sh.id !== P.active) openSheet(sh.id);
+  ensureVisible(o.x, o.y);
   drawNow();
   centreOn(o.x, o.y);
 }

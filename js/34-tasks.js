@@ -159,8 +159,13 @@ function taskItemPickHTML(zone, chosen) {
 }
 async function taskModal(t, isNew) {
   let del = false;
-  const zones = areasOn(STD()),
-    docs = P.documents.filter((d) => d.status !== "Withdrawn");
+  // the task's current zone and document stay selectable even if they are withdrawn or elsewhere
+  const zones = P.areas.filter(
+      (a) => !isLine(a) && (a.drawing === STD().drawing || a.id === t.zone),
+    ),
+    docs = P.documents.filter(
+      (d) => d.status !== "Withdrawn" || d.id === t.doc,
+    );
   const html = `<label class="f">Task<input name="name" required value="${esc(t.name)}" placeholder="e.g. Change the film reel"></label>
     <div class="row3"><label class="f">Zone<select name="zone"><option value="">Not in a zone</option>${zones.map((z) => `<option value="${esc(z.id)}"${t.zone === z.id ? " selected" : ""}>${esc(z.name)}</option>`).join("")}</select></label><label class="f">Who<input name="who" list="taskwho" value="${esc(t.who)}"></label><label class="f">When<select name="freq">${opts(TASK_FREQ, t.freq)}</select></label></div>
     <div class="row3"><label class="f">Minutes each time<input name="mins" type="number" min="0" step="1" value="${esc(t.mins || "")}"></label><label class="f">5S step<select name="s5"><option value="">None</option>${optsKV(
@@ -268,6 +273,11 @@ async function taskModal(t, isNew) {
   }
   record(isNew ? "Task added" : "Task updated", taskNo(t) + " " + t.name);
   renderAll();
+  if (ui.view === "tasks" && !taskInScope(t))
+    toast(
+      "Saved. It is not in the zone being shown, so it is hidden here.",
+      5000,
+    );
 }
 const newTask = (i) => taskModal(blankTask(i || {}), true),
   editTask = (id) => {
@@ -392,14 +402,18 @@ $("#taskView").addEventListener("click", (e) => {
   if ((b = e.target.closest("[data-taskid]")))
     return editTask(b.dataset.taskid);
   if (e.target.closest("#tNew,#tNew2")) {
-    const a = scopeArea();
-    newTask({ zone: a && !isLine(a) ? a.id : "" });
+    const a = scopeArea(),
+      only =
+        a && isLine(a) && zonesOfLine(a).length === 1
+          ? zonesOfLine(a)[0]
+          : null;
+    newTask({ zone: a ? (isLine(a) ? only?.id || "" : a.id) : "" });
   } else if (e.target.closest("#tPrint")) printTasks();
   else if (e.target.closest("#tCsv")) csvTasks();
 });
 $("#taskView").addEventListener("change", (e) => {
   const k = e.target.dataset.f;
-  if (!k) return;
+  if (!k || k === "q") return;
   ui.reg.tasks[k] = e.target.value;
   renderTasks();
 });

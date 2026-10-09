@@ -335,7 +335,9 @@ function buildSVG(sh, o) {
   const IS =
     cs ||
     (L.objects || L.routes
-      ? issues(sh)
+      ? A
+        ? scopeIssues(issues(sh._all), A) // checks run on the whole sheet, then kept to the scope
+        : issues(sh)
       : {
           structure: [],
           walkBlock: [],
@@ -610,7 +612,9 @@ function snapPoint(p, e, last) {
     for (const m of [
       ...sh.marks,
       ...(DM(sh).fixed || []).filter((f) => f.t === "wall"),
-      ...(ui.tool === "area" ? areasOn(sh) : []),
+      ...(ui.tool === "area"
+        ? P.areas.filter((a) => a.drawing === sh.drawing)
+        : []),
     ])
       for (const v of m.pts) {
         const d = Math.hypot(v.x - p.x, v.y - p.y);
