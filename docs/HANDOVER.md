@@ -29,6 +29,9 @@ phone. Problems open as one board like the team's whiteboard: fishbone, likely c
 actions sharing a number, hypothesis and confirmation, why chain, inline actions; the rest sits under
 "A3 details and close". Board prints on one A3 sheet.
 
+Documents moved off the layout (10 Oct, at Sam's request): Documents opens on a Map tab where pins are
+placed, dragged and opened; the Layout's Document tool is gone and its document layer is off by default.
+
 The example model line (Settings, or the empty layout) fills every view.
 
 ## Review done (two passes, all fixed and pushed)

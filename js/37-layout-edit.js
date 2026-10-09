@@ -409,7 +409,7 @@ function shortcutsModal() {
   const rows = [
     [
       "Tools",
-      "V select · T tape · Q area · W route · M measure · G red tag · A action · D document",
+      "V select · T tape · Q area · W route · M measure · G red tag · A action",
     ],
     [
       "Select",

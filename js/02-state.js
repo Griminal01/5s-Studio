@@ -44,7 +44,7 @@ const ui = {
   reg: {
     tags: { st: "open", owner: "", cat: "", area: "", q: "" },
     acts: { st: "open", owner: "", s5: "", area: "", q: "" },
-    docs: { st: "all", type: "", owner: "", area: "", q: "" },
+    docs: { tab: "map", st: "all", type: "", owner: "", area: "", q: "" },
   },
   layers: {
     drawing: true,
@@ -59,7 +59,7 @@ const ui = {
     overlay: true,
     snap: true,
     pins: true,
-    docs: true,
+    docs: false, // documents have their own map in the Documents view
     areas: true,
   },
   vb: null,

@@ -48,7 +48,7 @@ const LAYERS = [
   ["dims", "Tape dimensions and datum"],
   ["runs", "Run numbers on tape"],
   ["pins", "Action and red tag pins"],
-  ["docs", "Document pins"],
+  ["docs", "Document pins (they have their own map under Documents)"],
   ["overlay", "Comparison overlay"],
   ["snap", "Snap to grid"],
 ];

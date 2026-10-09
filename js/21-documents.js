@@ -63,7 +63,7 @@ async function docModal(d, isNew) {
     <div class="row3"><label class="f">Format<select name="format">${opts(DOC_FORMATS, d.format)}</select></label><label class="f">Copies in the area<input name="qty" type="number" min="1" step="1" value="${esc(d.qty)}"></label><label class="f">Status<select name="status">${opts(DOC_ST, d.status)}</select></label></div>
     <div class="row2"><label class="f">Kept at<select name="holder">${optsKV([["", "Not at a listed holder"], ...holderChoices()], d.holder)}</select></label><label class="f">Exactly where<input name="where" value="${esc(d.where)}" placeholder="e.g. eye level, left of the HMI"></label></div>
     <label class="f">Notes<textarea name="note" rows="2">${esc(d.note)}</textarea></label>
-    <p class="pinfo">${d.x != null ? `Pinned on the layout${sheetLabel(d.sheet) ? " (" + esc(sheetLabel(d.sheet)) + ")" : ""}. Drag the pin to move it. <button type="button" id="docShow">Show on layout</button>` : `Not pinned to the drawing. <button type="button" id="docPin">Pin it on the layout</button>`}</p>
+    <p class="pinfo">${d.x != null ? `Pinned on the document map. Drag the pin there to move it. <button type="button" id="docShow">Show on the map</button>` : `Not pinned yet. <button type="button" id="docPin">Pin it on the document map</button>`}</p>
     ${isNew ? "" : '<div class="btns"><button type="button" class="danger" id="docDel">Delete this document</button></div>'}${ownerList()}`;
   const r = await modal(
     isNew ? "New document" : docNo(d) + " document",
@@ -140,8 +140,8 @@ async function docModal(d, isNew) {
     docNo(d) + " " + d.title,
   );
   renderAll();
-  if (after === "pin") startPinning("doc", d.id);
-  else if (after === "show") showOnLayout(d);
+  if (after === "pin") startDocPin(d.id);
+  else if (after === "show") showOnDocMap(d);
 }
 
 /* ----- the register view ----- */
@@ -208,10 +208,13 @@ function documentsHTML() {
   let h = `<header><div><h2>Documents in this area</h2><p class="muted" style="margin:4px 0 0">What information lives where: SOPs, one-point lessons, checklists and boards, with an owner and a review date.</p></div>
     <div class="kpis"><div><b>${live.length}</b><span>In use</span></div><div><b class="${late.length ? "c-bad" : ""}">${late.length}</b><span>Review overdue</span></div><div><b>${soon.length}</b><span>Due in 30 days</span></div><div><b>${unplaced.length}</b><span>Not pinned</span></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pri" id="dNew">New document</button><button id="dMap">Print document map</button><button id="dList">Print list</button><button id="dCsv">Export CSV</button></div></header>`;
+  if (P.documents.length)
+    h += `<div class="psmode"><button data-dtab="map" class="${F.tab === "map" ? "on" : ""}">Map</button><button data-dtab="register" class="${F.tab !== "map" ? "on" : ""}">Register</button></div>`;
+  if (P.documents.length && F.tab === "map") return h + docMapHTML();
   if (!P.documents.length)
     return (
       h +
-      `<div class="emptybox"><b>No documents yet</b>List the SOPs, checklists, one-point lessons and boards that belong in this area, say where each is kept, and who reviews it. You can pin each one on the layout, then print a document map for the area.<div style="margin-top:14px"><button class="pri" id="dNew2">New document</button></div></div>`
+      `<div class="emptybox"><b>No documents yet</b>List the SOPs, checklists, one-point lessons and boards that belong in this area, say where each is kept, and who reviews it. You can pin each one on the document map, then print it for the area.<div style="margin-top:14px"><button class="pri" id="dNew2">New document</button></div></div>`
     );
   h += `<div class="filters"><label>Show<select data-f="st">${optsKV(
     [
@@ -219,7 +222,7 @@ function documentsHTML() {
       ["live", "In use"],
       ["late", "Review overdue"],
       ["soon", "Review due soon"],
-      ["unplaced", "Not pinned on the layout"],
+      ["unplaced", "Not pinned on the map"],
       ["withdrawn", "Withdrawn"],
     ],
     F.st,
@@ -233,15 +236,21 @@ function documentsHTML() {
 function renderDocuments() {
   const el = $("#docView");
   el.innerHTML = documentsHTML();
+  if (ui.reg.docs.tab === "map") renderDocMap();
   const R = ui.reg.docs;
   el.onclick = (e) => {
     let b;
+    if ((b = e.target.closest("[data-dtab]"))) {
+      R.tab = b.dataset.dtab;
+      renderDocuments();
+      return;
+    }
     if ((b = e.target.closest("[data-docshow]"))) {
-      showOnLayout(pinObj("doc", b.dataset.docshow));
+      showOnDocMap(pinObj("doc", b.dataset.docshow));
       return;
     }
     if ((b = e.target.closest("[data-docpin]"))) {
-      startPinning("doc", b.dataset.docpin);
+      startDocPin(b.dataset.docpin);
       return;
     }
     if ((b = e.target.closest("[data-docid]"))) {

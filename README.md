@@ -42,8 +42,9 @@ Everything runs in the browser. There is no server and no build step. Data is st
   Zebra or a custom size), a scaled board layout, 1:1 outlines to cut from (A4 or A3), or export a CSV for
   label software.
 - **Documents**: a register of the SOPs, one-point lessons, checklists and boards in the area, where
-  each is kept, who owns it and when it is reviewed. Pin them on the layout, print a document map or a
-  tick-off list.
+  each is kept, who owns it and when it is reviewed. Documents have their own **map** (over a faded
+  copy of the layout, with a line to the item each is kept at), so the layout itself stays about
+  items and tape. Print a document map or a tick-off list.
 - **Red tags**: tag anything not needed or in the wrong place, with an owner, a decision and a date;
   pin it on the layout, with a register of what is open and overdue.
 - **Daily checks and Tracking**: start a check each day (it copies the standard), move things to where

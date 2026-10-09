@@ -89,6 +89,7 @@ function placePin(p) {
       : newAction(at);
 }
 function startPinning(kind, id) {
+  if (kind === "doc") return startDocPin(id); // documents are pinned on their own map
   ui.placing = { kind, id };
   if (ui.view !== "layout") setView("layout");
   setTool(PIN[kind].tool);

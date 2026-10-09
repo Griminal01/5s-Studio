@@ -516,6 +516,45 @@ const VIEWS = [
     "raising a problem from a changeover did not work: " + JSON.stringify(pr3),
   );
   await page.click('[data-view="layout"]');
+  // documents live on their own map, not on the layout
+  await page.click('#gnav [data-view="layout"]');
+  const dm0 = await page.evaluate(() => ({
+    layoutPins: document.querySelectorAll('#svg [data-pk="doc"]').length,
+    docTool: !!document.querySelector('[data-tool="doc"]'),
+  }));
+  await page.click('#gnav [data-view="documents"]');
+  await page.waitForTimeout(300);
+  const dm1 = await page.evaluate(() => ({
+    mapPins: document.querySelectorAll('#dmSvg [data-pk="doc"]').length,
+    pinned: P.documents.filter((d) => d.x != null && d.status !== "Withdrawn")
+      .length,
+    list: document.querySelectorAll(".dmlist [data-dmgo]").length,
+  }));
+  expect(
+    dm0.layoutPins === 0 &&
+      !dm0.docTool &&
+      dm1.mapPins === dm1.pinned &&
+      dm1.mapPins > 5 &&
+      dm1.list > 5,
+    "documents should be on their own map, not the layout: " +
+      JSON.stringify([dm0, dm1]),
+  );
+  const unpin = await page.evaluate(() => {
+    const d = P.documents.find((x) => x.x != null);
+    d.x = d.y = null;
+    renderDocuments();
+    return d.id;
+  });
+  await page.click(`[data-dmpin="${unpin}"]`);
+  const dmBox = await page.locator("#dmSvg").boundingBox();
+  await page.mouse.click(dmBox.x + dmBox.width / 2, dmBox.y + dmBox.height / 2);
+  expect(
+    await page.evaluate(
+      (id) => P.documents.find((x) => x.id === id).x != null,
+      unpin,
+    ),
+    "pinning a document on the document map did not work",
+  );
   // boards: edit a board through the real form, then build and "print" labels
   await page.click('[data-view="boards"]');
   await page.click('[data-bid] [data-bd="edit"]');
