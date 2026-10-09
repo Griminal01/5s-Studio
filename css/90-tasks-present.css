@@ -207,6 +207,9 @@ body.drawfocus .tools,
 body.drawfocus .side {
   display: none;
 }
+body.drawfocus .studio {
+  grid-template-columns: minmax(0, 1fr);
+}
 body.drawfocus .stage {
   height: 100vh;
   height: 100dvh;
