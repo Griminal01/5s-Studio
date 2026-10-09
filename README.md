@@ -53,6 +53,10 @@ display. They are in git history at commit `2ddb593`.
   or Edge; other browsers use the download and open buttons. The files are plain project files: anyone who
   can open the folder can read them.
 
+## Live site
+
+https://griminal01.github.io/5s-Studio/ (published from `main` by the `Deploy to Pages` workflow).
+
 ## Run it
 
 ```bash
