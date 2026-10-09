@@ -1,0 +1,98 @@
+# 5S Studio
+
+A design tool for a production line, used to work out before touching the floor:
+
+1. **5S design**: the layout, where floor tape goes, and which items and documents live where.
+2. **SMED**: cut changeover time. Problem solving is planned next (see `docs/ROADMAP.md`).
+
+Everything runs in the browser. There is no server and no build step. Data is stored on the device
+(IndexedDB) and can be saved to / opened from a project file.
+
+## What is in it
+
+- **Layout**: scaled drawing with walls and fixed equipment, movable items, floor tape (with a tape
+  schedule, setting-out and rolls to order), walking and vehicle routes, layout checks (keep-clear,
+  aisle widths), proposals compared with the standard, A3 print and PNG export.
+- **SMED**: record a changeover (stopwatch or typed in), mark each step as done with the machine
+  **stopped** or **while it runs**, and plan an improvement for each step (move to external, shorten, do
+  in parallel, eliminate). Gantt timelines of now and the plan, stopped time saved per changeover and per
+  year, a target line, a "look here first" list, walking distance from layout routes, a history across
+  trials, and a printable standard-work checklist.
+- **Boards**: shadow boards, cleaning stations and kanban racks. List what lives on each board in
+  numbered slots (tools, cleaning kit, spares, changeover parts, kanban bins with min / max). Each slot
+  gets a location code such as `SB-01-03`. Print labels sized for your label printer (Brother TZe, Dymo,
+  Zebra or a custom size), a scaled board layout, 1:1 outlines to cut from (A4 or A3), or export a CSV for
+  label software.
+- **Documents**: a register of the SOPs, one-point lessons, checklists and boards in the area, where
+  each is kept, who owns it and when it is reviewed. Pin them on the layout, print a document map or a
+  tick-off list.
+- **Red tags**: tag anything not needed or in the wrong place, with an owner, a decision and a date;
+  pin it on the layout, with a register of what is open and overdue.
+- **Daily checks and Tracking**: start a check each day (it copies the standard), move things to where
+  they really are, and Tracking shows **where each item actually sits over time**, what keeps drifting
+  from its home, and suggests moving the home to where it is really used. Export the movement log to a
+  spreadsheet.
+- **Actions**: a simple action log with owners and due dates, pinned on the layout.
+- **Example**: *Settings > Open the example model line* (or the button on an empty layout) loads a
+  complete example project to explore.
+
+Removed (parked, not lost: old project files keep that data): formal 5S audits and dashboards and the TV
+display. They are in git history at commit `2ddb593`.
+
+## Accounts, projects and sharing
+
+- Sign in with a **username and password** (created on first visit). Accounts live in this browser, so
+  two people can share a computer without seeing each other's work. Passwords are stored only as a salted
+  hash. It is a sign-in screen, **not encryption and not site security**: anyone can open the site and
+  make their own account, and there is no password reset. Keep **Save project** backups.
+- Each account has several **projects** (person icon, top right). Opening a project file, the example
+  or a teammate's project always adds a new project; nothing is replaced.
+- **Team**: pick a folder you both reach (a synced OneDrive or Teams folder, or a network drive) and your
+  open project is written there as a file. Your teammate's projects appear in the Team tab, and opening one
+  adds a copy to your own list, so you can look at each other's work and never overwrite it. Needs Chrome
+  or Edge; other browsers use the download and open buttons. The files are plain project files: anyone who
+  can open the folder can read them.
+
+## Run it
+
+```bash
+npm run serve        # http://localhost:8080
+```
+
+Or just open `index.html` in Chrome or Edge, or use the GitHub Pages address once the repository is
+published (see below). Use **Save project** regularly: the backup file is the only copy
+outside that browser.
+
+## Layout of the repo
+
+```
+index.html          page markup; loads css/ and js/ in order
+css/styles.css      all styles (screen and print)
+js/NN-name.js       app code, loaded in numeric order (see CLAUDE.md)
+tests/smoke.cjs     boots the app, visits every view, loads the example, prints documents
+tools/lint.cjs      cross-file lint (undefined names, unused code)
+docs/ROADMAP.md     the plan
+archive/            the original single-file v7, untouched
+```
+
+## Develop
+
+```bash
+npm install          # first time (Playwright and ESLint)
+npm run check        # syntax-check every js file
+npm run lint         # undefined names and dead code across all files
+npm test             # smoke test
+```
+
+See `docs/ROADMAP.md` for where this is going and `CLAUDE.md` for how the code is organised.
+
+## Host it on GitHub Pages
+
+1. Merge the working branch into `main`.
+2. Repository **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+3. The `Deploy to Pages` workflow publishes `index.html`, `css/` and `js/`; the address is
+   `https://<username>.github.io/<repository>/`.
+
+Pages sites are public (private Pages needs GitHub Enterprise Cloud). Nothing is stored on the site:
+projects stay in each person's browser or in their team folder. Because the site is public, anyone can
+create an account in their own browser and use the tool; the accounts only keep people on one computer apart.

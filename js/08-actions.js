@@ -1,0 +1,296 @@
+"use strict";
+/* ============ actions ============ */
+function addItem(def, at) {
+  const sh = S(),
+    u = upm(sh),
+    id = uid();
+  let auto = !at;
+  if (!at) at = { x: ui.vb.x + ui.vb.w / 2, y: ui.vb.y + vbH() / 2 };
+  let x = snapV(at.x, sh),
+    y = snapV(at.y, sh);
+  const step = Math.max(def.w, def.h) * u * 0.7;
+  for (
+    let n = 0;
+    auto &&
+    n < 30 &&
+    sh.objects.some((o) => Math.hypot(o.x - x, o.y - y) < step * 0.5);
+    n++
+  ) {
+    x = snapV(x + step, sh);
+    y = snapV(y + step * 0.4, sh);
+  }
+  const o = {
+    id,
+    ref: id,
+    type: def.n,
+    label: def.n,
+    kind: def.k || "item",
+    x,
+    y,
+    w: def.w * u,
+    h: def.h * u,
+    a: 0,
+    c: def.c || "#202C86",
+    fp: (def.k || "item") === "item" && sh.kind !== "daily",
+    locked: false,
+    note: "",
+  };
+  if (o.kind === "item") {
+    o.category = itemCategoryId(o);
+    const category = P.itemCategories.find((c) => c.id === o.category);
+    if (category?.c) o.c = category.c;
+  }
+  checkpoint();
+  sh.objects.push(o);
+  ui.sel = [id];
+  ui.tab = "item";
+  if (ui.tool !== "select") setTool("select");
+  record("Added", o.label);
+  renderAll();
+}
+function act(a, el) {
+  const sh = S(),
+    sel = selected();
+  switch (a) {
+    case "del": {
+      if (!sel.length) return;
+      const live = sel.filter((f) => !f.x.locked);
+      if (!live.length) {
+        toast("Unlock it first.");
+        return;
+      }
+      checkpoint();
+      const names = [];
+      for (const f of live) {
+        f.arr.splice(f.arr.indexOf(f.x), 1);
+        names.push(f.x.label || f.x.name || TAPE[f.x.type]?.n);
+      }
+      const miss =
+        sh.kind === "daily" &&
+        live.some(
+          (f) =>
+            f.t === "obj" &&
+            f.x.kind === "item" &&
+            stdFor(sh).objects.some((r) => r.ref === f.x.ref),
+        );
+      record(miss ? "Marked missing" : "Deleted", names.join(", "));
+      if (miss) toast("Marked missing. Click its red outline to put it back.");
+      else if (sh.kind === "standard") {
+        // boards and documents point at items in the standard: say when that link is lost
+        const refs = new Set(
+            live.filter((f) => f.t === "obj").map((f) => f.x.ref),
+          ),
+          nb = P.boards.filter((b) => refs.has(b.holder)).length,
+          nd = P.documents.filter((d) => refs.has(d.holder)).length;
+        if (nb || nd)
+          toast(
+            `${[nb && nb + " board" + (nb > 1 ? "s" : ""), nd && nd + " document" + (nd > 1 ? "s" : "")].filter(Boolean).join(" and ")} were kept here and are now unlinked. Undo (Ctrl+Z) to put it back.`,
+            7000,
+          );
+      }
+      ui.sel = [];
+      renderAll();
+      break;
+    }
+    case "dup": {
+      if (!sel.length) return;
+      checkpoint();
+      const off = mpu() ? 0.5 / mpu() : 4,
+        ids = [];
+      for (const f of sel) {
+        const n = clone(f.x);
+        n.id = n.ref = uid();
+        n.locked = false;
+        if (f.t === "obj") {
+          n.x += off;
+          n.y += off;
+        } else n.pts = n.pts.map((p) => ({ x: p.x + off, y: p.y + off }));
+        f.arr.push(n);
+        ids.push(n.id);
+      }
+      ui.sel = ids;
+      record("Duplicated", ids.length + " item(s)");
+      renderAll();
+      break;
+    }
+    case "lock": {
+      const objs = sel.filter((f) => f.t === "obj");
+      if (!objs.length) return;
+      checkpoint();
+      const v = !objs.every((f) => f.x.locked);
+      objs.forEach((f) => (f.x.locked = v));
+      record(v ? "Locked" : "Unlocked", objs.map((f) => f.x.label).join(", "));
+      renderAll();
+      break;
+    }
+    case "rot90": {
+      const objs = sel.filter((f) => f.t === "obj" && !f.x.locked);
+      if (!objs.length) return;
+      checkpoint();
+      objs.forEach((f) => (f.x.a = (f.x.a + 90) % 360));
+      record("Rotated", objs.map((f) => f.x.label).join(", "));
+      renderAll();
+      break;
+    }
+    case "back": {
+      const f = sel[0],
+        m = cmpCache?.moved.find((z) => z.o.id === f?.x.id);
+      if (!m) return;
+      checkpoint();
+      Object.assign(f.x, { x: m.r.x, y: m.r.y, a: m.r.a });
+      record("Moved back to standard", f.x.label);
+      renderAll();
+      break;
+    }
+    case "toStd": {
+      const f = sel[0],
+        std = STD();
+      if (!f || !std || sh.kind === "standard") return;
+      checkpoint();
+      const n = clone(f.x);
+      n.id = uid();
+      n.fp = true;
+      std.objects.push(n);
+      record("Added to standard", f.x.label);
+      toast(`${f.x.label} is now part of the standard.`);
+      renderAll();
+      break;
+    }
+    case "restoreAll": {
+      const c = cmpCache;
+      if (!c || !c.missing.length) return;
+      checkpoint();
+      for (const r of c.missing) sh.objects.push({ ...clone(r), id: uid() });
+      record("Put back", c.missing.length + " items");
+      renderAll();
+      break;
+    }
+    case "loadExample":
+      loadExample();
+      break;
+    case "openBoard": {
+      const bd = P.boards.find((x) => x.id === el?.dataset.id);
+      if (bd) boardModal(bd, false);
+      break;
+    }
+    case "newBoardFor": {
+      const f = sel[0];
+      if (f && f.t === "obj") newBoard(undefined, f.x);
+      break;
+    }
+    case "editMarking":
+      markingModal();
+      break;
+    case "setDatum":
+      setTool("datum");
+      break;
+    case "allLaid":
+      markAllLaid();
+      break;
+    case "printMarking":
+      printMarkingSheet();
+      break;
+    case "csvSchedule":
+      csvSchedule();
+      break;
+    case "csvSetout":
+      csvSetout();
+      break;
+    case "newDaily":
+      newDaily();
+      break;
+    case "rescore": {
+      if (sh.kind !== "daily") return;
+      checkpoint();
+      sh.rev = stdRev();
+      pruneRevisions();
+      record("Re-scored against current standard", sh.name);
+      renderAll();
+      break;
+    }
+    case "tagItem": {
+      const f = sel[0];
+      if (!f || f.t !== "obj") return;
+      newTag({
+        x: f.x.x,
+        y: f.x.y,
+        drawing: sh.drawing,
+        sheet: sh.id,
+        ref: f.x.ref,
+        title: f.x.label,
+      });
+      break;
+    }
+    case "newAct":
+      newAction({ sheet: sh.id });
+      break;
+    case "linesToActs":
+      linesToActions();
+      break;
+    case "toolRoute":
+      setTool("route");
+      break;
+    case "csvDev":
+      csvDeviations();
+      break;
+    case "csvRoutes":
+      csvRoutes();
+      break;
+    case "photo":
+      $("#fPhoto").click();
+      break;
+  }
+}
+function restoreMissing(ref) {
+  const sh = S(),
+    r = cmpCache?.ref?.objects.find((o) => o.ref === ref);
+  if (!r || sh.kind === "standard") return;
+  checkpoint();
+  const n = { ...clone(r), id: uid() };
+  sh.objects.push(n);
+  ui.sel = [n.id];
+  ui.tab = "item";
+  record("Put back", r.label);
+  toast(`${r.label} put back on this sheet.`);
+  renderAll();
+}
+function setField(f, v) {
+  const sel = selected();
+  if (sel.length !== 1) return;
+  const { t, x } = sel[0];
+  if (t === "obj" && x.locked && !["note"].includes(f)) {
+    toast("Unlock it first.");
+    renderSide();
+    return;
+  }
+  let val = v;
+  if (f === "w" || f === "h" || f === "th" || f === "fs" || f === "width") {
+    const n = Number(v);
+    if (!(n > 0)) {
+      renderSide();
+      return;
+    }
+    val = fromUser(n);
+  } else if (f === "a") val = (((Number(v) || 0) % 360) + 360) % 360;
+  else if (f === "freq") {
+    val = Math.max(1, Math.round(Number(v)) || 30);
+  } else if (f === "trips") {
+    val = Math.max(0.1, Number(v) || 1);
+  }
+  checkpoint();
+  if (f === "home") {
+    x.fp = val !== "none";
+    if (val !== "none") x.fpStyle = val;
+  } else x[f] = val;
+  if (f === "status") {
+    x.damaged = val === "worn";
+    x.laid =
+      val === "laid" ? x.laid || today() : val === "planned" ? "" : x.laid;
+  }
+  if (x.t === "text" && (f === "label" || f === "fs")) {
+    x.w = Math.max(1, String(x.label).length) * x.fs * 0.6;
+    x.h = x.fs * 1.3;
+  }
+  record("Edited", (x.label || x.name || TAPE[x.type]?.n) + " (" + f + ")");
+  renderAll();
+}

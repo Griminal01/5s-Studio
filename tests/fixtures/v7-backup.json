@@ -1,0 +1,709 @@
+{
+  "app": "5s-studio",
+  "version": 4,
+  "project": {
+    "version": 4,
+    "app": "5s-studio",
+    "itemCategories": [
+      { "id": "waste", "name": "Waste bins", "c": null },
+      { "id": "trolleys", "name": "Trolleys", "c": null },
+      { "id": "quality", "name": "Quality", "c": null },
+      { "id": "cleaning", "name": "Cleaning", "c": null },
+      { "id": "ppe", "name": "PPE", "c": null },
+      { "id": "production", "name": "Production", "c": null },
+      { "id": "other", "name": "Other", "c": null }
+    ],
+    "lines": [
+      { "id": "ld", "name": "Line D", "c": "#202C86", "owner": "" },
+      { "id": "le", "name": "Line E", "c": "#2F6FD6", "owner": "" },
+      { "id": "lt", "name": "Line T", "c": "#1F8A55", "owner": "" },
+      { "id": "lv", "name": "Line V", "c": "#B07C3A", "owner": "" }
+    ],
+    "areas": [
+      {
+        "id": "ar1",
+        "name": "Area 1",
+        "line": "ld",
+        "owner": "",
+        "freq": 30,
+        "pts": [
+          { "x": 1, "y": 1 },
+          { "x": 100, "y": 1 },
+          { "x": 100, "y": 100 }
+        ],
+        "closed": true,
+        "drawing": "d1",
+        "note": "",
+        "created": "2026-10-08"
+      }
+    ],
+    "audit": {
+      "questions": [
+        {
+          "id": "sort1",
+          "s": "sort",
+          "w": 1,
+          "ev": "",
+          "text": "Only what is needed for the work in this area is here.",
+          "help": "Look for spare parts, tools, packaging, paperwork and personal items with no job to do."
+        },
+        {
+          "id": "sort2",
+          "s": "sort",
+          "w": 1,
+          "ev": "redtags",
+          "text": "The red tag process is used: unneeded items are tagged, with an owner and a decision date.",
+          "help": "Check the red tag area and the register. Tags should not sit for weeks without a decision."
+        },
+        {
+          "id": "sort3",
+          "s": "sort",
+          "w": 1,
+          "ev": "",
+          "text": "Materials at the point of use are only what the current job needs.",
+          "help": "Packaging, film, cartons and consumables beyond the current run should be back in their store."
+        },
+        {
+          "id": "sort4",
+          "s": "sort",
+          "w": 1,
+          "ev": "",
+          "text": "No broken, obsolete or unused equipment, jigs or spares are kept in the area.",
+          "help": "Look under benches, behind guards and on top of cabinets."
+        },
+        {
+          "id": "sort5",
+          "s": "sort",
+          "w": 1,
+          "ev": "",
+          "text": "Food, drinks and personal belongings are only in designated places.",
+          "help": "Check against the hygiene and allergen rules for the area."
+        },
+        {
+          "id": "set1",
+          "s": "set",
+          "w": 1,
+          "ev": "",
+          "text": "Every item has a defined home that is marked or labelled.",
+          "help": "Floor marking, shadow boards, shelf labels or location signs. Could a new starter see where each thing goes?"
+        },
+        {
+          "id": "set2",
+          "s": "set",
+          "w": 1,
+          "ev": "layout",
+          "text": "Items are in their home and the area matches the standard layout.",
+          "help": "Compare with the standard layout. Anything out of place, missing or extra counts against this."
+        },
+        {
+          "id": "set3",
+          "s": "set",
+          "w": 1,
+          "ev": "",
+          "text": "Stock and consumables have marked minimum and maximum levels, and they are respected.",
+          "help": "Look for overfilled racks, empty locations and unmarked quantities."
+        },
+        {
+          "id": "set4",
+          "s": "set",
+          "w": 1,
+          "ev": "walk",
+          "text": "Walkways, fire points, electrical panels and emergency exits are marked and kept clear.",
+          "help": "Check aisle widths, truck routes, and clearance in front of panels and extinguishers."
+        },
+        {
+          "id": "set5",
+          "s": "set",
+          "w": 1,
+          "ev": "",
+          "text": "Tools and materials can be found and fetched without searching.",
+          "help": "Ask the operator to fetch three items and note how long it takes."
+        },
+        {
+          "id": "shine1",
+          "s": "shine",
+          "w": 1,
+          "ev": "",
+          "text": "Floors, machines and surfaces are clean, with no build-up of product, dust or spills.",
+          "help": "Check corners, under guards, drip trays, and the tops of machines."
+        },
+        {
+          "id": "shine2",
+          "s": "shine",
+          "w": 1,
+          "ev": "",
+          "text": "Cleaning and inspection routines are defined, visible and signed off.",
+          "help": "Look at cleaning schedules, checklists and the dates they were signed."
+        },
+        {
+          "id": "shine3",
+          "s": "shine",
+          "w": 1,
+          "ev": "",
+          "text": "Leaks, spills and sources of contamination are found, tagged and being fixed.",
+          "help": "Repeat dirt in the same place points to a cause that needs fixing, not just cleaning."
+        },
+        {
+          "id": "shine4",
+          "s": "shine",
+          "w": 1,
+          "ev": "",
+          "text": "Lighting, guards, covers, labels and signs are clean and undamaged.",
+          "help": "Check that nothing is obscured, cracked or missing."
+        },
+        {
+          "id": "shine5",
+          "s": "shine",
+          "w": 1,
+          "ev": "",
+          "text": "Cleaning equipment is stored in its home, in good condition and colour coded where required.",
+          "help": "Brushes, mops, scoops and cloths. Check allergen and hygiene colour coding."
+        },
+        {
+          "id": "std1",
+          "s": "std",
+          "w": 1,
+          "ev": "",
+          "text": "Visual standards are displayed and current: layout, marking colours, photos of the correct state.",
+          "help": "Are they at the point of use, and do they match what is actually there?"
+        },
+        {
+          "id": "std2",
+          "s": "std",
+          "w": 1,
+          "ev": "tape",
+          "text": "Floor markings are intact, the correct colour and match the marking standard.",
+          "help": "Look for worn, missing or wrong-colour tape and markings that were never laid."
+        },
+        {
+          "id": "std3",
+          "s": "std",
+          "w": 1,
+          "ev": "",
+          "text": "Responsibilities for 5S tasks are visible: who does what, and when.",
+          "help": "A rota, owner names or a board that the team actually uses."
+        },
+        {
+          "id": "std4",
+          "s": "std",
+          "w": 1,
+          "ev": "",
+          "text": "Everyone in the area knows the standard and can show where to find it.",
+          "help": "Ask two people on different shifts."
+        },
+        {
+          "id": "std5",
+          "s": "std",
+          "w": 1,
+          "ev": "",
+          "text": "Changes to the layout or standards follow a change process and the documents are updated.",
+          "help": "Check that recent changes are reflected in the standard layout and the visuals."
+        },
+        {
+          "id": "sus1",
+          "s": "sustain",
+          "w": 1,
+          "ev": "checks",
+          "text": "Layout checks and 5S checks are done on schedule and recorded.",
+          "help": "Look at the check records for gaps."
+        },
+        {
+          "id": "sus2",
+          "s": "sustain",
+          "w": 1,
+          "ev": "actions",
+          "text": "Actions from earlier checks and audits are closed on time.",
+          "help": "Check the action log for this area."
+        },
+        {
+          "id": "sus3",
+          "s": "sustain",
+          "w": 1,
+          "ev": "",
+          "text": "The team can explain the 5S standards for the area and why they matter.",
+          "help": "Ask someone to talk you through their own area."
+        },
+        {
+          "id": "sus4",
+          "s": "sustain",
+          "w": 1,
+          "ev": "",
+          "text": "Leaders include 5S in their walks and the results are on the board.",
+          "help": "Look for recent dated entries."
+        },
+        {
+          "id": "sus5",
+          "s": "sustain",
+          "w": 1,
+          "ev": "",
+          "text": "Scores are stable or improving, and problems that keep coming back get a root-cause fix.",
+          "help": "Compare with previous audits for this area."
+        }
+      ],
+      "target": 80,
+      "amber": 60,
+      "freq": 30,
+      "plant": "Plant"
+    },
+    "audits": [
+      {
+        "id": "au1",
+        "no": 1,
+        "area": "ar1",
+        "date": "2026-10-08",
+        "auditor": "Sam",
+        "status": "final",
+        "done": "2026-10-08",
+        "notes": "",
+        "qs": [
+          {
+            "id": "sort1",
+            "s": "sort",
+            "w": 1,
+            "ev": "",
+            "text": "Only what is needed for the work in this area is here.",
+            "help": "Look for spare parts, tools, packaging, paperwork and personal items with no job to do."
+          },
+          {
+            "id": "sort2",
+            "s": "sort",
+            "w": 1,
+            "ev": "redtags",
+            "text": "The red tag process is used: unneeded items are tagged, with an owner and a decision date.",
+            "help": "Check the red tag area and the register. Tags should not sit for weeks without a decision."
+          },
+          {
+            "id": "sort3",
+            "s": "sort",
+            "w": 1,
+            "ev": "",
+            "text": "Materials at the point of use are only what the current job needs.",
+            "help": "Packaging, film, cartons and consumables beyond the current run should be back in their store."
+          },
+          {
+            "id": "sort4",
+            "s": "sort",
+            "w": 1,
+            "ev": "",
+            "text": "No broken, obsolete or unused equipment, jigs or spares are kept in the area.",
+            "help": "Look under benches, behind guards and on top of cabinets."
+          },
+          {
+            "id": "sort5",
+            "s": "sort",
+            "w": 1,
+            "ev": "",
+            "text": "Food, drinks and personal belongings are only in designated places.",
+            "help": "Check against the hygiene and allergen rules for the area."
+          },
+          {
+            "id": "set1",
+            "s": "set",
+            "w": 1,
+            "ev": "",
+            "text": "Every item has a defined home that is marked or labelled.",
+            "help": "Floor marking, shadow boards, shelf labels or location signs. Could a new starter see where each thing goes?"
+          },
+          {
+            "id": "set2",
+            "s": "set",
+            "w": 1,
+            "ev": "layout",
+            "text": "Items are in their home and the area matches the standard layout.",
+            "help": "Compare with the standard layout. Anything out of place, missing or extra counts against this."
+          },
+          {
+            "id": "set3",
+            "s": "set",
+            "w": 1,
+            "ev": "",
+            "text": "Stock and consumables have marked minimum and maximum levels, and they are respected.",
+            "help": "Look for overfilled racks, empty locations and unmarked quantities."
+          },
+          {
+            "id": "set4",
+            "s": "set",
+            "w": 1,
+            "ev": "walk",
+            "text": "Walkways, fire points, electrical panels and emergency exits are marked and kept clear.",
+            "help": "Check aisle widths, truck routes, and clearance in front of panels and extinguishers."
+          },
+          {
+            "id": "set5",
+            "s": "set",
+            "w": 1,
+            "ev": "",
+            "text": "Tools and materials can be found and fetched without searching.",
+            "help": "Ask the operator to fetch three items and note how long it takes."
+          },
+          {
+            "id": "shine1",
+            "s": "shine",
+            "w": 1,
+            "ev": "",
+            "text": "Floors, machines and surfaces are clean, with no build-up of product, dust or spills.",
+            "help": "Check corners, under guards, drip trays, and the tops of machines."
+          },
+          {
+            "id": "shine2",
+            "s": "shine",
+            "w": 1,
+            "ev": "",
+            "text": "Cleaning and inspection routines are defined, visible and signed off.",
+            "help": "Look at cleaning schedules, checklists and the dates they were signed."
+          },
+          {
+            "id": "shine3",
+            "s": "shine",
+            "w": 1,
+            "ev": "",
+            "text": "Leaks, spills and sources of contamination are found, tagged and being fixed.",
+            "help": "Repeat dirt in the same place points to a cause that needs fixing, not just cleaning."
+          },
+          {
+            "id": "shine4",
+            "s": "shine",
+            "w": 1,
+            "ev": "",
+            "text": "Lighting, guards, covers, labels and signs are clean and undamaged.",
+            "help": "Check that nothing is obscured, cracked or missing."
+          },
+          {
+            "id": "shine5",
+            "s": "shine",
+            "w": 1,
+            "ev": "",
+            "text": "Cleaning equipment is stored in its home, in good condition and colour coded where required.",
+            "help": "Brushes, mops, scoops and cloths. Check allergen and hygiene colour coding."
+          },
+          {
+            "id": "std1",
+            "s": "std",
+            "w": 1,
+            "ev": "",
+            "text": "Visual standards are displayed and current: layout, marking colours, photos of the correct state.",
+            "help": "Are they at the point of use, and do they match what is actually there?"
+          },
+          {
+            "id": "std2",
+            "s": "std",
+            "w": 1,
+            "ev": "tape",
+            "text": "Floor markings are intact, the correct colour and match the marking standard.",
+            "help": "Look for worn, missing or wrong-colour tape and markings that were never laid."
+          },
+          {
+            "id": "std3",
+            "s": "std",
+            "w": 1,
+            "ev": "",
+            "text": "Responsibilities for 5S tasks are visible: who does what, and when.",
+            "help": "A rota, owner names or a board that the team actually uses."
+          },
+          {
+            "id": "std4",
+            "s": "std",
+            "w": 1,
+            "ev": "",
+            "text": "Everyone in the area knows the standard and can show where to find it.",
+            "help": "Ask two people on different shifts."
+          },
+          {
+            "id": "std5",
+            "s": "std",
+            "w": 1,
+            "ev": "",
+            "text": "Changes to the layout or standards follow a change process and the documents are updated.",
+            "help": "Check that recent changes are reflected in the standard layout and the visuals."
+          },
+          {
+            "id": "sus1",
+            "s": "sustain",
+            "w": 1,
+            "ev": "checks",
+            "text": "Layout checks and 5S checks are done on schedule and recorded.",
+            "help": "Look at the check records for gaps."
+          },
+          {
+            "id": "sus2",
+            "s": "sustain",
+            "w": 1,
+            "ev": "actions",
+            "text": "Actions from earlier checks and audits are closed on time.",
+            "help": "Check the action log for this area."
+          },
+          {
+            "id": "sus3",
+            "s": "sustain",
+            "w": 1,
+            "ev": "",
+            "text": "The team can explain the 5S standards for the area and why they matter.",
+            "help": "Ask someone to talk you through their own area."
+          },
+          {
+            "id": "sus4",
+            "s": "sustain",
+            "w": 1,
+            "ev": "",
+            "text": "Leaders include 5S in their walks and the results are on the board.",
+            "help": "Look for recent dated entries."
+          },
+          {
+            "id": "sus5",
+            "s": "sustain",
+            "w": 1,
+            "ev": "",
+            "text": "Scores are stable or improving, and problems that keep coming back get a root-cause fix.",
+            "help": "Compare with previous audits for this area."
+          }
+        ],
+        "ans": {}
+      }
+    ],
+    "marking": {
+      "types": [
+        {
+          "id": "walkway",
+          "name": "Walkway / aisle",
+          "c": "#FEC20F",
+          "c2": "",
+          "pattern": "solid",
+          "w": 50,
+          "use": "Edges of walkways and aisles"
+        },
+        {
+          "id": "equip",
+          "name": "Equipment & WIP",
+          "c": "#FFFFFF",
+          "c2": "",
+          "pattern": "solid",
+          "w": 50,
+          "use": "Homes for equipment, trolleys and work in progress"
+        },
+        {
+          "id": "raw",
+          "name": "Raw / packaging materials",
+          "c": "#2F6FD6",
+          "c2": "",
+          "pattern": "solid",
+          "w": 50,
+          "use": "Raw materials and packaging"
+        },
+        {
+          "id": "good",
+          "name": "Finished goods / QA OK",
+          "c": "#1F8A55",
+          "c2": "",
+          "pattern": "solid",
+          "w": 50,
+          "use": "Finished goods and released product"
+        },
+        {
+          "id": "red",
+          "name": "Red tag / reject / scrap",
+          "c": "#D3401D",
+          "c2": "",
+          "pattern": "solid",
+          "w": 50,
+          "use": "Red tag, reject and scrap areas"
+        },
+        {
+          "id": "hazard",
+          "name": "Hazard",
+          "c": "#FEC20F",
+          "c2": "#1C1C1C",
+          "pattern": "stripe",
+          "w": 50,
+          "use": "Hazards and trip points"
+        },
+        {
+          "id": "clear",
+          "name": "Keep clear",
+          "c": "#FFFFFF",
+          "c2": "#D3401D",
+          "pattern": "stripe",
+          "w": 50,
+          "use": "Fire, electrical and access clearance"
+        }
+      ],
+      "roll": 33,
+      "waste": 10,
+      "minAisle": 1.2,
+      "homeType": "walkway"
+    },
+    "revisions": {
+      "mv06iwxgxe2pc": {
+        "sig": "[[[\"mv06iwxcsbe3y\",\"item\",\"Film reel rack\",500,280,9.6,4.8,0,1,null,0]],[],[]]",
+        "date": "2026-10-08",
+        "objects": [
+          {
+            "id": "mv06iwxcsbe3y",
+            "ref": "mv06iwxcsbe3y",
+            "type": "Film reel rack",
+            "label": "Film reel rack",
+            "kind": "item",
+            "x": 500,
+            "y": 280,
+            "w": 9.6,
+            "h": 4.8,
+            "a": 0,
+            "c": "#202C86",
+            "fp": true,
+            "locked": false,
+            "note": "",
+            "category": "production"
+          }
+        ],
+        "marks": [],
+        "routes": []
+      }
+    },
+    "tags": [
+      {
+        "id": "mv06iwxgnmqod",
+        "no": 1,
+        "title": "Old tag",
+        "cat": "Not needed",
+        "reason": "",
+        "disp": "To be decided",
+        "owner": "",
+        "due": "",
+        "status": "Open",
+        "raised": "2026-10-08",
+        "by": "Josh",
+        "closed": "",
+        "note": "",
+        "sheet": "mv06iw5dv3e5l",
+        "drawing": "d1",
+        "ref": "",
+        "area": "",
+        "x": 10,
+        "y": 10,
+        "photos": []
+      }
+    ],
+    "actions": [
+      {
+        "id": "mv06iwxggwve9",
+        "no": 1,
+        "title": "Old action",
+        "s5": "",
+        "pri": "Medium",
+        "owner": "",
+        "due": "",
+        "status": "Open",
+        "raised": "2026-10-08",
+        "done": "",
+        "note": "",
+        "sheet": "",
+        "tag": "mv06iwxgnmqod",
+        "area": "",
+        "audit": "",
+        "drawing": "",
+        "x": null,
+        "y": null
+      }
+    ],
+    "counters": { "tag": 1, "act": 1, "audit": 1 },
+    "drawings": {
+      "d1": {
+        "w": 1000,
+        "h": 560.5652759084792,
+        "mpu": null,
+        "name": "Packing",
+        "fixed": []
+      }
+    },
+    "sheets": [
+      {
+        "id": "mv06iw5dv3e5l",
+        "kind": "standard",
+        "name": "Packing standard",
+        "date": "2026-10-08",
+        "drawing": "d1",
+        "objects": [
+          {
+            "id": "mv06iwxcsbe3y",
+            "ref": "mv06iwxcsbe3y",
+            "type": "Film reel rack",
+            "label": "Film reel rack",
+            "kind": "item",
+            "x": 500,
+            "y": 280,
+            "w": 9.6,
+            "h": 4.8,
+            "a": 0,
+            "c": "#202C86",
+            "fp": true,
+            "locked": false,
+            "note": "",
+            "category": "production"
+          }
+        ],
+        "marks": [],
+        "routes": [],
+        "notes": "",
+        "actions": "",
+        "s5": {},
+        "photos": [],
+        "shift": "",
+        "checker": ""
+      },
+      {
+        "id": "mv06iwxgqwrjl",
+        "kind": "daily",
+        "name": "Check X",
+        "date": "2026-10-08",
+        "drawing": "d1",
+        "objects": [
+          {
+            "id": "mv06iwxge1tlz",
+            "ref": "mv06iwxcsbe3y",
+            "type": "Film reel rack",
+            "label": "Film reel rack",
+            "kind": "item",
+            "x": 550,
+            "y": 280,
+            "w": 9.6,
+            "h": 4.8,
+            "a": 0,
+            "c": "#202C86",
+            "fp": true,
+            "locked": false,
+            "note": "",
+            "category": "production"
+          }
+        ],
+        "marks": [],
+        "routes": [],
+        "notes": "",
+        "actions": "",
+        "s5": {},
+        "photos": [],
+        "shift": "",
+        "checker": "Josh",
+        "rev": "mv06iwxgxe2pc"
+      }
+    ],
+    "active": "mv06iw5dv3e5l",
+    "logo": "",
+    "settings": {
+      "tolM": 0.5,
+      "tolU": 4,
+      "rotTol": 20,
+      "walk": 1.2,
+      "shiftH": 8,
+      "target": 90
+    },
+    "journal": [
+      {
+        "at": "2026-10-08T23:40:22.706Z",
+        "sheet": "Packing standard",
+        "action": "Added",
+        "detail": "Film reel rack"
+      }
+    ]
+  },
+  "drawings": {},
+  "photos": {}
+}

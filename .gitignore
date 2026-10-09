@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+# local project backups exported from the studio
+*.5s.json
+backups/
+# test output
+test-results/
+playwright-report/
