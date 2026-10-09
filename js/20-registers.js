@@ -62,7 +62,7 @@ function tagRows() {
         t.status === "Closed"
           ? daysBetween(t.raised || t.closed, t.closed || today())
           : daysBetween(t.raised || today(), today());
-      return `<tr class="click" data-tag="${esc(t.id)}"><td><b>${tagNo(t)}</b></td><td>${esc(fmtD(t.raised))}</td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td>${areaCell(t)}<td>${t.status === "Closed" ? esc(fmtD(t.due)) : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button> ` : ""}${t.status !== "Closed" ? `<button data-tagprob="${esc(t.id)}" title="Raise a problem to find out why this keeps happening">Problem</button>` : ""}</td></tr>`;
+      return `<tr class="click" data-tag="${esc(t.id)}"><td><b>${tagNo(t)}</b></td><td>${esc(fmtD(t.raised))}</td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td>${areaCell(t)}<td>${t.status === "Closed" ? esc(fmtD(t.due)) : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button> ` : ""}${t.status !== "Closed" ? `<button data-tagprob="${esc(t.id)}" title="Raise a problem to find out why this keeps happening">Problem</button> <button data-tagidea="${esc(t.id)}" title="Raise an improvement idea from this red tag">Idea</button>` : ""}</td></tr>`;
     })
     .join("")}</table>`;
 }
@@ -223,6 +223,10 @@ function wireRegister(el) {
     if ((b = e.target.closest("[data-show]"))) {
       const [k, id] = b.dataset.show.split(":");
       showOnLayout(pinObj(k, id));
+      return;
+    }
+    if ((b = e.target.closest("[data-tagidea]"))) {
+      ideaFromTag(P.tags.find((t) => t.id === b.dataset.tagidea));
       return;
     }
     if ((b = e.target.closest("[data-tagprob]"))) {

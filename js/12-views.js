@@ -42,7 +42,10 @@ const NAV = [
     id: "improve",
     g: "Improve",
     short: "Improve",
-    items: [["problems", "Problem solving"]],
+    items: [
+      ["ideas", "Improvement log"],
+      ["problems", "Problem solving"],
+    ],
   },
 ];
 const NAV_ITEMS = NAV.flatMap((g) => g.items);
@@ -55,6 +58,7 @@ const SCOPED_VIEWS = [
   "documents",
   "docmap",
   "docactions",
+  "ideas",
   "problems",
 ];
 const SETUP_VIEWS = ["setup", "lines", "zones"];
@@ -136,18 +140,20 @@ function updateNavBadges() {
     openT = P.tags.filter((t) => t.status !== "Closed"),
     liveD = P.documents.filter((d) => d.status !== "Withdrawn"),
     openP = P.problems.filter(probOpen),
+    newI = P.ideas.filter((x) => x.status === "New"),
     pages = {
       tags: [openT.length, openT.filter(tagOverdue).length],
       actions: [acts("5s").length, acts("5s").filter(actOverdue).length],
       documents: [liveD.length, liveD.filter(docOverdue).length],
       docactions: [acts("doc").length, acts("doc").filter(actOverdue).length],
       problems: [openP.length, openP.filter(probLate).length],
+      ideas: [newI.length, newI.filter(ideaLate).length],
     };
   const late = (ids) => ids.reduce((n, v) => n + (pages[v]?.[1] || 0), 0),
     sections = {
       "5s": late(["tags", "actions"]),
       docs: late(["documents", "docactions"]),
-      improve: late(["problems"]),
+      improve: late(["ideas", "problems"]),
     };
   $$("[data-badge]").forEach((el) => {
     const [n, l] = pages[el.dataset.badge] || [0, 0];
@@ -185,6 +191,7 @@ function setView(v, fromHash = false) {
   $("#taskView").hidden = v !== "tasks";
   if (v !== "layout") ui.fromSetup = "";
   $("#trackView").hidden = v !== "tracking";
+  $("#ideaView").hidden = v !== "ideas";
   $("#problemView").hidden = v !== "problems";
   $("#days").hidden = v !== "layout";
   document.body.dataset.section = v;
@@ -193,6 +200,7 @@ function setView(v, fromHash = false) {
   else if (v === "tasks") renderTasks();
   else if (v === "tracking") renderTracking();
   else if (v === "documents" || v === "docmap") renderDocuments();
+  else if (v === "ideas") renderIdeas();
   else if (v === "problems") renderProblems();
   else {
     // coming back to the layout: re-fit when the area being worked on changed meanwhile

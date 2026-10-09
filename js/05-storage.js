@@ -375,6 +375,7 @@ function validate(p) {
     line: 0,
     task: 0,
     prob: 0,
+    idea: 0,
     ...(p.counters && typeof p.counters === "object" ? p.counters : {}),
   };
   delete p.counters.audit;
@@ -423,10 +424,12 @@ function validate(p) {
     a.prob = str(a.prob);
     a.cause = str(a.cause);
     a.doc = str(a.doc);
-    // which section an action belongs to: 5S, document mapping, or improvement (linked to a problem)
-    a.stream = a.prob
-      ? "improve"
-      : pick(a.stream, ["5s", "doc"], a.doc ? "doc" : "5s");
+    a.idea = str(a.idea); // version 13: the improvement idea it carries out
+    // which section an action belongs to: 5S, document mapping, or improvement (a problem or an idea)
+    a.stream =
+      a.prob || a.idea
+        ? "improve"
+        : pick(a.stream, ["5s", "doc"], a.doc ? "doc" : "5s");
     a.drawing = str(a.drawing);
     a.x = num(a.x);
     a.y = num(a.y);
@@ -586,6 +589,12 @@ function validate(p) {
     );
     for (const t of p.tasks) if (t.no <= 0) t.no = ++p.counters.task;
   }
+  p.ideas = normIdeas(p); // version 13: the improvement log (35-ideas.js)
+  for (const a of p.actions)
+    if (a.idea && !p.ideas.some((x) => x.id === a.idea)) {
+      a.idea = "";
+      if (!a.prob) a.stream = a.doc ? "doc" : "5s";
+    }
   p.sheets = p.sheets.filter((sheet) => sheet && typeof sheet === "object");
   if (!p.sheets.length) throw Error("No valid sheets");
   p.journal = Array.isArray(p.journal)
@@ -672,7 +681,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 12;
+  p.version = 13;
   p.app = "5s-studio";
   return p;
 }

@@ -14,6 +14,7 @@ const VIEWS = [
   "tags",
   "actions",
   "tracking",
+  "ideas",
   "problems",
   "layout",
 ];
@@ -52,6 +53,7 @@ const VIEWS = [
     documents: "docs",
     docmap: "docs",
     docactions: "docs",
+    ideas: "improve",
     problems: "improve",
   };
   const go = async (v) => {
@@ -89,6 +91,7 @@ const VIEWS = [
         tags: "regView",
         actions: "regView",
         tracking: "trackView",
+        ideas: "ideaView",
         problems: "problemView",
       };
       const el = document.getElementById(ids[view]);
@@ -111,7 +114,7 @@ const VIEWS = [
   }));
   expect(
     nav1.sections === 4 &&
-      nav1.pages === "problems" &&
+      nav1.pages === "ideas,problems" &&
       nav1.hash === "#/problems" &&
       nav1.cur === "improve" &&
       /Problem/.test(nav1.title),
@@ -262,7 +265,7 @@ const VIEWS = [
     delete old.marking.std;
     const v = validate(old);
     out.migrated =
-      v.version === 12 &&
+      v.version >= 12 &&
       v.marking.types.every((t) => t.roll === 0 && t.supplier === "") &&
       v.marking.std.no === "";
     t0.supplier = "";
@@ -283,6 +286,85 @@ const VIEWS = [
     "tape plan, colour standard or version 12 migration is wrong: " +
       JSON.stringify(tp),
   );
+  // improvement log: raise an idea through the form, rate it, add an action from inside it, chart, print
+  await go("ideas");
+  const im0 = await page.evaluate(() => ({
+    n: P.ideas.length,
+    rows: document.querySelectorAll("#ideaTbl tr[data-ideaid]").length,
+    badge: document.querySelector('[data-badge="ideas"]')?.textContent,
+    late: document
+      .querySelector('[data-badge="ideas"]')
+      ?.classList.contains("late"),
+  }));
+  await page.click("#imNew");
+  await page.fill("#dlg [name=title]", "Smoke idea: a hook for the brush");
+  await page.fill("#dlg [name=by]", "An operator");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(200);
+  const added = await page.evaluate(() => P.ideas.at(-1));
+  await page.click(`#ideaTbl [data-ideaid="${added.id}"]`);
+  await page.selectOption("#dlg [name=gain]", "3");
+  await page.selectOption("#dlg [name=effort]", "1");
+  await page.click("#imAct");
+  await page.waitForTimeout(200);
+  await page.fill("#dlg [name=title]", "Fit the hook");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  const im1 = await page.evaluate((id) => {
+    const x = P.ideas.find((i) => i.id === id),
+      a = P.actions.find((y) => y.idea === id),
+      reopened = document.getElementById("dlg").open;
+    document.getElementById("dlg").close("cancel");
+    return {
+      no: ideaNo(x),
+      by: x.by,
+      quick: ideaQuick(x),
+      act: a ? a.stream + ":" + a.title : "",
+      reopened,
+    };
+  }, added.id);
+  await page.waitForTimeout(150);
+  await page.click('[data-im-tab="chart"]');
+  const im2 = await page.evaluate(() => {
+    const chart = {
+      cells: document.querySelectorAll("#ideaView .icell").length,
+      quick: document.querySelectorAll("#ideaView .z-q .ichip").length,
+    };
+    ui.reg.ideas.tab = "log";
+    printIdeas();
+    chart.printed = document.querySelectorAll("#printDoc tr").length;
+    document.body.classList.remove("printing-doc");
+    // a project from before version 13: no ideas, an action pointing at an idea that is gone
+    const old = JSON.parse(JSON.stringify(P));
+    delete old.ideas;
+    old.version = 12;
+    old.actions[0].idea = "gone";
+    old.actions[0].prob = "";
+    const v = validate(old);
+    chart.migrated =
+      v.version === 13 &&
+      v.ideas.length === 0 &&
+      v.actions[0].idea === "" &&
+      v.actions[0].stream !== "improve";
+    return chart;
+  });
+  expect(
+    im0.n >= 5 &&
+      im0.rows >= 3 &&
+      im0.badge &&
+      im0.late &&
+      im1.by === "An operator" &&
+      /^IM-\d{3}$/.test(im1.no) &&
+      im1.quick &&
+      im1.act === "improve:Fit the hook" &&
+      im1.reopened &&
+      im2.cells === 9 &&
+      im2.quick >= 2 &&
+      im2.printed > 5 &&
+      im2.migrated,
+    "improvement log is wrong: " + JSON.stringify({ im0, im1, im2 }),
+  );
+  await go("layout"); // the area tests below draw on the layout
   // areas: in the example, drawn with the real tool, designation, flags, print, old files
   const ar0 = await page.evaluate(() => {
     const sh = STD(),

@@ -1173,6 +1173,100 @@ function makeExampleProject() {
     );
   }
 
+  /* ----- improvement log: ideas from the people on the line, at every stage ----- */
+  {
+    const zoneId = (n) =>
+        p.areas.find((a) => a.name === n && a.level === "zone")?.id || "",
+      idea = (over) => {
+        const x = { ...blankIdea(), ...over, no: ++p.counters.idea };
+        if (!IDEA_OPEN.includes(x.status) && !x.closed)
+          x.closed = dayOffset(-2);
+        p.ideas.push(x);
+        return x;
+      },
+      bin = p.problems.find((x) => x.title.startsWith("The waste bin"));
+    const reel = idea({
+      title: "Keep the spare film reel on a trolley next to the packer",
+      by: "Kim",
+      raised: dayOffset(-10),
+      zone: zoneId("Packing line"),
+      what: "At every reel change the spare reel is fetched from the racks in staging, behind the packer.",
+      benefit: "About 4 minutes and a 30 m walk saved per reel change",
+      gain: 3,
+      effort: 1,
+      status: "Trial",
+      owner: "Josh",
+      sheet: prop.id,
+    });
+    p.actions.push({
+      ...blankAct({ idea: reel.id, sheet: prop.id }),
+      no: ++p.counters.act,
+      title: "Trial the reel trolley for a week on days and nights",
+      owner: "Josh",
+      due: dayOffset(4),
+      status: "In progress",
+      raised: dayOffset(-8),
+    });
+    idea({
+      title: "A hook for the sweeping brush beside the waste bin's home",
+      by: "Sam",
+      raised: dayOffset(-6),
+      zone: zoneId("Packing line"),
+      what: "The bin gets pushed along when the walkway is swept. With the brush hung by the bin, the bin is put back after sweeping.",
+      benefit: "Waste bin stays in its home",
+      gain: 2,
+      effort: 1,
+      status: "Assessed",
+      owner: "Sam",
+      prob: bin?.id || "",
+    });
+    idea({
+      title: "Label the carton pallet lanes with the format size",
+      by: "Lee",
+      raised: dayOffset(-3),
+      zone: zoneId("Supplies and staging"),
+      what: "At a format change the wrong cartons are sometimes brought to the packer.",
+      benefit: "No wrong cartons at a format change",
+    });
+    idea({
+      title: "Move the first aid point next to the personnel door",
+      by: "Kim",
+      raised: dayOffset(-20),
+      zone: zoneId("Entry and hygiene"),
+      what: "It is at the far end of finished goods, away from where most people work.",
+      benefit: "First aid reached quicker",
+      gain: 2,
+      effort: 3,
+    });
+    idea({
+      title: "Shadow board for the changeover tools",
+      by: "Josh",
+      raised: dayOffset(-30),
+      zone: zoneId("Tooling and cleaning"),
+      what: "Changeover tools were kept in a drawer and some were missing at every changeover.",
+      benefit: "No searching for tools at a changeover",
+      gain: 3,
+      effort: 2,
+      status: "Done",
+      owner: "Josh",
+      result:
+        "Board fitted. Every tool has an outline and a home, and missing tools show at a glance.",
+    });
+    idea({
+      title: "A second spill kit at the far end of the line",
+      by: "Lee",
+      raised: dayOffset(-15),
+      zone: zoneId("Finished goods"),
+      what: "The spill kit is a long walk from the palletiser.",
+      gain: 1,
+      effort: 1,
+      status: "Not now",
+      owner: "Sam",
+      result:
+        "The spill kit is moving nearer the packer in the proposal, which covers the palletiser too. Look again after the move.",
+    });
+  }
+
   /* ----- daily checks: eight recent days of where things actually sat ----- */
   const rev = stdRev(p);
   let seed = 7;

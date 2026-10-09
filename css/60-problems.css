@@ -223,3 +223,118 @@
     font-size: 11pt;
   }
 }
+
+/* improvement log: quick-win chart (benefit up, effort across) and the form's second half */
+.ichart {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 4px;
+  max-width: 1100px;
+}
+.ichart .iy {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ichart .ix {
+  grid-column: 2;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.igrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.icell {
+  min-height: 110px;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.icell.z-q {
+  background: var(--ok-bg);
+  border-color: #9fd3b6;
+}
+.icell.z-b {
+  background: #e4e7f6;
+}
+.icell.z-t {
+  background: #f6f1ea;
+}
+.icell .ilv {
+  width: 100%;
+  font-size: 10px;
+  color: var(--muted);
+}
+.icell .izn {
+  width: 100%;
+  font-size: 12px;
+}
+.ichip {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #fff;
+  min-height: 32px;
+  text-align: left;
+}
+.ichip.q {
+  border-color: var(--ok);
+  font-weight: 600;
+}
+details.idet {
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+  padding-top: 6px;
+}
+details.idet > summary {
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 700px) {
+  .icell {
+    min-height: 80px;
+    padding: 5px;
+  }
+  .icell .ilv {
+    display: none;
+  }
+}
+@media print {
+  .ichart {
+    max-width: none;
+  }
+  .icell {
+    min-height: 26mm;
+  }
+}
+/* phones: the improvement log is number and idea; who, when and status sit under the idea */
+#ideaTbl .imob {
+  display: none;
+}
+@media (max-width: 700px) {
+  #ideaTbl th:nth-child(n + 3),
+  #ideaTbl td:nth-child(n + 3) {
+    display: none;
+  }
+  #ideaTbl .imob {
+    display: block;
+    margin-top: 4px;
+  }
+}

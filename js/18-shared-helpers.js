@@ -10,6 +10,7 @@ const owners = () =>
         ...P.actions.map((a) => a.owner),
         ...P.documents.map((d) => d.owner),
         ...P.problems.map((x) => x.owner),
+        ...P.ideas.map((x) => x.owner),
         ...P.tags.map((t) => t.by),
         ...P.sheets.map((s) => s.checker),
       ]
@@ -75,7 +76,8 @@ const blankAct = (i) => ({
   tag: i.tag || "",
   prob: i.prob || "",
   cause: i.cause || "",
-  stream: i.prob ? "improve" : i.stream || "5s",
+  idea: i.idea || "",
+  stream: i.prob || i.idea ? "improve" : i.stream || "5s",
   doc: i.doc || "",
   drawing: i.drawing || "",
   x: i.x ?? null,

@@ -9,6 +9,7 @@ Last updated after the review fixes (9 Oct 2026; the dates below from the audit 
 | Layout | Scaled drawing, walls and fixed equipment, items with home marks, floor tape (schedule, setting-out, rolls), routes, layout checks, proposals compared with the standard, daily checks, pins for red tags / actions / documents |
 | Setup | Factory map (plan image, scale, walls), lines, zones: cards edited in place |
 | Lines and zones (Zones tab and Zone tool) | Named polygons: a line holds zones (`a.parent`); items belong to zones by position or designation; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
+| Improvement log | Ideas from anyone: zone, benefit and effort, status from New to Done, owner, linked proposal, problem or red tag, actions; quick-win chart, print, CSV |
 | Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from a red tag or a zone |
 | Present | Layout only for now: full-screen TV view of the open sheet, tour through factory, lines and zones, optional change overlay. Documents, tasks and problems are not presentable yet |
 | Bring items | Layout panel button: choose another project, tick items, they are copied to the open sheet (new refs, scale-converted, categories matched, tasks come too). Documents, tape and zones are not brought |
@@ -47,6 +48,18 @@ The example model line (Settings, or the empty layout) fills every view.
 Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `docs/DOMAIN.md`. Live at leanstudio.app.
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
+
+## Improvement log (9 Oct, `js/35-ideas.js`)
+
+Improve now opens on the **Improvement log**: ideas anyone can raise (anyone, not just account holders: "Raised
+by" is a free name). Each idea has a zone, what happens now and what would change, and what it would improve;
+whoever takes it forward rates benefit and effort (Low, Medium, High), sets the status (New, Assessed, Trial,
+Done, Not now), an owner, and links a layout proposal to try it, a problem it helps or a red tag it came from.
+The work it needs is ordinary actions with `a.idea` (added from inside the idea). A **quick-win chart** places
+open ideas by benefit and effort. Ideas left as New for over 14 days turn the Improve badge red, so every idea
+gets an answer. Raise one from the page, from a zone's side panel ("Raise an idea here") or from a red tag row
+("Idea"). Print (chart and lists, A4) and CSV. Project version 13. Next, as agreed: before and after results on a
+closed idea (photos, layout numbers from the proposal, own measures), then an Improve overview.
 
 ## Tape plan (9 Oct, `js/23-tape-plan.js`)
 

@@ -417,6 +417,7 @@ ${rowsFor("Documents here", "#0E7C86", st.docs, (d) => ({ l: docNo(d) + " " + d.
 ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " + t.title, v: t.status }))}
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
 ${zoneTasksHTML(a)}
+${zoneIdeasHTML(a)}
 ${line ? "" : `<div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>`}
 <div class="btns"><button class="pri" data-a="areaScope" title="Show only this ${word} on the 5S pages, so they are not cluttered">Work on this ${word}</button><button data-a="areaPrint">Print ${word} sheet</button>${line ? "" : '<button data-a="areaProblem">Raise a problem here</button>'}<button data-a="dup">Duplicate</button><button data-a="lock" title="Lock so it cannot be moved, reshaped or deleted by accident">${a.locked ? "Unlock" : "Lock"} ${word}</button><button data-a="del" class="danger"${a.locked ? " disabled" : ""}>Delete ${word}</button></div>
 ${a.locked ? `<p class="small muted">Locked: unlock it to move, reshape or delete it. You can still rename it and change its owner.</p>` : ""}
@@ -564,6 +565,12 @@ function areaAct(a, el) {
       break;
     case "areaProblem":
       if (ar) problemFromArea(ar);
+      break;
+    case "areaIdea":
+      if (ar) newIdea({ zone: ar.id });
+      break;
+    case "ideaOpen":
+      editIdea(el?.dataset.id);
       break;
     case "taskOpen":
       editTask(el?.dataset.id);

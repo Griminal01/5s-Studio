@@ -22,6 +22,7 @@ function renderAll() {
   else if (ui.view === "tasks") renderTasks();
   else if (ui.view === "tracking") renderTracking();
   else if (ui.view === "documents" || ui.view === "docmap") renderDocuments();
+  else if (ui.view === "ideas") renderIdeas();
   else if (ui.view === "problems") renderProblems();
   else draw();
   updateBackupChip();

@@ -80,39 +80,39 @@ Fixed lists and their helpers: floor tape types (DEFAULT_TYPES, TAPE, tapeOf, ap
 - 416 `categoryGroupsHTML(sh)`
 - 489 `async manageItemCategories()`
 
-## js/02-state.js (336 lines)
+## js/02-state.js (339 lines)
 Global state: the open project P and the UI state ui (view, selection ui.sel, viewbox ui.vb, layers, scope). Sheet shortcuts S() current sheet, STD() standard, DM(sh) its drawing, stdFor(daily). Units: mpu/upm, toUser/fromUser, fmtLen. newProject(), record() journal, undo: checkpoint() / restore(),…
 
 - 6 `P`
 - 9 `ui`
-- 81 `undoS`
-- 85 `S() =>`
-- 86 `STD() =>`
-- 87 `DM(sh) =>`
-- 88 `mpu(sh) =>`
-- 89 `upm(sh) =>`
-- 93 `uName(sh) =>`
-- 94 `toUser(u, sh) =>`
-- 98 `fromUser(v, sh) =>`
-- 102 `fmtLen(u, sh)`
-- 110 `fmtTime(s) =>`
-- 116 `tolU(sh) =>`
-- 117 `snapStep(sh) =>`
-- 118 `gridStep(sh) =>`
-- 120 `blankSheet(kind, name, drawing)`
-- 138 `stdOf(p) =>`
-- 139 `stdSig(p = P)`
-- 167 `stdRev(p = P)`
-- 183 `pruneRevisions(p = P)` only daily checks use revisions: drop the ones no check points at any more
-- 191 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
-- 206 `newProject()`
-- 262 `record(action, detail)`
-- 272 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
-- 279 `trimHistory(stack)`
-- 292 `checkpoint()`
-- 297 `restore(from, to)`
-- 317 `find(id, sh = S()` find element by id in active sheet
-- 335 `selected() =>`
+- 82 `undoS`
+- 86 `S() =>`
+- 87 `STD() =>`
+- 88 `DM(sh) =>`
+- 89 `mpu(sh) =>`
+- 90 `upm(sh) =>`
+- 94 `uName(sh) =>`
+- 95 `toUser(u, sh) =>`
+- 99 `fromUser(v, sh) =>`
+- 103 `fmtLen(u, sh)`
+- 111 `fmtTime(s) =>`
+- 117 `tolU(sh) =>`
+- 118 `snapStep(sh) =>`
+- 119 `gridStep(sh) =>`
+- 121 `blankSheet(kind, name, drawing)`
+- 139 `stdOf(p) =>`
+- 140 `stdSig(p = P)`
+- 168 `stdRev(p = P)`
+- 184 `pruneRevisions(p = P)` only daily checks use revisions: drop the ones no check points at any more
+- 192 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
+- 207 `newProject()`
+- 265 `record(action, detail)`
+- 275 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
+- 282 `trimHistory(stack)`
+- 295 `checkpoint()`
+- 300 `restore(from, to)`
+- 320 `find(id, sh = S()` find element by id in active sheet
+- 338 `selected() =>`
 
 ## js/03-geometry.js (285 lines)
 Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles.
@@ -152,7 +152,7 @@ Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everyt
 - 254 `safeImage(value)` Keep raster drawings untouched; sanitize SVG drawings before embedding them.
 - 328 `imageMap(value)`
 
-## js/05-storage.js (843 lines)
+## js/05-storage.js (852 lines)
 Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(), autosave save() / flushSave() / runSave() with a localStorage fallback, validate(p) migrates every older project shape (bump the version here), migrateLegacy() for v6 files, keepStorage(), the second-tab warning (tab…
 
 - 8 `idb` One transaction keeps project metadata and media consistent after interruption.
@@ -171,12 +171,12 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 164 `on window beforeunload`
 - 171 `normMark(m, types)`
 - 193 `validate(p)`
-- 681 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
-- 777 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
-- 786 `TAB_ID`
-- 789 `tabTell(kind)`
-- 795 `tabWarn(text, reload = false)`
-- 831 `deviceId()`
+- 690 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
+- 786 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
+- 795 `TAB_ID`
+- 798 `tabTell(kind)`
+- 804 `tabWarn(text, reload = false)`
+- 840 `deviceId()`
 
 ## js/06-ui-helpers.js (117 lines)
 Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
@@ -191,7 +191,7 @@ Dialogs and output: toast(), modal() (fresh body each time; Enter never submits)
 - 102 `on #dlgForm keydown` Enter in a text field would submit the dialog form with its first button, which is Cancel, and throw away wha…
 - 113 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1318 lines)
+## js/07-canvas.js (1321 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -215,24 +215,24 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 505 `kNow()`
 - 509 `fitView()`
 - 530 `world(e)`
-- 538 `zoomAt(f, cx, cy)`
-- 551 `centreOn(x, y, zoomIn = true)`
-- 558 `rafP`
-- 559 `draw()`
-- 566 `cmpCache`
-- 567 `drawNow()`
-- 606 `drawScale(k)`
-- 620 `snapV(v, sh)`
-- 623 `snapPoint(p, e, last)`
-- 664 `ptrs`
-- 789 `startPan(e, clickClears)`
-- 949 `endDrag(e)`
-- 1037 `setTool(t, level)`
-- 1057 `placeOrDraw(e, p)`
-- 1063 `addDraftPoint(e, p)`
-- 1107 `async finishDraft()`
-- 1279 `cancelDraft()`
-- 1285 `updateHint()`
+- 541 `zoomAt(f, cx, cy)`
+- 554 `centreOn(x, y, zoomIn = true)`
+- 561 `rafP`
+- 562 `draw()`
+- 569 `cmpCache`
+- 570 `drawNow()`
+- 609 `drawScale(k)`
+- 623 `snapV(v, sh)`
+- 626 `snapPoint(p, e, last)`
+- 667 `ptrs`
+- 792 `startPan(e, clickClears)`
+- 952 `endDrag(e)`
+- 1040 `setTool(t, level)`
+- 1060 `placeOrDraw(e, p)`
+- 1066 `addDraftPoint(e, p)`
+- 1110 `async finishDraft()`
+- 1282 `cancelDraft()`
+- 1288 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -290,28 +290,28 @@ The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), re
 - 410 `paneS5()`
 - 436 `pane`
 
-## js/12-views.js (267 lines)
+## js/12-views.js (275 lines)
 Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has its pages in a bar under the header, and the Showing picker at its right chooses the whole factory, one line or one zone (setScope in 34-areas.js). The address bar follows the page (#/layout…
 
 - 8 `NAV` Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has …
-- 48 `NAV_ITEMS`
-- 50 `SCOPED_VIEWS` pages that follow the Showing picker (Tracking is always the whole factory)
-- 60 `SETUP_VIEWS`
-- 61 `sectionOf(v) =>`
-- 63 `navLabel(v) =>`
-- 64 `lastPage`
-- 70 `subnavSig`
-- 72 `renderNav()`
-- 85 `scopeOptionsHTML()` the options of the Showing picker: the whole factory, then each line with its zones
-- 105 `renderSubnav(force)` the pages of the current section, and the Showing picker
-- 132 `updateNavBadges()` counts on the page buttons (open things, red when something is late) and on the sections (late things)
-- 167 `setView(v, fromHash = false)`
-- 206 `on document change` navigation events
-- 209 `on document click`
-- 222 `hashFor()` the address bar follows the page
-- 232 `syncHash(push)`
-- 240 `applyHash()`
-- 263 `on window popstate`
+- 51 `NAV_ITEMS`
+- 53 `SCOPED_VIEWS` pages that follow the Showing picker (Tracking is always the whole factory)
+- 64 `SETUP_VIEWS`
+- 65 `sectionOf(v) =>`
+- 67 `navLabel(v) =>`
+- 68 `lastPage`
+- 74 `subnavSig`
+- 76 `renderNav()`
+- 89 `scopeOptionsHTML()` the options of the Showing picker: the whole factory, then each line with its zones
+- 109 `renderSubnav(force)` the pages of the current section, and the Showing picker
+- 136 `updateNavBadges()` counts on the page buttons (open things, red when something is late) and on the sections (late things)
+- 173 `setView(v, fromHash = false)`
+- 214 `on document change` navigation events
+- 217 `on document click`
+- 230 `hashFor()` the address bar follows the page
+- 240 `syncHash(push)`
+- 248 `applyHash()`
+- 271 `on window popstate`
 
 ## js/13-exports.js (192 lines)
 Layout exports: deviations and routes CSV, exportPNG() (the sheet as an image), printSheet().
@@ -359,14 +359,14 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 267 `on window beforeprint`
 - 272 `on window afterprint`
 
-## js/16-app.js (190 lines)
+## js/16-app.js (191 lines)
 renderAll() redraws whatever view is open; init() starts the app (open storage, sign in, load the project, keep anything unreadable instead of overwriting it).
 
 - 5 `renderAll()`
-- 31 `hashStr(t) =>` A short hash names a preserved copy, so the same unreadable data is kept once.
-- 38 `async preserveUnreadable(items)` Keep a copy of anything that could not be read before a blank project can overwrite it.
-- 69 `async resolveHeld(bundle, why)` Autosave stays paused until the person chooses; Esc cannot skip the choice.
-- 96 `async init()`
+- 32 `hashStr(t) =>` A short hash names a preserved copy, so the same unreadable data is kept once.
+- 39 `async preserveUnreadable(items)` Keep a copy of anything that could not be read before a blank project can overwrite it.
+- 70 `async resolveHeld(bundle, why)` Autosave stays paused until the person chooses; Esc cannot skip the choice.
+- 97 `async init()`
 
 ## js/17-pins.js (110 lines)
 pins on the drawing: actions and documents
@@ -381,29 +381,29 @@ pins on the drawing: actions and documents
 - 91 `startPinning(kind, id)`
 - 98 `showOnLayout(o)`
 
-## js/18-shared-helpers.js (98 lines)
+## js/18-shared-helpers.js (100 lines)
 Helpers shared by the forms: owner lists, <option> builders opts() / optsKV(), blank and new red tags and actions (newTag, newAction), sheetLabel().
 
 - 5 `owners() =>`
-- 20 `ownerList() =>`
-- 24 `opts(arr, cur) =>`
-- 28 `optsKV(pairs, cur) =>`
-- 35 `lastChecker() =>`
-- 40 `blankTag(i) =>`
-- 61 `blankAct(i) =>`
-- 84 `newTag(i) =>`
-- 89 `newAction(i) =>`
-- 94 `sheetLabel(id) =>`
+- 21 `ownerList() =>`
+- 25 `opts(arr, cur) =>`
+- 29 `optsKV(pairs, cur) =>`
+- 36 `lastChecker() =>`
+- 41 `blankTag(i) =>`
+- 62 `blankAct(i) =>`
+- 86 `newTag(i) =>`
+- 91 `newAction(i) =>`
+- 96 `sheetLabel(id) =>`
 
-## js/19-forms.js (260 lines)
+## js/19-forms.js (261 lines)
 Forms in dialogs: red tag (tagModal, with photos) and action (actionModal), linesToActions().
 
 - 4 `renderTagPhotos()`
 - 24 `async tagModal(t, isNew)`
 - 142 `async actionModal(a, isNew)`
-- 234 `async linesToActions()`
+- 235 `async linesToActions()`
 
-## js/20-registers.js (379 lines)
+## js/20-registers.js (383 lines)
 Red tag and action registers: tables with filters (tagsHTML, actionsHTML), wiring, CSV, the follow-up list.
 
 - 5 `renderRegister()`
@@ -417,10 +417,10 @@ Red tag and action registers: tables with filters (tagsHTML, actionsHTML), wirin
 - 148 `actRows()`
 - 163 `actionsHTML()`
 - 218 `wireRegister(el)`
-- 262 `csvTags()`
-- 307 `csvActions()`
-- 352 `followUpHTML()`
-- 368 `wireFollowUp(el)`
+- 266 `csvTags()`
+- 311 `csvActions()`
+- 356 `followUpHTML()`
+- 372 `wireFollowUp(el)`
 
 ## js/21-documents.js (453 lines)
 A register of the documents that live in an area (SOPs, one-point lessons, checklists, changeover sheets...), where each one is kept, who owns it and when it is next reviewed. Documents can be pinned on the drawing.
@@ -492,11 +492,11 @@ The A3 sheet someone lays floor tape from: the plan drawn to a true scale (1:50,
 - 40 `printTapePlan()`
 - 168 `printColourStandard()` the colour standard: every tape type as a document to review and sign
 
-## js/24-example-project.js (1264 lines)
+## js/24-example-project.js (1358 lines)
 A made-up but realistic line so you can see every feature filled in: walls, machines, items with home marks, floor tape, routes, documents, actions and a proposal to compare. Dates are relative to today, so the document review warnings always show something. Open it from the empty layout or Setting…
 
 - 9 `makeExampleProject()`
-- 1251 `async loadExample()` the example is added to your projects, so nothing you have is replaced
+- 1345 `async loadExample()` the example is added to your projects, so nothing you have is replaced
 
 ## js/25-tracking.js (224 lines)
 tracking: checks over time and where things actually sit
@@ -589,7 +589,7 @@ The studio is a static web page, so there is no server to hold shared data. Inst
 - 231 `async openTeammateBundle(j, user, proj)`
 - 258 `on #fTeam onchange`
 
-## js/34-areas.js (905 lines)
+## js/34-areas.js (912 lines)
 areas: named zones on the drawing, with items designated to them
 
 - 7 `AREA_COLS`
@@ -626,28 +626,28 @@ areas: named zones on the drawing, with items designated to them
 - 297 `outOfAreaSVG(list, k)`
 - 305 `finishArea(d)` the Zone tool
 - 345 `paneArea(a)` side panel
-- 425 `paneAreas()`
-- 485 `areaAct(a, el)` actions from buttons
-- 596 `csvAreas()` output
-- 628 `planCrop(sh, box, asp)` a plan of the sheet cropped to a box, with every layer that helps people find their way
-- 660 `areaSheetHTML(a, sh)`
-- 745 `printAreas(list)`
-- 773 `scopeArea() =>` scope: the whole factory, or one area at a time Layout work happens one area at a time so it is not cluttered…
-- 778 `scopeMid(m) =>`
-- 782 `scopeObj`
-- 788 `scopeMark`
-- 791 `scopeIssues(c, A)` the layout checks (blocked, walls, aisles...) kept to what touches the scope
-- 809 `scopeCmp(c, A)`
-- 824 `scopeBox(a)` a box round the area with a little room, in drawing units
-- 830 `selectableInScope(i)` a selected thing that the scope hides must not stay selected: it could not be seen but could be deleted
-- 840 `setScope(id, fromHash = false)`
-- 849 `scopeBarHTML()`
-- 860 `updateScopeBar()`
-- 870 `on #canvas click`
-- 876 `scopePass(p, keepUnplaced = false) =>` the scope applied to registers and lists (pins carry a position; documents may not)
-- 879 `scopeProblem(p)` a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line
-- 888 `ensureVisible(x, y)` about to look at a point: widen the view to the whole factory if it is outside what is being shown
-- 895 `widenIfOutside(ids)` things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are n…
+- 426 `paneAreas()`
+- 486 `areaAct(a, el)` actions from buttons
+- 603 `csvAreas()` output
+- 635 `planCrop(sh, box, asp)` a plan of the sheet cropped to a box, with every layer that helps people find their way
+- 667 `areaSheetHTML(a, sh)`
+- 752 `printAreas(list)`
+- 780 `scopeArea() =>` scope: the whole factory, or one area at a time Layout work happens one area at a time so it is not cluttered…
+- 785 `scopeMid(m) =>`
+- 789 `scopeObj`
+- 795 `scopeMark`
+- 798 `scopeIssues(c, A)` the layout checks (blocked, walls, aisles...) kept to what touches the scope
+- 816 `scopeCmp(c, A)`
+- 831 `scopeBox(a)` a box round the area with a little room, in drawing units
+- 837 `selectableInScope(i)` a selected thing that the scope hides must not stay selected: it could not be seen but could be deleted
+- 847 `setScope(id, fromHash = false)`
+- 856 `scopeBarHTML()`
+- 867 `updateScopeBar()`
+- 877 `on #canvas click`
+- 883 `scopePass(p, keepUnplaced = false) =>` the scope applied to registers and lists (pins carry a position; documents may not)
+- 886 `scopeProblem(p)` a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line
+- 895 `ensureVisible(x, y)` about to look at a point: widen the view to the whole factory if it is outside what is being shown
+- 902 `widenIfOutside(ids)` things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are n…
 
 ## js/34-import.js (236 lines)
 Pick a project from My projects (your own, or a teammate's copy), tick the items you want, and they are added to the layout you have open. Sizes follow the scale of each project; the operator tasks that use the items can come with them. Nothing in the other project is changed.
@@ -705,6 +705,37 @@ P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item ref
 - 396 `on #taskView click`
 - 414 `on #taskView change`
 - 420 `on #taskView input`
+
+## js/35-ideas.js (502 lines)
+Ideas anyone can raise (P.ideas), taken from New to Done: who raised it, the zone, what it would improve, benefit and effort (which place it on the quick-win chart), an owner, and links to a layout proposal to try it, a problem it helps or a red tag it came from. The work it needs is ordinary actio…
+
+- 9 `IDEA_ST` { id, no, title, by, raised, zone, what, benefit, gain 0-3, effort 0-3, status, owner, sheet, prob, tag, note…
+- 10 `IDEA_OPEN`
+- 11 `IDEA_LEVEL`
+- 12 `IDEA_WAIT`
+- 13 `ideaNo(x) =>`
+- 14 `ideaOpen(x) =>`
+- 15 `ideaLate(x) =>`
+- 17 `ideaQuick(x) =>`
+- 18 `ideaActs(x) =>`
+- 19 `ideaInScope(x) =>`
+- 25 `blankIdea(i = {}) =>`
+- 46 `normIdeas(p)` the normaliser used by validate(): links that no longer exist are dropped
+- 87 `ideaPill(x)` the page
+- 99 `ideasFiltered()`
+- 128 `lvlCell(v) =>`
+- 130 `ideaRows(rows)`
+- 142 `ideaChartHTML(list, print = false)` benefit up, effort across: quick wins top left; ideas not rated yet are listed under it
+- 182 `ideasHTML()`
+- 222 `renderIdeas()`
+- 228 `async ideaModal(x, isNew)` the form
+- 333 `async deleteIdea(x)`
+- 351 `ideaFromTag(t)` a red tag often points at a better way: the idea starts with the tag's zone and words
+- 366 `zoneIdeasHTML(a) =>` the zone side panel: its open ideas and a button to raise one
+- 383 `newIdea(i) =>`
+- 390 `csvIdeas()` output
+- 446 `printIdeas()`
+- 470 `imView` events
 
 ## js/35-problems.js (731 lines)
 A problem is a record (P.problems) with its own analysis. Everything it decides to do is a normal action in the Actions register (a.prob the problem's id), so there is still one list of what is owed. Fishbone, Pareto and the A3 report are in 36-problem-tools.js.
@@ -889,7 +920,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/30-registers.css** (392 lines): 1 trends · 103 registers, drift · 319 phones: name and use get full rows, the small fields share one · 353 5S view
 - **css/40-dialogs.css** (605 lines): 1 dialog · 398 tracking charts and red tag photos · 441 boards and labels · 589 SMED
 - **css/50-accounts.css** (98 lines): 1 sign-in screen, account button
-- **css/60-problems.css** (226 lines): 1 problem solving
+- **css/60-problems.css** (341 lines): 1 problem solving · 227 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 327 phones: the improvement log is number and idea; who, when and status sit under …
 - **css/70-layout-edit.css** (112 lines): 1 layout editing
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card
 - **css/85-document-map.css** (108 lines): 1 document map: documents on their own map
