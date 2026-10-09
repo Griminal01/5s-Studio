@@ -1,8 +1,8 @@
 "use strict";
 /* ============ navigation: three sections, their pages, badges, deep links ============ */
 // Three sections (5S, Document mapping, Improve), each with its own pages in a bar under the header.
-// 5S pages can be scoped to one area (see setScope in 34-areas.js); the document map and the
-// overview always show the whole factory. The address bar follows the page (#/layout/<area>,
+// 5S pages can be scoped to one area (see setScope in 34-areas.js); the Setup page is where that is
+// chosen. The document pages always show the whole factory. The address bar follows the page (#/layout/<area>,
 // #/problems/<id>/board) so reload keeps your place and the browser Back button works.
 const NAV = [
   {
@@ -10,6 +10,7 @@ const NAV = [
     g: "5S",
     short: "5S",
     items: [
+      ["setup", "Setup"],
       ["layout", "Layout"],
       ["boards", "Boards"],
       ["tracking", "Tracking"],
@@ -38,7 +39,14 @@ const NAV = [
   },
 ];
 const NAV_ITEMS = NAV.flatMap((g) => g.items);
-const SCOPED_VIEWS = ["layout", "boards", "tracking", "tags", "actions"];
+const SCOPED_VIEWS = [
+  "setup",
+  "layout",
+  "boards",
+  "tracking",
+  "tags",
+  "actions",
+];
 const sectionOf = (v) =>
   NAV.find((g) => g.items.some((i) => i[0] === v)) || NAV[0];
 const navLabel = (v) => NAV_ITEMS.find((i) => i[0] === v)?.[1] || "";
@@ -61,12 +69,9 @@ function renderNav() {
 function renderSubnav(force) {
   const cur = sectionOf(ui.view),
     areas = P ? areasOn(S()) : [],
-    sig = [
-      cur.id,
-      ui.view,
-      ui.scope,
-      areas.map((a) => a.id + a.name).join(),
-    ].join("|");
+    sig = [cur.id, ui.view, ui.scope, areas.map((a) => a.name).join()].join(
+      "|",
+    );
   if (!force && sig === subnavSig) return;
   subnavSig = sig;
   $("#subnav").innerHTML =
@@ -77,7 +82,9 @@ function renderSubnav(force) {
       )
       .join("")}</div>` +
     (cur.id === "5s"
-      ? `<label class="scopepick" title="Work on one area at a time so the layout is not cluttered"><span>Area</span><select id="scopeSel" aria-label="Area to work on"><option value="">Whole factory</option>${areas.map((a) => `<option value="${esc(a.id)}"${a.id === ui.scope ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>`
+      ? ui.view === "setup"
+        ? ""
+        : `<button class="scopechip" data-view="setup" title="Choose the whole factory or one area on the Setup page">Showing <b>${esc((P && scopeArea()?.name) || "whole factory")}</b><span>change</span></button>`
       : `<span class="subnote">${cur.id === "docs" ? "Always the whole factory" : ""}</span>`);
   updateNavBadges();
 }
@@ -132,6 +139,7 @@ function setView(v, fromHash = false) {
   const reg = v === "tags" || v === "actions" || v === "docactions";
   $("#regView").hidden = !reg;
   $("#docView").hidden = v !== "documents" && v !== "docmap";
+  $("#setupView").hidden = v !== "setup";
   $("#boardView").hidden = v !== "boards";
   $("#smedView").hidden = v !== "smed";
   $("#trackView").hidden = v !== "tracking";
@@ -139,6 +147,7 @@ function setView(v, fromHash = false) {
   $("#days").hidden = v !== "layout";
   document.body.dataset.section = v;
   if (reg) renderRegister();
+  else if (v === "setup") renderSetup();
   else if (v === "tracking") renderTracking();
   else if (v === "boards") renderBoards();
   else if (v === "smed") renderSmed();
@@ -165,13 +174,6 @@ document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-view]");
   if (b && b.closest("#subnav")) setView(b.dataset.view);
 });
-document.addEventListener("change", (e) => {
-  if (e.target.id === "scopeSel") {
-    if (ui.view !== "layout" && !SCOPED_VIEWS.includes(ui.view)) return;
-    setScope(e.target.value);
-  }
-});
-
 /* ---- the address bar follows the page ---- */
 function hashFor() {
   let h = "#/" + ui.view;

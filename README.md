@@ -11,10 +11,11 @@ Everything runs in the browser. There is no server and no build step. Data is st
 
 ## How it is laid out
 
-Three sections along the top: **5S** (layout, boards, tracking, red tags, 5S actions), **Document mapping**
+Three sections along the top: **5S** (setup, layout, boards, tracking, red tags, 5S actions), **Document mapping**
 (document list, factory map, document actions) and **Improve** (problem solving, SMED). In the 5S section
-an Area picker switches between the whole factory and one area, so a layout is not cluttered; document
-pages always show the whole factory.
+the **Setup** page is where you choose the whole factory or one area (a plan, and a card for each), so a
+layout is not cluttered; a chip under the header shows what you are looking at. Document pages always
+show the whole factory.
 
 ## What is in it
 

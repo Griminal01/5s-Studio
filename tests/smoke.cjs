@@ -4,6 +4,7 @@ const { chromium } = require("playwright");
 const path = require("node:path");
 
 const VIEWS = [
+  "setup",
   "smed",
   "boards",
   "documents",
@@ -39,6 +40,7 @@ const VIEWS = [
   const expect = (cond, msg) => cond || failures.push(msg);
   // go to a page the way a person does: the section button, then the page in the bar under the header
   const SECTION = {
+    setup: "5s",
     layout: "5s",
     boards: "5s",
     tracking: "5s",
@@ -74,6 +76,7 @@ const VIEWS = [
     await page.waitForTimeout(300);
     const visible = await page.evaluate((view) => {
       const ids = {
+        setup: "setupView",
         layout: "layoutView",
         smed: "smedView",
         boards: "boardView",
@@ -593,7 +596,20 @@ const VIEWS = [
     };
   });
   expect(sc0.id && sc0.scope === "", "scope test needs an area with items");
-  await page.selectOption("#scopeSel", sc0.id);
+  // choose it on the Setup page, from the chip on the layout
+  await page.click("#subnav .scopechip");
+  await page.waitForSelector("#setupView .scard");
+  const su0 = await page.evaluate(() => ({
+    view: ui.view,
+    cards: document.querySelectorAll("#setupView [data-scard]").length,
+    areas: areasOn(STD()).length,
+  }));
+  expect(
+    su0.view === "setup" && su0.cards === su0.areas + 1,
+    "Setup page does not list the factory and every area: " +
+      JSON.stringify(su0),
+  );
+  await page.click(`#setupView [data-su="work"][data-id="${sc0.id}"]`);
   await page.waitForTimeout(300);
   const sc1 = await page.evaluate(() => ({
     scope: ui.scope,

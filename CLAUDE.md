@@ -52,6 +52,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 38-problem-board | the problem solving board (one screen, like the whiteboard): statement, fishbone with likely causes, causes numbered with their actions (`a.cause`), hypothesis and confirmation, why chain and root cause, inline action list, board print on A3 |
 | 39-document-map | the Documents map tab: documents pinned, moved and opened over a faded copy of the standard layout, with a line to the item each is kept at. Document pins are off on the Layout by default |
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
+| 34-setup | the Setup page (first page of the 5S section): factory plan with its areas, a card for the whole factory and each area; choosing one calls `setScope()` and opens the layout. The page bar shows a "Showing <area> change" chip that links back to it |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup |
 

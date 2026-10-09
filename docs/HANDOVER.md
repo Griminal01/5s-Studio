@@ -15,10 +15,11 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 | Red tags, Actions | Registers with pins, CSV and print |
 | Tracking | Daily checks over time: where items actually sit (drift map), suggested new homes, trend, movement-log CSV, print |
 
-Navigation (reworked again, Sam's idea): three sections. **5S** = Layout, Boards, Tracking, Red tags, 5S actions;
+Navigation (reworked again, Sam's idea): three sections. **5S** = Setup, Layout, Boards, Tracking, Red tags, 5S actions;
 **Document mapping** = Document list, Factory map, Document actions; **Improve** = Problem solving, SMED (kept,
 last; Sam thinks it is not great, so it is a candidate to cut). One list (`NAV` in `js/12-views.js`) drives the
-header buttons, the phone tab bar and the page bar under it. 5S pages have an **Area picker**: whole factory, or
+header buttons, the phone tab bar and the page bar under it. 5S pages are scoped from the **Setup** page (first page of 5S: a factory plan and a card for the whole
+factory and each area; a "Showing ... change" chip on the other 5S pages links back): whole factory, or
 one area, so a layout is not cluttered; the layout draws only that area, the registers filter to it, the address
 bar holds it (`#/layout/<areaId>`). Document pages are always the whole factory. Actions have a `stream`
 ("5s", "doc", "improve"; problem-linked ones are "improve") and optionally a linked document `a.doc`; the 5S

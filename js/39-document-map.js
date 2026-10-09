@@ -60,17 +60,8 @@ function dmFit() {
   dm.vb.x = d.w / 2 - dm.vb.w / 2;
   dm.vb.y = d.h / 2 - (dm.vb.w * r.height) / r.width / 2;
 }
-function drawDocMap() {
-  const el = $("#dmSvg");
-  if (!el) return;
-  if (!dm.vb) dmFit();
-  if (!dm.vb) return;
-  const r = el.getBoundingClientRect(),
-    h = (dm.vb.w * r.height) / Math.max(1, r.width),
-    k = dm.vb.w / Math.max(1, r.width),
-    sh = dmSheet();
-  el.setAttribute("viewBox", `${dm.vb.x} ${dm.vb.y} ${dm.vb.w} ${h}`);
-  // the layout underneath, quiet: every layer that helps people find their way, no other pins
+/* the layout drawn quietly: every layer that helps people find their way, no pins; also used by Setup */
+function quietLayoutSVG(sh, k, withAreas = true) {
   const save = { ...ui.layers },
     hid = ui.hiddenCategories;
   Object.assign(ui.layers, {
@@ -85,16 +76,27 @@ function drawDocMap() {
     dims: false,
     runs: false,
     grid: false,
-    areas: true,
+    areas: withAreas,
   });
   ui.hiddenCategories = new Set();
-  let base;
   try {
-    base = buildSVG(sh, { k, cmp: null, export: true });
+    return buildSVG(sh, { k, cmp: null, export: true });
   } finally {
     Object.assign(ui.layers, save);
     ui.hiddenCategories = hid;
   }
+}
+function drawDocMap() {
+  const el = $("#dmSvg");
+  if (!el) return;
+  if (!dm.vb) dmFit();
+  if (!dm.vb) return;
+  const r = el.getBoundingClientRect(),
+    h = (dm.vb.w * r.height) / Math.max(1, r.width),
+    k = dm.vb.w / Math.max(1, r.width),
+    sh = dmSheet();
+  el.setAttribute("viewBox", `${dm.vb.x} ${dm.vb.y} ${dm.vb.w} ${h}`);
+  const base = quietLayoutSVG(sh, k);
   let s = `<g opacity=".42" pointer-events="none">${base}</g>`;
   const pins = dmLive().filter((d) => d.x != null && d.drawing === sh.drawing);
   for (const d of pins) {

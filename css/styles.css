@@ -305,21 +305,107 @@ textarea {
   font-weight: 700;
   border-bottom-color: var(--tape);
 }
-.scopepick {
-  display: flex;
+.scopechip {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  min-height: 40px;
+  padding: 4px 12px;
+  border: 2px solid var(--navy);
+  border-radius: 999px;
+  background: #fff;
   color: var(--muted);
+  font-size: 13px;
   white-space: nowrap;
 }
-.scopepick select {
-  width: auto;
-  min-width: 170px;
-  max-width: 260px;
-  font-weight: 600;
+.scopechip b {
   color: var(--navy);
+}
+.scopechip span {
+  color: var(--navy);
+  text-decoration: underline;
+  font-size: 12px;
+}
+.setup {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 420px);
+  gap: 18px;
+  align-items: start;
+  max-width: 1400px;
+}
+.splan {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+}
+.splan svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+}
+.scards {
+  display: grid;
+  gap: 10px;
+}
+.scard {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--c, var(--navy));
+  border-radius: 10px;
+  padding: 10px 14px 12px;
+}
+.scard.on {
+  background: #fff;
   border-color: var(--navy);
+  box-shadow: 0 0 0 2px var(--navy);
+}
+.scard.focus {
+  background: #fffbe8;
+}
+.scard h3 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+}
+.scard h3 .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--c);
+}
+.scard h3 .pill {
+  margin-left: auto;
+}
+.scard p {
+  margin: 2px 0 6px;
+}
+.scard dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0 0 10px;
+}
+.scard dl div {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+}
+.scard dt {
+  color: var(--muted);
+}
+.scard dd {
+  margin: 0;
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .setup {
+    grid-template-columns: 1fr;
+  }
 }
 .subnote {
   font-size: 12px;
@@ -408,14 +494,9 @@ textarea {
     flex-wrap: wrap;
     row-gap: 0;
   }
-  .scopepick {
-    width: 100%;
-    padding: 4px 6px 8px;
-  }
-  .scopepick select {
-    flex: 1;
-    max-width: none;
+  .scopechip {
     min-height: 44px;
+    margin: 0 6px 8px;
   }
   .tabbar {
     display: flex;
