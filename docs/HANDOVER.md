@@ -67,7 +67,7 @@ write the same team file (the second gets the project name plus a short device i
 collapses to the name and an Options button; the drawing has a full-screen button (Esc returns); wide tables show a soft
 edge; the empty layout points to Setup; the stylesheet is split into `css/*.css`. Known and not fixed: "Show" on a
 task and several dialogs lose unsaved edits if you leave through a button inside the dialog (Settings Scale/Logo).
-Item labels on the layout are hard to read at whole-factory scale: this is the next piece of work.
+Names on the layout (9 Oct, `js/37-labels.js`): every name is placed in one pass. Inside the item when it fits (wrapped, turned along the long side), otherwise a tag with a leader line in the nearest free floor space; line and zone names move to a clear spot. On a phone-sized drawing the tags are held back until you zoom. Layers > "Names on the drawing" turns them off. Not done: route names and pin names are not in the engine; long names are never shortened, so a very crowded sheet can leave a tag out (tap or hover shows it).
 
 ## Review done (two passes, all fixed and pushed)
 

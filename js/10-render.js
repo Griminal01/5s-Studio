@@ -44,6 +44,7 @@ const LAYERS = [
   ["marks", "Floor tape and home marks"],
   ["areas", "Lines and zones"],
   ["objects", "Items and marked areas"],
+  ["labels", "Names on the drawing"],
   ["routes", "Routes"],
   ["dims", "Tape dimensions and datum"],
   ["runs", "Run numbers on tape"],

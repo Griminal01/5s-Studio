@@ -832,6 +832,33 @@ const VIEWS = [
     );
   });
   await page.waitForTimeout(600);
+  // names on the drawing: every name whole (no "..."), tags for small items, a switch to turn them off
+  await go("layout");
+  await page.evaluate(() => renderAll());
+  await page.waitForTimeout(300);
+  const nm = await page.evaluate(() => ({
+    n: [...document.querySelectorAll("#svg .names text")].length,
+    cut: [...document.querySelectorAll("#svg .names text")].filter((t) =>
+      /…|\.\.\./.test(t.textContent),
+    ).length,
+    tags: document.querySelectorAll("#svg .names rect").length,
+  }));
+  await page.evaluate(() => {
+    ui.layers.labels = false;
+    renderAll();
+  });
+  await page.waitForTimeout(300);
+  nm.off = await page.evaluate(
+    () => document.querySelectorAll("#svg .names text").length,
+  );
+  await page.evaluate(() => {
+    ui.layers.labels = true;
+    renderAll();
+  });
+  expect(
+    nm.n > 15 && nm.cut === 0 && nm.tags > 3 && nm.off === 0,
+    "names on the drawing are wrong: " + JSON.stringify(nm),
+  );
   // presentation mode: the layout full screen, stepping through the factory, lines and zones
   await go("layout");
   await page.click("#bPresent");
@@ -852,7 +879,7 @@ const VIEWS = [
   // zoom in: names get bigger and more of them fit; Fit and stepping go back to the whole step
   const textSize = () =>
     page.evaluate(() => {
-      const t = [...document.querySelectorAll("#prStage svg text")][0];
+      const t = [...document.querySelectorAll("#prStage svg .names text")][0];
       return t ? t.getBoundingClientRect().height : 0;
     });
   const pz0 = await textSize();
@@ -862,7 +889,7 @@ const VIEWS = [
   const pz1 = await page.evaluate(() => ({
     z: pr.z,
     h: [
-      ...document.querySelectorAll("#prStage svg text"),
+      ...document.querySelectorAll("#prStage svg .names text"),
     ][0]?.getBoundingClientRect().height,
   }));
   await page.click("#prFit");

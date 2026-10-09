@@ -1,6 +1,6 @@
 "use strict";
 /* ============ drawing editor: walls, fixed objects, cover-ups, labels ============ */
-function fixedSVG(sh, k, edit, pid = "fxh") {
+function fixedSVG(sh, k, edit, pid = "fxh", noLabel = false) {
   const fx = DM(sh)?.fixed || [];
   if (!fx.length || !ui.layers.fixed) return "";
   const pe = edit ? "" : ' pointer-events="none"',
@@ -20,7 +20,7 @@ function fixedSVG(sh, k, edit, pid = "fxh") {
       const hw = f.w / 2,
         hh = f.h / 2,
         flip = angDiff(f.a, 180) < 89.9;
-      let lab = fit(f.label, f.w, fs);
+      let lab = noLabel ? "" : fit(f.label, f.w, fs);
       lab = lab ? txt(0, 0, lab, fs, k) : "";
       if (lab && flip) lab = `<g transform="rotate(180)">${lab}</g>`;
       s +=

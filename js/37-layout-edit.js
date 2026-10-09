@@ -395,7 +395,7 @@ function labelTagsSVG(sh, k) {
     const f = find(id, sh);
     if (!f || f.t !== "obj" || !f.x.label) continue;
     const o = f.x;
-    if (o.kind === "item" && fit(o.label, o.w, fs) === o.label) continue;
+    if (LABEL.shown.has(id)) continue; // its whole name is already on the drawing
     const b = boxOf(corners(o)),
       w = (o.label.length * 6.3 + 14) * k,
       h = 18 * k,

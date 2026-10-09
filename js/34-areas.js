@@ -248,20 +248,29 @@ function areaSelectHTML(items) {
   return `<label class="f">Zone${items.length > 1 ? " (" + items.length + " items)" : ""}<select data-item-area aria-label="Zone">${same === null ? '<option value="" selected disabled>Mixed</option>' : ""}<option value=""${same === "" ? " selected" : ""}>Automatic${items.length === 1 ? (cur ? " (inside " + esc(cur.name) + ")" : " (not inside a zone)") : " (where it sits)"}</option><option value="-"${same === "-" ? " selected" : ""}>No zone</option>${list.map((a) => `<option value="${esc(a.id)}"${same === a.id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>${out ? `<div class="status warn"><b>Outside its zone:</b> designated to ${esc(out.a.name)} but sitting outside it.<button data-a="areaBack">Move it back into ${esc(out.a.name)}</button></div>` : ""}`;
 }
 /* ---- drawing ---- */
-function areaSVG(sh, k, only) {
-  let s = "";
+function areaListFor(sh, only) {
   // a line scope draws the line and its zones; a zone scope draws just that zone
   const all = P.areas.filter((a) => a.drawing === sh.drawing),
     list = only
       ? all.filter(
           (a) => a.id === only.id || (isLine(only) && a.parent === only.id),
         )
-      : all,
-    ordered = [...list.filter(isLine), ...list.filter((a) => !isLine(a))];
-  for (const a of ordered) {
+      : all;
+  return [...list.filter(isLine), ...list.filter((a) => !isLine(a))];
+}
+// the words on a line or zone: where it would like to sit, and what it says
+function areaLabelText(a, sh) {
+  const line = isLine(a),
+    n = line ? zonesOfLine(a).length : areaItems(a, sh).length;
+  return line
+    ? `${a.name.toUpperCase()}${n ? " · " + n + " zone" + (n > 1 ? "s" : "") : ""}${a.locked ? " · locked" : ""}`
+    : `${a.name}${n ? " · " + n : ""}${a.locked ? " · locked" : ""}`;
+}
+function areaSVG(sh, k, only, noText = false) {
+  let s = "";
+  for (const a of areaListFor(sh, only)) {
     const ps = a.pts.map((p) => p.x + "," + p.y).join(" "),
       line = isLine(a),
-      n = line ? zonesOfLine(a).length : areaItems(a, sh).length,
       top = a.pts.reduce((b, p) => (p.y < b.y ? p : b), a.pts[0]),
       xs0 = Math.min(...a.pts.map((p) => p.x)),
       xs1 = Math.max(...a.pts.map((p) => p.x)),
@@ -271,16 +280,16 @@ function areaSVG(sh, k, only) {
       `<polygon points="${ps}" fill="${a.color}" fill-opacity="${line ? 0.04 : 0.08}" stroke="none" pointer-events="none"/>` +
       `<polygon points="${ps}" fill="none" stroke="${a.color}" stroke-width="${(line ? 3.6 : 2.4) * k}"${line ? "" : ` stroke-dasharray="${9 * k} ${5 * k}"`} stroke-linejoin="round" pointer-events="none"/>` +
       `<polygon points="${ps}" fill="none" stroke="transparent" stroke-width="${10 * k * TOUCH}" stroke-linejoin="round" pointer-events="stroke"/>` +
-      txt(
-        line ? (xs0 + xs1) / 2 : top.x + 8 * k,
-        top.y + (line ? 1 : 14) * k,
-        line
-          ? `${a.name.toUpperCase()}${n ? " · " + n + " zone" + (n > 1 ? "s" : "") : ""}${a.locked ? " · locked" : ""}`
-          : `${a.name}${n ? " · " + n : ""}${a.locked ? " · locked" : ""}`,
-        fs,
-        k,
-        { anchor: line ? "middle" : "start", fill: a.color, w: 700 },
-      ) +
+      (noText
+        ? ""
+        : txt(
+            line ? (xs0 + xs1) / 2 : top.x + 8 * k,
+            top.y + (line ? 1 : 14) * k,
+            areaLabelText(a, sh),
+            fs,
+            k,
+            { anchor: line ? "middle" : "start", fill: a.color, w: 700 },
+          )) +
       "</g>";
   }
   return s;

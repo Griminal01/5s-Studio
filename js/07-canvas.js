@@ -19,7 +19,7 @@ function fit(s, w, fs) {
   return s.length > max ? s.slice(0, max - 1) + "…" : s;
 }
 
-function objSVG(o, k) {
+function objSVG(o, k, noLabel = false) {
   const hw = o.w / 2,
     hh = o.h / 2,
     boost = ui.textBoost || 1, // presentation mode makes item names bigger as it zooms in
@@ -33,7 +33,9 @@ function objSVG(o, k) {
     body = `<rect x="${-hw}" y="${-hh}" width="${o.w}" height="${o.h}" rx="${Math.min(2 * k, hw / 3)}" fill="${o.c}" fill-opacity=".3" stroke="${o.c}" stroke-width="${2 * k}"/>`;
   const flip = angDiff(o.a, 180) < 89.9 ? 180 : 0;
   let label = "";
-  if (o.kind === "item") {
+  if (noLabel) {
+    // the names are placed together by labelsSVG (37-labels.js)
+  } else if (o.kind === "item") {
     // presenting: shrink a long name to fit the item (down to a small size) before cutting it short
     const f2 = ui.textBoost
         ? Math.max(Math.min(fs, o.w / (0.56 * o.label.length)), 8 * k, fs * 0.6)
@@ -271,7 +273,7 @@ function buildSVG(sh, o) {
         inBox(z) &&
         !(z.kind === "item" && ui.hiddenCategories.has(itemCategoryId(z)))
       )
-        ctxS += objSVG(z, k);
+        ctxS += objSVG(z, k, true);
     for (const m of all.marks)
       if (!scopeMark(m, A) && m.pts.some(inBox)) ctxS += markSVG(m, k, u);
     for (const r of all.routes)
@@ -297,10 +299,10 @@ function buildSVG(sh, o) {
   }
   if (L.grid)
     s += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid)" pointer-events="none"/>`;
-  if (L.areas) s += areaSVG(sh, k, A);
+  if (L.areas) s += areaSVG(sh, k, A, true);
   const midPos = s.length;
   if (L.objects)
-    for (const z of sh.objects) if (z.kind !== "item") s += objSVG(z, k);
+    for (const z of sh.objects) if (z.kind !== "item") s += objSVG(z, k, true);
   if (L.marks) {
     for (const m of sh.marks) s += markSVG(m, k, u);
     const src = sh.kind === "daily" ? stdFor(sh).objects : sh.objects,
@@ -322,7 +324,7 @@ function buildSVG(sh, o) {
   if (L.objects)
     for (const it of sh.objects)
       if (it.kind === "item" && !ui.hiddenCategories.has(itemCategoryId(it)))
-        s += objSVG(it, k);
+        s += objSVG(it, k, true);
   const cs = o.cmp;
   if (L.overlay && cs) {
     const visible = (x) => !ui.hiddenCategories.has(itemCategoryId(x));
@@ -381,11 +383,12 @@ function buildSVG(sh, o) {
     for (const c of IS.conflicts)
       s += `<g pointer-events="none"><circle cx="${c.x}" cy="${c.y}" r="${8 * k}" fill="${COL.bad}" stroke="#fff" stroke-width="${1.5 * k}"/>${txt(c.x, c.y, "!", 11 * k, k, { fill: "#fff" }).replace(/stroke="#fff"/, 'stroke="none"')}</g>`;
   }
+  s += labelsSVG(sh, k, o);
   for (const pn of pinList(sh))
     if (!A || ptInPoly(pn.o, A.pts)) s += pinSVG(pn, k);
   {
     const editing = ui.editDrawing && !o.export && !ui.printing,
-      fx = fixedSVG(sh, k, editing);
+      fx = fixedSVG(sh, k, editing, "fxh", true);
     s = editing
       ? s.slice(0, midPos) +
         '<g opacity=".35" pointer-events="none">' +

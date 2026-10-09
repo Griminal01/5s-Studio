@@ -65,6 +65,7 @@ const ui = {
     pins: true,
     docs: false, // documents have their own map in the Documents view
     areas: true,
+    labels: true,
   },
   vb: null,
   draft: null,

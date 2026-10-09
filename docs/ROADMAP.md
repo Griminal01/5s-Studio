@@ -38,7 +38,7 @@ Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 | D3 | The tape plan exists but the **printed output** for the person laying tape needs review against real use. | The point of the tool is a plan someone can take onto the floor. |
 | D4 | ~~No problem-solving tools~~ Built (section 5). SMED was built and removed (section 4). | Still to try on a real problem. |
 | D5 | Two people share one project by passing a file or a team folder. The app now warns when a second tab has the project open, and keeps same-name team files from different computers apart. Copies still do not merge. | Overwrite risk is lower, not gone. |
-| D6 | Item labels on the layout are hard to read at whole-factory scale. | Next piece of work: see HANDOVER. |
+| D6 | ~~Item labels hard to read at whole-factory scale.~~ Done: `js/37-labels.js` (inside, else tag with leader line; zone names clear of items). Route and pin names still sit outside it. | Try on a real sheet. |
 
 ---|---|---|
 | D2 | **Items have no "home contents".** A shadow board is one rectangle; the tools on it, quantities and labels aren't recorded. | Can't print shadow-board outlines or location labels. |
