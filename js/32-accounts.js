@@ -271,6 +271,8 @@ async function readProject(pid) {
   };
 }
 function afterProjectChange() {
+  tabWarn("");
+  tabTell("open");
   undoS = [];
   redoS = [];
   lastSavedProject = "";

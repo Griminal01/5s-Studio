@@ -16,6 +16,7 @@ function projectBundle() {
     version: 11,
     saved: new Date().toISOString(),
     by: CUR ? CUR.name : "",
+    device: deviceId(),
     project: P,
     drawings: dr,
     photos: ph,

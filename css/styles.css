@@ -3528,3 +3528,19 @@ body.presenting {
 .prstage.zoomed:active {
   cursor: grabbing;
 }
+
+/* a second tab has the same project open */
+.tabwarn {
+  background: var(--tape);
+  color: #1c2250;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tabwarn[hidden] {
+  display: none;
+}

@@ -34,6 +34,32 @@ const TEAM_FILE = /^(?:Lean-Studio|5S-Studio)__(.+?)__(.+)\.json$/;
 const teamFileName = (user, proj, prefix = "Lean-Studio") =>
   `${prefix}__${fsafe(user)}__${fsafe(proj)}.json`;
 const myFileName = () => teamFileName(CUR.name, P.projectName || "project");
+// If a file of that name was written by a different computer, publish under a name with this
+// computer's id instead of overwriting it.
+async function myFileNameSafe() {
+  const base = myFileName();
+  TEAM.owned = TEAM.owned || {};
+  if (TEAM.owned[base] || TEAM.lastName === base) return base;
+  let existing = null;
+  try {
+    existing = await (await TEAM.handle.getFileHandle(base)).getFile();
+  } catch {}
+  let name = base;
+  if (existing) {
+    let theirs = "";
+    try {
+      theirs = JSON.parse(await existing.text()).device || "";
+    } catch {}
+    const mine = deviceId();
+    if (theirs !== mine)
+      name = teamFileName(
+        CUR.name,
+        `${P.projectName || "project"} (${mine || "2"})`,
+      );
+  }
+  TEAM.owned[name] = true;
+  return name;
+}
 
 async function teamPerm(write, ask) {
   const h = TEAM.handle;
@@ -49,7 +75,8 @@ async function teamPerm(write, ask) {
 async function teamPublish(ask = true) {
   if (!TEAM.handle || !(await teamPerm(true, ask))) return false;
   await flushSave();
-  const fh = await TEAM.handle.getFileHandle(myFileName(), { create: true }),
+  const fname = await myFileNameSafe(),
+    fh = await TEAM.handle.getFileHandle(fname, { create: true }),
     w = await fh.createWritable();
   await w.write(JSON.stringify(projectBundle()));
   await w.close();
@@ -60,7 +87,7 @@ async function teamPublish(ask = true) {
     );
   } catch {}
   TEAM.last = Date.now();
-  TEAM.lastName = myFileName();
+  TEAM.lastName = fname;
   await teamSave();
   teamChip(false);
   return true;
@@ -96,7 +123,14 @@ async function teamList() {
   for await (const [name, h] of TEAM.handle.entries()) {
     if (h.kind !== "file") continue;
     const m = name.match(TEAM_FILE);
-    if (!m || nameKey(m[1]) === nameKey(CUR.name)) continue;
+    if (!m) continue;
+    // my own files are hidden; a file under my name with another computer's id is someone else's
+    const other = /\(([a-z0-9]{1,6})\)$/.exec(m[2]);
+    if (
+      nameKey(m[1]) === nameKey(CUR.name) &&
+      !(other && other[1] !== deviceId())
+    )
+      continue;
     const f = await h.getFile();
     out.push({ name, user: m[1], project: m[2], modified: f.lastModified, h });
   }

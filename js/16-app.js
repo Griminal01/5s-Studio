@@ -99,6 +99,7 @@ async function init() {
     idb.db = null;
     storageDown = (e && e.message) || "storage is unavailable";
   }
+  if (idb.db) keepStorage();
   await authGate(); // sign in (or create the first account)
   $("#userBtn").textContent = CUR.name;
   if (idb.db) {
@@ -181,5 +182,6 @@ async function init() {
   setTool("select");
   renderAll();
   if (!applyHash()) syncHash(false);
+  tabTell("open");
   if (held) await resolveHeld(bundle, readFailed || storageDown);
 }

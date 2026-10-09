@@ -110,6 +110,7 @@ async function runSave() {
           entries.push(projectIndexEntry());
         await idb.write(entries);
         lastSavedProject = project;
+        tabTell("saved");
         // An older fallback must not override this successful database save.
         try {
           localStorage.removeItem(recoveryKey());
@@ -755,4 +756,72 @@ function migrateLegacy(old) {
   });
   D = imgs;
   return project;
+}
+
+/* Ask the browser to keep this site's data (it may otherwise clear it when the disk is short). */
+async function keepStorage() {
+  try {
+    if (navigator.storage && navigator.storage.persist)
+      return await navigator.storage.persist();
+  } catch {}
+  return false;
+}
+/* Two tabs on one project overwrite each other (last save wins). Tabs tell each other which
+   project they have open and when they save, and the one that is now out of date says so. */
+const TAB_ID = Math.random().toString(36).slice(2),
+  tabChan =
+    "BroadcastChannel" in window ? new BroadcastChannel("studio5s-tabs") : null;
+function tabTell(kind) {
+  if (!tabChan || !CUR || !PID) return;
+  try {
+    tabChan.postMessage({ kind, tab: TAB_ID, u: CUR.id, p: PID });
+  } catch {}
+}
+function tabWarn(text, reload = false) {
+  const el = $("#tabWarn");
+  if (!el) return;
+  el.hidden = !text;
+  el.innerHTML = text
+    ? esc(text) +
+      (reload
+        ? ' <button type="button" id="tabReload">Reload this tab</button>'
+        : "")
+    : "";
+  const b = $("#tabReload");
+  if (b) b.onclick = () => location.reload();
+}
+if (tabChan)
+  tabChan.onmessage = (e) => {
+    const m = e.data || {};
+    if (!m || m.tab === TAB_ID || !CUR || m.u !== CUR.id || m.p !== PID) return;
+    if (m.kind === "open") {
+      tabTell("here");
+      tabWarn(
+        "This project is also open in another tab. Edit in one tab only, or the last save wins.",
+      );
+    } else if (m.kind === "here") {
+      tabWarn(
+        "This project is also open in another tab. Edit in one tab only, or the last save wins.",
+      );
+    } else if (m.kind === "saved") {
+      tabWarn(
+        "Another tab saved changes to this project. Reload this tab before editing so nothing is overwritten.",
+        true,
+      );
+    }
+  };
+
+/* A short id for this browser, so two people who chose the same username on different
+   computers do not write the same team file. */
+function deviceId() {
+  try {
+    let d = localStorage.getItem("studio5s-device");
+    if (!d) {
+      d = Math.random().toString(36).slice(2, 8);
+      localStorage.setItem("studio5s-device", d);
+    }
+    return d;
+  } catch {
+    return "";
+  }
 }
