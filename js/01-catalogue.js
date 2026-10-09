@@ -181,6 +181,27 @@ const actNo = (a) => "A-" + String(a.no).padStart(3, "0");
 const actOverdue = (a) =>
   !!a.due && a.due < today() && !["Done", "Cancelled"].includes(a.status);
 
+/* operator tasks: the jobs the people working in a zone do, each linked to the items it uses */
+const TASK_FREQ = [
+  "Start of shift",
+  "Every shift",
+  "End of shift",
+  "Hourly",
+  "Each changeover",
+  "Daily",
+  "Weekly",
+  "Monthly",
+  "As needed",
+];
+const TASK_WHO = [
+  "Operator",
+  "Team leader",
+  "Maintenance",
+  "Cleaner",
+  "Quality",
+];
+const taskNo = (t) => "T-" + String(t.no).padStart(3, "0");
+
 /* documents that live in a zone */
 const DOC_TYPES = [
   "SOP",

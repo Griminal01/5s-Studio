@@ -556,6 +556,159 @@ function makeExampleProject() {
     review: "",
   });
 
+  /* ----- operator tasks: what is done in each zone, linked to the items it uses ----- */
+  {
+    const zoneId = (n) =>
+        p.areas.find((a) => a.name === n && a.level === "zone")?.id || "",
+      docId = (t) => p.documents.find((d) => d.title === t)?.id || "",
+      task = (name, zone, who, freq, mins, s5, labels, doc, how) => {
+        p.tasks.push({
+          id: uid(),
+          no: ++p.counters.task,
+          name,
+          zone: zoneId(zone),
+          who,
+          freq,
+          mins,
+          s5,
+          items: labels.map(ref).filter(Boolean),
+          doc: docId(doc),
+          how,
+          note: "",
+        });
+      };
+    task(
+      "Stage film and cartons for the next order",
+      "Supplies and staging",
+      "Operator",
+      "Start of shift",
+      8,
+      "set",
+      [
+        "Film reel rack",
+        "Film reel rack 2",
+        "Carton pallet",
+        "Carton pallet 2",
+      ],
+      "",
+      "1. Check the order sheet\n2. Bring film and cartons to the racks\n3. Remove anything not for this order",
+    );
+    task(
+      "Change the film reel",
+      "Packing line",
+      "Operator",
+      "As needed",
+      4,
+      "std",
+      ["Operator position: packer", "Film reel rack", "Waste bin"],
+      "Film reel splice",
+      "1. Stop the packer at the splice mark\n2. Splice the new reel\n3. Bin the core and wrapper",
+    );
+    task(
+      "Start-of-shift line checklist",
+      "Packing line",
+      "Operator",
+      "Start of shift",
+      6,
+      "sustain",
+      [
+        "Operator position: packer",
+        "Document stand (packer)",
+        "Operator position: case packer",
+      ],
+      "Start-of-shift line checklist",
+      "Walk the line with the checklist and sign it off",
+    );
+    task(
+      "Clear a case packer jam",
+      "Packing line",
+      "Operator",
+      "As needed",
+      5,
+      "std",
+      ["Operator position: case packer", "Document stand (case packer)"],
+      "Case packer jam clearing",
+      "",
+    );
+    task(
+      "Clean the line at end of shift",
+      "Tooling and cleaning",
+      "Operator",
+      "End of shift",
+      12,
+      "shine",
+      ["Cleaning station", "Waste bin", "Spill kit"],
+      "Line cleaning schedule",
+      "1. Collect the cleaning kit\n2. Clean machines top to bottom, then the floor\n3. Return the kit to the station",
+    );
+    task(
+      "Fetch the format kit for a changeover",
+      "Tooling and cleaning",
+      "Operator",
+      "Each changeover",
+      6,
+      "set",
+      ["Tool trolley", "Changeover shadow board", "Spares kanban rack"],
+      "Format changeover: small to large",
+      "Take the trolley to the packer with the next format's parts and tools",
+    );
+    task(
+      "Seal integrity check",
+      "Tooling and cleaning",
+      "Quality",
+      "Hourly",
+      3,
+      "std",
+      ["Quality check station"],
+      "Seal integrity check",
+      "",
+    );
+    task(
+      "Pick up and stack finished pallets",
+      "Finished goods",
+      "Operator",
+      "Every shift",
+      10,
+      "set",
+      ["Pallet (UK)", "Pallet (UK) 2", "Pallet truck", "Cardboard recycling"],
+      "",
+      "",
+    );
+    task(
+      "Update the KPI board",
+      "Finished goods",
+      "Team leader",
+      "End of shift",
+      5,
+      "sustain",
+      ["Team / KPI board"],
+      "Team KPI board",
+      "",
+    );
+    task(
+      "Empty the red tag bin to the red tag area",
+      "Red tag area",
+      "Team leader",
+      "Weekly",
+      10,
+      "sort",
+      ["Red tag bin"],
+      "Red tag process",
+      "Decide each tag with its owner and update the register",
+    );
+    task(
+      "Wash hands and check hygiene on entry",
+      "Entry and hygiene",
+      "Operator",
+      "Start of shift",
+      2,
+      "std",
+      ["Hand wash / sanitiser"],
+      "",
+      "",
+    );
+  }
+
   /* ----- actions ----- */
   const action = (title, owner, due, pri, status, extra = {}) =>
     p.actions.push({

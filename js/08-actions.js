@@ -67,6 +67,7 @@ function act(a, el) {
           if (isLine(f.x))
             for (const z of P.areas) if (z.parent === f.x.id) z.parent = "";
           releaseArea(f.x.id);
+          for (const t of P.tasks) if (t.zone === f.x.id) t.zone = "";
           for (const pr of P.problems) if (pr.area === f.x.id) pr.area = "";
         }
         names.push(f.x.label || f.x.name || TAPE[f.x.type]?.n);

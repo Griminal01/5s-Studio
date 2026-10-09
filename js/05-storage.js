@@ -346,6 +346,7 @@ function validate(p) {
     smed: 0,
     area: 0,
     line: 0,
+    task: 0,
     prob: 0,
     ...(p.counters && typeof p.counters === "object" ? p.counters : {}),
   };
@@ -510,6 +511,45 @@ function validate(p) {
       for (const a of mine) if (a.no <= 0) a.no = ++p.counters[key];
     }
   }
+  // operator tasks: the jobs done in a zone, each linked to the items it uses (by item ref)
+  {
+    const zoneIds = new Set(
+        p.areas.filter((a) => a.level !== "line").map((a) => a.id),
+      ),
+      docIds = new Set(p.documents.map((d) => d.id));
+    p.tasks = (Array.isArray(p.tasks) ? p.tasks : [])
+      .filter((t) => t && typeof t === "object")
+      .map((t) => ({
+        id: str(t.id, uid()),
+        no: Number(t.no) || 0,
+        name: str(t.name, "Task"),
+        zone: zoneIds.has(t.zone) ? t.zone : "",
+        who: str(t.who),
+        freq: pick(t.freq, TASK_FREQ, "Every shift"),
+        mins: Math.max(0, Number(t.mins) || 0),
+        s5: S5.some((x) => x[0] === t.s5) ? t.s5 : "",
+        items: [
+          ...new Set(
+            (Array.isArray(t.items) ? t.items : [])
+              .map((x) => str(x))
+              .filter(Boolean),
+          ),
+        ],
+        doc: docIds.has(t.doc) ? t.doc : "",
+        how: str(t.how),
+        note: str(t.note),
+      }));
+    const seenT = new Set();
+    for (const t of p.tasks) {
+      while (seenT.has(t.id)) t.id = uid();
+      seenT.add(t.id);
+    }
+    p.counters.task = Math.max(
+      Number(p.counters.task) || 0,
+      ...p.tasks.map((t) => t.no),
+    );
+    for (const t of p.tasks) if (t.no <= 0) t.no = ++p.counters.task;
+  }
   p.sheets = p.sheets.filter((sheet) => sheet && typeof sheet === "object");
   if (!p.sheets.length) throw Error("No valid sheets");
   p.journal = Array.isArray(p.journal)
@@ -596,7 +636,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 9;
+  p.version = 10;
   p.app = "5s-studio";
   return p;
 }

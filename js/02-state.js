@@ -47,6 +47,7 @@ const ui = {
     tags: { st: "open", owner: "", cat: "", area: "", q: "" },
     acts: { st: "open", owner: "", s5: "", area: "", stream: "5s", q: "" },
     docs: { tab: "map", st: "all", type: "", owner: "", area: "", q: "" },
+    tasks: { freq: "", who: "", q: "" },
   },
   layers: {
     drawing: true,
@@ -201,7 +202,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 9,
+    version: 10,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {
@@ -217,6 +218,7 @@ function newProject() {
     areas: [],
     problems: [],
     documents: [],
+    tasks: [],
     counters: {
       tag: 0,
       act: 0,
@@ -226,6 +228,7 @@ function newProject() {
       area: 0,
       line: 0,
       prob: 0,
+      task: 0,
     },
     drawings: {
       d1: {

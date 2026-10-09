@@ -3904,3 +3904,33 @@ table.keys td {
 .pboardprint .pcause {
   align-items: flex-start;
 }
+
+/* operator tasks */
+.tbl tr.tgrp td {
+  background: var(--soft);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.itpick {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #fff;
+}
+.itpick .itrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: 0;
+}
+.itpick .itrow[hidden] {
+  display: none;
+}
+.itpick .itrow small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}

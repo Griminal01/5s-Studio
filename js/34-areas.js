@@ -407,6 +407,7 @@ ${rowsHTML(
 ${rowsFor("Documents here", "#0E7C86", st.docs, (d) => ({ l: docNo(d) + " " + d.title, v: d.type }))}
 ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " + t.title, v: t.status }))}
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
+${zoneTasksHTML(a)}
 ${line ? "" : `<div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>`}
 <div class="btns"><button class="pri" data-a="areaScope" title="Show only this ${word} on the 5S pages, so they are not cluttered">Work on this ${word}</button><button data-a="areaPrint">Print ${word} sheet</button>${line ? "" : '<button data-a="areaProblem">Raise a problem here</button>'}<button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete ${word}</button></div>
 <p class="small muted">Drag the white dots to reshape it. Drag its edge to move it.${line ? " A zone drawn inside a line joins it automatically." : " Items belong to the zone they sit in unless you designate them; a designated item that leaves its zone is flagged in the Compare tab and on the daily checks."}</p>`;
@@ -553,6 +554,17 @@ function areaAct(a, el) {
     case "areaProblem":
       if (ar) problemFromArea(ar);
       break;
+    case "taskOpen":
+      editTask(el?.dataset.id);
+      break;
+    case "taskNew":
+      if (ar && !isLine(ar)) newTask({ zone: ar.id });
+      break;
+    case "taskNewFor": {
+      const o = f && f.t === "obj" ? f.x : null;
+      if (o) newTask({ zone: areaOf(o, S())?.id || "", items: [o.ref] });
+      break;
+    }
     case "areaPrintAll":
       printAreas(areasOn());
       break;
@@ -685,6 +697,7 @@ ${
       )}`
     : ""
 }
+${tasksOfZone(a).length ? `<h2>Operator tasks (${tasksOfZone(a).length})</h2>${taskSheetHTML(tasksOfZone(a))}` : ""}
 ${st.docs.length ? `<h2>Documents (${st.docs.length})</h2><table class="fixed">${DOC_COLS}<tr>${DOC_HEAD()}<th>Present</th></tr>${docKeyRows(st.docs, false, '<td><span class="box"></span></td>')}</table>` : ""}
 ${
   st.tags.length

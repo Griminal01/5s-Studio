@@ -10,19 +10,20 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 | Setup | Factory map (plan image, scale, walls), lines, zones: cards edited in place |
 | Lines and zones (Zones tab and Zone tool) | Named polygons: a line holds zones (`a.parent`); items belong to zones by position or designation; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
 | Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from a red tag or a zone |
+| Operator tasks | Per zone: task, who, when, minutes, 5S step, linked document, steps, and the items it uses (by item ref). KPIs: zones with tasks, items used, minutes per shift. Zone and item panels list them; zone A3 sheet, print, CSV |
 | Documents | Register of SOPs, OPLs, checklists, boards: owner, revision, review date, where kept; document map and tick list |
 | Red tags, Actions | Registers with pins, CSV and print |
 | Tracking | Daily checks over time: where items actually sit (drift map), suggested new homes, trend, movement-log CSV, print |
 
 Navigation (reworked 11 Oct): four sections. **Setup** = 1 Factory map, 2 Lines, 3 Zones (done once);
-**5S** = Layout, Tracking, Red tags, 5S actions; **Documents** = Document list, Document map, Document
+**5S** = Layout, Operator tasks, Tracking, Red tags, 5S actions; **Documents** = Document list, Document map, Document
 actions; **Improve** = Problem solving. One list (`NAV` in `js/12-views.js`) drives the header buttons, the
 phone tab bar and the page bar under it. The **Showing picker** on the right of that bar chooses the
 whole factory, one line (with all its zones) or one zone, and it follows you between sections. A zone
 is drawn sharp with a faded margin of context (`scopeBox`, 28% round it); the document map zooms to it;
 lists, registers and problems filter to it. Tracking is always the whole factory. Lines and zones live in
 `P.areas` (`a.level`, `a.parent`); drawing them hands off to the layout with a Back to Setup button.
-Actions have a `stream` ("5s", "doc", "improve") and optionally a linked document `a.doc`. Project version 9.
+Actions have a `stream` ("5s", "doc", "improve") and optionally a linked document `a.doc`. Project version 10 (adds `P.tasks`).
 Boards and SMED were removed (11 Oct): their data is parked in the project file, the code is in git
 before `c0594d8`. Ideas for Improve (nothing built): improvement log, one-point lessons, factory overview.
 

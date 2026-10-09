@@ -46,19 +46,19 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 26-project-ui | project name, duplicate, item list controls |
 | 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
 | 34-areas | lines and zones, both stored in `P.areas` (`a.level` "line" or "zone"; a zone's `a.parent` is its line; the old name `areas` is kept so saved work still opens): polygons on a drawing, item designation (`o.area`, zones only), layout check `outOfArea`, side panel and A3 sheets; **scope** (`ui.scope`, `setScope()`, `scopeObj/scopeMark/scopeBox/scopePass`): the Showing picker applies to the layout (zone drawn sharp, a faded margin of context around it), registers, documents, the document map and problems |
+| 34-tasks | operator tasks (`P.tasks`: zone, who, frequency, minutes, 5S step, `items` = item refs, linked document): the Operator tasks page (follows the Showing picker), the form with its item picker, blocks in the zone and item side panels, zone A3 sheet table, CSV and print |
 | 34-setup | the Setup section: 1 Factory map (plan image, scale, walls), 2 Lines, 3 Zones; cards edited in place; drawing hands off to the layout with a Back to Setup button |
 | 35-problems, 36-problem-tools | problem solving module (`P.problems`, actions link by `a.prob`): list and detail tabs, 5-Why, fishbone SVG, countermeasures, review, Pareto, A3 print, CSV |
 | 38-problem-board | the problem solving board (one screen, like the whiteboard): statement, fishbone with likely causes, causes numbered with their actions (`a.cause`), hypothesis and confirmation, why chain and root cause, inline action list, board print on A3 |
 | 39-document-map | the Documents map tab: documents pinned, moved and opened over a faded copy of the standard layout, with a line to the item each is kept at. Document pins are off on the Layout by default |
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
-| 34-setup | the Setup page (first page of the 5S section): factory plan with its areas, a card for the whole factory and each area; choosing one calls `setScope()` and opens the layout. The page bar shows a "Showing <area> change" chip that links back to it |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup |
 
 Removed features (formal audits, audit lines, TV, Boards and SMED) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
 checks, the drift map and areas were removed and restored; `validate()` parks `boards`, `smed` and `labels` untouched (git history at `c0594d8^` has the code); it brings parked tags back and
-turns old audit areas into plain areas. Project version is 9 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`).
+turns old audit areas into plain areas. Project version is 9 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a

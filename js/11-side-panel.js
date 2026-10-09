@@ -134,7 +134,7 @@ ${objs >= 2 ? `<h3>Line them up</h3><div class="aligngrid">${ALIGN.map(([k, l]) 
       backBtn +
       st +
       `<label class="f">Name<input data-f="label" value="${esc(x.label)}"></label>
-${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) : ""}
+${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) + itemTasksHTML(x) : ""}
 <h3>Size and position</h3>
 <div class="row3">${num("w", `Width (${u})`, toUser(x.w))}${num("h", `Depth (${u})`, toUser(x.h))}${num("a", "Turn (°)", Math.round(x.a), 15)}</div>
 <div class="row2">${num("px", `Across (${u})`, toUser(x.x - ox))}${num("py", `Down (${u})`, toUser(x.y - oy))}</div>

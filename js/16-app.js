@@ -17,6 +17,7 @@ function renderAll() {
   if (ui.view === "tags" || ui.view === "actions" || ui.view === "docactions")
     renderRegister();
   else if (SETUP_VIEWS.includes(ui.view)) renderSetup();
+  else if (ui.view === "tasks") renderTasks();
   else if (ui.view === "tracking") renderTracking();
   else if (ui.view === "documents" || ui.view === "docmap") renderDocuments();
   else if (ui.view === "problems") renderProblems();

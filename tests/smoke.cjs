@@ -5,6 +5,7 @@ const path = require("node:path");
 
 const VIEWS = [
   "setup",
+  "tasks",
   "lines",
   "zones",
   "documents",
@@ -44,6 +45,7 @@ const VIEWS = [
     lines: "setup",
     zones: "setup",
     layout: "5s",
+    tasks: "5s",
     tracking: "5s",
     tags: "5s",
     actions: "5s",
@@ -77,6 +79,7 @@ const VIEWS = [
     const visible = await page.evaluate((view) => {
       const ids = {
         setup: "setupView",
+        tasks: "taskView",
         lines: "setupView",
         zones: "setupView",
         layout: "layoutView",
@@ -641,6 +644,124 @@ const VIEWS = [
     (await page.evaluate(() => ui.view)) === "zones",
     "Back to Setup did not return to the zones page",
   );
+
+  // operator tasks: the example has them, a new one is added through the real form and linked to items
+  await go("tasks");
+  const tk0 = await page.evaluate(() => ({
+    n: P.tasks.length,
+    rows: document.querySelectorAll("#taskView [data-taskid]").length,
+    linked: P.tasks.every(
+      (t) => t.items.length && taskItems(t).length === t.items.length,
+    ),
+    zones: new Set(P.tasks.map((t) => t.zone)).size,
+    roundTrip:
+      JSON.stringify(validate(JSON.parse(JSON.stringify(P))).tasks) ===
+      JSON.stringify(P.tasks),
+  }));
+  expect(
+    tk0.n >= 8 &&
+      tk0.rows === tk0.n &&
+      tk0.linked &&
+      tk0.zones >= 4 &&
+      tk0.roundTrip,
+    "example operator tasks are missing or not linked to items: " +
+      JSON.stringify(tk0),
+  );
+  await page.click("#tNew");
+  await page.fill(
+    '#dlgForm [name="name"], #dlgBody [name="name"]',
+    "Smoke task",
+  );
+  await page.selectOption('#dlgBody [name="zone"]', {
+    label: "Tooling and cleaning",
+  });
+  await page.selectOption('#dlgBody [name="freq"]', "Daily");
+  await page.fill('#dlgBody [name="mins"]', "7");
+  await page.click("#itZone");
+  const ticked = await page.evaluate(
+    () => document.querySelectorAll("#itPick input:checked").length,
+  );
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  const tk1 = await page.evaluate(() => {
+    const t = P.tasks.at(-1),
+      z = areasOn(STD()).find((x) => x.name === "Tooling and cleaning");
+    return {
+      name: t.name,
+      zone: t.zone === z.id,
+      mins: t.mins,
+      freq: t.freq,
+      items: t.items.length,
+      row: !!document.querySelector(`#taskView [data-taskid="${t.id}"]`),
+    };
+  });
+  expect(
+    tk1.name === "Smoke task" &&
+      tk1.zone &&
+      tk1.mins === 7 &&
+      tk1.freq === "Daily" &&
+      tk1.items === ticked &&
+      ticked >= 4 &&
+      tk1.row,
+    "adding an operator task through the form did not work: " +
+      JSON.stringify({ tk1, ticked }),
+  );
+  // the zone and the item panels list it, and Show selects its items on the layout
+  await page.evaluate(() => {
+    const z = areasOn(STD()).find((x) => x.name === "Tooling and cleaning");
+    setView("layout");
+    ui.sel = [z.id];
+    ui.tab = "item";
+    renderSide();
+  });
+  const tk2 = await page.evaluate(() => ({
+    zone: document.querySelector("#pane")?.textContent.includes("Smoke task"),
+  }));
+  await page.evaluate(() => {
+    const t = P.tasks.at(-1);
+    ui.sel = [taskItems(t)[0].id];
+    renderSide();
+  });
+  const tk3 = await page.evaluate(() => ({
+    item: document.querySelector("#pane")?.textContent.includes("Smoke task"),
+  }));
+  expect(
+    tk2.zone && tk3.item,
+    "the zone or item panel does not list its operator tasks: " +
+      JSON.stringify({ tk2, tk3 }),
+  );
+  await go("tasks");
+  await page.click("[data-tshow]");
+  const tk4 = await page.evaluate(() => ({
+    view: ui.view,
+    sel: ui.sel.length,
+  }));
+  expect(
+    tk4.view === "layout" && tk4.sel >= 1,
+    "Show on an operator task did not select its items: " + JSON.stringify(tk4),
+  );
+  // deleting a zone keeps the task, just not in a zone
+  const tk5 = await page.evaluate(() => {
+    const t = P.tasks.at(-1),
+      z = areasOn(STD()).find((x) => x.id === t.zone);
+    ui.sel = [z.id];
+    act("del");
+    const out = { kept: P.tasks.includes(t), zone: t.zone };
+    restore(undoS, redoS);
+    return out;
+  });
+  expect(
+    tk5.kept && tk5.zone === "",
+    "deleting a zone should keep its tasks: " + JSON.stringify(tk5),
+  );
+  await go("tasks");
+  await page.evaluate(() => {
+    window.__csv = 0;
+    printTasks();
+    document.body.classList.remove("printing-doc");
+    document.getElementById("pageStyle")?.remove();
+    document.getElementById("printDoc").className = "";
+  });
 
   // scope: the whole factory, one zone, then one line, through the Showing picker
   await go("layout");

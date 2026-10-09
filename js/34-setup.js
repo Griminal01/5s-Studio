@@ -98,12 +98,14 @@ function setupCard(a, sh) {
       ? [
           ["Zones", zonesOfLine(a).length],
           ["Items", st.items.length],
+          ["Tasks", tasksOfZone(a).length],
           ["Floor tape", st.marks.length ? fmtLen(st.tape) : "None"],
           ["Open red tags", st.tags.length],
           ["Open actions", st.acts.length],
         ]
       : [
           ["Items", st.items.length],
+          ["Tasks", tasksOfZone(a).length],
           ["Floor tape", st.marks.length ? fmtLen(st.tape) : "None"],
           ["Open red tags", st.tags.length],
           ["Open actions", st.acts.length],
@@ -255,6 +257,7 @@ async function setupDelete(id) {
   if (line) for (const z of P.areas) if (z.parent === a.id) z.parent = "";
   releaseArea(a.id);
   for (const pr of P.problems) if (pr.area === a.id) pr.area = "";
+  for (const t of P.tasks) if (t.zone === a.id) t.zone = "";
   P.areas.splice(P.areas.indexOf(a), 1);
   if (ui.scope === a.id) ui.scope = "";
   record(line ? "Line deleted" : "Zone deleted", a.name);

@@ -22,6 +22,7 @@ const NAV = [
     short: "5S",
     items: [
       ["layout", "Layout"],
+      ["tasks", "Operator tasks"],
       ["tracking", "Tracking"],
       ["tags", "Red tags"],
       ["actions", "5S actions"],
@@ -48,6 +49,7 @@ const NAV_ITEMS = NAV.flatMap((g) => g.items);
 // pages that follow the Showing picker (Tracking is always the whole factory)
 const SCOPED_VIEWS = [
   "layout",
+  "tasks",
   "tags",
   "actions",
   "documents",
@@ -178,6 +180,7 @@ function setView(v, fromHash = false) {
   $("#regView").hidden = !reg;
   $("#docView").hidden = v !== "documents" && v !== "docmap";
   $("#setupView").hidden = !SETUP_VIEWS.includes(v);
+  $("#taskView").hidden = v !== "tasks";
   if (v !== "layout") ui.fromSetup = "";
   $("#trackView").hidden = v !== "tracking";
   $("#problemView").hidden = v !== "problems";
@@ -185,6 +188,7 @@ function setView(v, fromHash = false) {
   document.body.dataset.section = v;
   if (reg) renderRegister();
   else if (SETUP_VIEWS.includes(v)) renderSetup();
+  else if (v === "tasks") renderTasks();
   else if (v === "tracking") renderTracking();
   else if (v === "documents" || v === "docmap") renderDocuments();
   else if (v === "problems") renderProblems();

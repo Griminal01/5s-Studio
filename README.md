@@ -12,7 +12,7 @@ Everything runs in the browser. There is no server and no build step. Data is st
 
 Four sections along the top. **Setup** is done once: the factory map (plan image, scale, walls), then
 the production **lines**, then the **zones** in each line. The working sections are **5S** (layout,
-tracking, red tags, 5S actions), **Documents** (document list, document map, document actions) and
+operator tasks, tracking, red tags, 5S actions), **Documents** (document list, document map, document actions) and
 **Improve** (problem solving). In each of those, the **Showing** picker at the right of the page bar
 chooses the whole factory, one line, or one zone. A zone is shown with a faded margin of context
 around it, so a layout is not cluttered; the document map zooms to it, and lists and registers
@@ -41,6 +41,11 @@ filter to it.
   each is kept, who owns it and when it is reviewed. Documents have their own **map** (over a faded
   copy of the layout, with a line to the item each is kept at), so the layout itself stays about
   items and tape. Print a document map or a tick-off list.
+- **Operator tasks**: define what operators do in each zone (change the film reel, end-of-shift clean,
+  update the KPI board) with who, how often, how long, the 5S step, an optional document and the
+  **items each task uses**. See which items nobody uses, which zones have no tasks, and the minutes a
+  shift's tasks add up to. Tasks show in the zone and item panels, on the zone's A3 sheet, and print
+  or export to CSV.
 - **Red tags**: tag anything not needed or in the wrong place, with an owner, a decision and a date;
   pin it on the layout, with a register of what is open and overdue.
 - **Daily checks and Tracking**: start a check each day (it copies the standard), move things to where
