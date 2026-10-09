@@ -219,7 +219,7 @@ function printBoard(p) {
   ).forEach((n) => n.remove());
   c.querySelectorAll(".pbacts > p").forEach((n) => n.remove());
   printWithPage(
-    `<div class="pd pboardprint"><p class="pdm">${esc(P.projectName || "5S design project")}, printed ${esc(fmtD(today()))}</p>${c.outerHTML}</div>`,
+    `<div class="pd pboardprint"><p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}</p>${c.outerHTML}</div>`,
     "",
     "size: A3 landscape; margin: 8mm",
   );

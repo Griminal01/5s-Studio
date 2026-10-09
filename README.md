@@ -1,6 +1,6 @@
-# 5S Studio
+# Lean Studio
 
-A design tool for a production line, used to work out before touching the floor:
+Lean tools for a production line (it started as 5S Studio), used to work out before touching the floor:
 
 1. **5S design**: the layout, where floor tape goes, and which items and documents live where.
 2. **SMED**: cut changeover time.

@@ -319,7 +319,7 @@ function csvDocuments() {
         pinAreaName(d),
       ]),
     ],
-    "5S_documents.csv",
+    "LeanStudio_documents.csv",
   );
 }
 function docKeyRows(rows, grouped, extra = "") {
@@ -355,7 +355,7 @@ function printDocumentList() {
   }
   printWithPage(
     `<div class="pd"><h1>Documents in the area</h1>
-    <p class="pdm">${esc(P.projectName || "5S design project")}, printed ${esc(fmtD(today()))}. ${rows.length} document${rows.length > 1 ? "s" : ""} in use. Tick when the right revision is in place.</p>
+    <p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}. ${rows.length} document${rows.length > 1 ? "s" : ""} in use. Tick when the right revision is in place.</p>
     ${[...groups]
       .map(
         ([k, ds]) =>

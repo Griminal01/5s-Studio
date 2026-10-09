@@ -235,7 +235,7 @@ function printProblem(p) {
   const whys = p.whys.filter((w) => w.text.trim());
   const photos = p.photos.filter((x) => PH[x.id]).slice(0, 3);
   const html = `<div class="pd a3">
-  <div class="a3head"><div><h1>${esc(probNo(p))} ${esc(p.title)}</h1><p class="pdm">${esc(P.projectName || "5S design project")}, printed ${esc(fmtD(today()))}${p.category ? ". " + esc(p.category) : ""}${links.length ? ". Linked: " + links.map(esc).join("; ") : ""}</p></div>
+  <div class="a3head"><div><h1>${esc(probNo(p))} ${esc(p.title)}</h1><p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}${p.category ? ". " + esc(p.category) : ""}${links.length ? ". Linked: " + links.map(esc).join("; ") : ""}</p></div>
     <table class="a3meta"><tr>${meta.map(([k]) => `<th>${k}</th>`).join("")}</tr><tr>${meta.map(([, v]) => `<td>${esc(v)}</td>`).join("")}</tr></table></div>
   <div class="a3cols">
    <div>
@@ -322,6 +322,6 @@ function csvProblems() {
         ];
       }),
     ],
-    `5S_problems_${fileSafe(P.projectName || "project")}_${today()}.csv`,
+    `LeanStudio_problems_${fileSafe(P.projectName || "project")}_${today()}.csv`,
   );
 }

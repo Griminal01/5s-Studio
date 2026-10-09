@@ -49,7 +49,7 @@ function csvDeviations() {
       tapeOf(m.type).n,
       fmtLen(markLen(m)),
     ]);
-  csv(rows, `5S_deviations_${fileSafe(sh.name)}.csv`);
+  csv(rows, `LeanStudio_deviations_${fileSafe(sh.name)}.csv`);
 }
 function csvRoutes() {
   const sh = S();
@@ -66,7 +66,7 @@ function csvRoutes() {
         fmtLen(polyLen(r.pts) * perShift(r)),
       ]),
     ],
-    `5S_routes_${fileSafe(sh.name)}.csv`,
+    `LeanStudio_routes_${fileSafe(sh.name)}.csv`,
   );
 }
 const loadImg = (src) =>
@@ -110,7 +110,7 @@ async function exportPNG() {
     }
     x.fillStyle = "#fff";
     x.font = '600 38px Bahnschrift, "Segoe UI", sans-serif';
-    x.fillText(`5S Studio  |  ${sh.name}`, 32, 52);
+    x.fillText(`Lean Studio  |  ${sh.name}`, 32, 52);
     x.font = '22px "Segoe UI", sans-serif';
     x.globalAlpha = 0.85;
     x.fillText(
@@ -162,7 +162,10 @@ async function exportPNG() {
       24,
       cv.height - 13,
     );
-    cv.toBlob((b) => download(b, `5S_${fileSafe(sh.name)}.png`), "image/png");
+    cv.toBlob(
+      (b) => download(b, `LeanStudio_${fileSafe(sh.name)}.png`),
+      "image/png",
+    );
   } catch (e) {
     console.error(e);
     toast("Image export failed. Try Print instead.");

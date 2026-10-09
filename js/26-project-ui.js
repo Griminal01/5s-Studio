@@ -2,7 +2,7 @@
 /* ============ project name, duplicate, item list controls ============ */
 function updateProjectIdentity() {
   if (!P) return;
-  $("#projectIdentity").textContent = P.projectName || "5S design project";
+  $("#projectIdentity").textContent = P.projectName || "Lean Studio project";
   $("#projectIdentity").title =
     "Click to rename the project. Last backup download: " +
     (P.lastBackupDownload
@@ -12,7 +12,7 @@ function updateProjectIdentity() {
 $("#projectIdentity").onclick = async () => {
   const r = await modal(
     "Project name",
-    `<label class="f">Name<input name="name" required value="${esc(P.projectName || "5S design project")}"></label>`,
+    `<label class="f">Name<input name="name" required value="${esc(P.projectName || "Lean Studio project")}"></label>`,
     "Save",
   );
   if (!r || !r.name.trim()) return;

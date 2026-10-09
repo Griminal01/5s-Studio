@@ -3,7 +3,7 @@
 Guidance for Claude Code sessions in this repo.
 
 ## What this is
-5S Studio: a **design tool for a production line**, used by a small team (two people to start).
+Lean Studio (renamed from 5S Studio): a **lean design tool for a production line**, used by a small team (two people to start).
 Priorities, in order: (1) design 5S: layout, floor tape, items and documents in an area;
 (2) SMED; (3) problem solving (A3, 5-Why, fishbone). Mobile auditing, the TV dashboard and cloud sync
 are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT dependency.
@@ -11,6 +11,9 @@ are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT 
 ## Hard rules
 - **No build step, no framework, no bundler.** Plain HTML/CSS/JS that works from `file://` and GitHub Pages.
 - **No external network dependencies at runtime** (no CDNs, fonts, analytics). It must work offline on the shop floor.
+- **Keep the old internal names.** The rename to Lean Studio is display only. The database `studio-5s`, the
+  `studio5s-*` and `5s-smed-timer-draft` browser keys and `app: "5s-studio"` in project files must not change, or
+  people's saved work disappears. Team files are written as `Lean-Studio__...` and `5S-Studio__...` is still read.
 - **Never lose user data.** Storage lives in `js/05-storage.js` (`validate()` migrates old shapes,
   `migrateLegacy()` reads v6 files). Any change to the project shape must: bump a version, migrate old
   projects in `validate()`, and keep opening old backup files working.

@@ -26,7 +26,7 @@ function saveProject() {
   updateBackupChip();
   download(
     new Blob([JSON.stringify(projectBundle())], { type: "application/json" }),
-    `5S_project_${fileSafe(P.projectName || "project")}_${today()}.json`,
+    `LeanStudio_project_${fileSafe(P.projectName || "project")}_${today()}.json`,
   );
   save();
   updateProjectIdentity();

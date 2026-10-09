@@ -493,7 +493,7 @@ function csvAreas() {
           sh.name,
         ]),
     ],
-    `5S_items_by_area_${fileSafe(P.projectName || "project")}_${today()}.csv`,
+    `LeanStudio_items_by_area_${fileSafe(P.projectName || "project")}_${today()}.csv`,
   );
 }
 /* a plan of the sheet cropped to a box, with every layer that helps people find their way */
@@ -551,7 +551,7 @@ function areaSheetHTML(a, sh) {
       ? `<table><tr>${head.map((x) => `<th>${x}</th>`).join("")}</tr>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`
       : `<p class="pdm">${empty}</p>`;
   return `<div class="areapage"><h1><span class="sw" style="background:${esc(a.color)}"></span>${esc(areaCode(a))} ${esc(a.name)}</h1>
-<p class="pdm">${esc(P.projectName || "5S design project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}. Owner: <b>${esc(a.owner || "not set")}</b>. Floor area ${esc(fmtM2(areaM2(a, sh)))}.${a.note ? " " + esc(a.note) : ""}</p>
+<p class="pdm">${esc(P.projectName || "Lean Studio project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}. Owner: <b>${esc(a.owner || "not set")}</b>. Floor area ${esc(fmtM2(areaM2(a, sh)))}.${a.note ? " " + esc(a.note) : ""}</p>
 <div class="pdplan">${plan}</div>
 <h2>Items that belong here (${items.length})</h2>
 ${tbl(
@@ -637,7 +637,7 @@ function printAreas(list) {
   if (list.length > 1) {
     const dm = DM(sh),
       plan = planCrop(sh, { x0: 0, y0: 0, x1: dm.w, y1: dm.h }, 2.2);
-    html += `<div class="pd"><h1>Areas</h1><p class="pdm">${esc(P.projectName || "5S design project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}.</p><div class="pdplan">${plan}</div><table><tr><th>Area</th><th>Owner</th><th class="n">Items</th><th class="n">Floor area</th><th>Floor tape</th><th class="n">Documents</th></tr>${list
+    html += `<div class="pd"><h1>Areas</h1><p class="pdm">${esc(P.projectName || "Lean Studio project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}.</p><div class="pdplan">${plan}</div><table><tr><th>Area</th><th>Owner</th><th class="n">Items</th><th class="n">Floor area</th><th>Floor tape</th><th class="n">Documents</th></tr>${list
       .map((a) => {
         const st = areaStats(a, sh);
         return `<tr><td><span class="sw" style="background:${esc(a.color)}"></span>${esc(areaCode(a))} ${esc(a.name)}</td><td>${esc(a.owner)}</td><td class="n">${st.items.length}</td><td class="n">${esc(fmtM2(areaM2(a, sh)))}</td><td>${st.marks.length ? esc(fmtLen(st.tape)) : "-"}</td><td class="n">${st.docs.length}</td></tr>`;

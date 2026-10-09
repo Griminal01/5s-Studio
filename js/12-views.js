@@ -58,7 +58,7 @@ function markNav() {
   $("#navBtn").innerHTML =
     `<span>${esc(navLabel(ui.view))}</span><span aria-hidden="true"> ▾</span>`;
   $("#tabMore")?.classList.toggle("on", !NAV_TABS.includes(ui.view));
-  document.title = "5S Studio · " + navLabel(ui.view);
+  document.title = "Lean Studio · " + navLabel(ui.view);
 }
 /* counts on the section buttons: open and overdue things */
 function updateNavBadges() {

@@ -29,8 +29,10 @@ const fsafe = (s) =>
     .trim()
     .replace(/[\\/:*?"<>|_]+/g, "-")
     .slice(0, 60) || "x";
-const teamFileName = (user, proj) =>
-  `5S-Studio__${fsafe(user)}__${fsafe(proj)}.json`;
+// Files were named 5S-Studio__... before the rename; both are still read.
+const TEAM_FILE = /^(?:Lean-Studio|5S-Studio)__(.+?)__(.+)\.json$/;
+const teamFileName = (user, proj, prefix = "Lean-Studio") =>
+  `${prefix}__${fsafe(user)}__${fsafe(proj)}.json`;
 const myFileName = () => teamFileName(CUR.name, P.projectName || "project");
 
 async function teamPerm(write, ask) {
@@ -51,6 +53,12 @@ async function teamPublish(ask = true) {
     w = await fh.createWritable();
   await w.write(JSON.stringify(projectBundle()));
   await w.close();
+  // my copy under the old name is now out of date: remove it so teammates see one copy
+  try {
+    await TEAM.handle.removeEntry(
+      teamFileName(CUR.name, P.projectName || "project", "5S-Studio"),
+    );
+  } catch {}
   TEAM.last = Date.now();
   TEAM.lastName = myFileName();
   await teamSave();
@@ -87,7 +95,7 @@ async function teamList() {
   const out = [];
   for await (const [name, h] of TEAM.handle.entries()) {
     if (h.kind !== "file") continue;
-    const m = name.match(/^5S-Studio__(.+?)__(.+)\.json$/);
+    const m = name.match(TEAM_FILE);
     if (!m || nameKey(m[1]) === nameKey(CUR.name)) continue;
     const f = await h.getFile();
     out.push({ name, user: m[1], project: m[2], modified: f.lastModified, h });
@@ -213,7 +221,7 @@ $("#fTeam").onchange = async () => {
   if (!f) return;
   try {
     const j = JSON.parse(await f.text()),
-      m = f.name.match(/^5S-Studio__(.+?)__(.+)\.json$/);
+      m = f.name.match(TEAM_FILE);
     await openTeammateBundle(
       j,
       m ? m[1] : j.by || "Teammate",

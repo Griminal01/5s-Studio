@@ -89,7 +89,7 @@ function printView(el, pageCss = "size: A4 landscape; margin: 10mm") {
     (n) => n.remove(),
   );
   printWithPage(
-    `<div class="pd pdview"><p class="pdm">${esc(P.projectName || "5S design project")}, printed ${esc(fmtD(today()))}</p>${c.innerHTML}</div>`,
+    `<div class="pd pdview"><p class="pdm">${esc(P.projectName || "Lean Studio project")}, printed ${esc(fmtD(today()))}</p>${c.innerHTML}</div>`,
     "",
     pageCss,
   );

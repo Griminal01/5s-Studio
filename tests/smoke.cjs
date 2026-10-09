@@ -761,6 +761,20 @@ const VIEWS = [
   );
   if (stillOpen) await page.click("#dlgCancel");
 
+  // the rename is display only: team files with the old name still open
+  const rb = await page.evaluate(() => ({
+    title: document.title,
+    h1: document.querySelector(".brand h1").textContent,
+    oldName: TEAM_FILE.test("5S-Studio__Sam__Line 1.json"),
+    newName: teamFileName("Sam", "Line 1"),
+  }));
+  expect(
+    /Lean Studio/.test(rb.title) &&
+      rb.h1 === "Lean Studio" &&
+      rb.oldName &&
+      rb.newName === "Lean-Studio__Sam__Line 1.json",
+    "the rename to Lean Studio is incomplete: " + JSON.stringify(rb),
+  );
   // accounts and projects
   const acc = await page.evaluate(async () => {
     const users = await idb.get("auth/users");

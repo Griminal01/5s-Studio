@@ -166,7 +166,7 @@ function renderTracking() {
           fmtLen(p.walk, p.d),
         ]),
       ],
-      "5S_tracking.csv",
+      "LeanStudio_tracking.csv",
     );
   $("#tLog").onclick = csvMovementLog;
   $("#tPrint").onclick = () =>
@@ -219,5 +219,5 @@ function csvMovementLog() {
       ]);
     }
   }
-  csv(rows, "5S_movement_log.csv");
+  csv(rows, "LeanStudio_movement_log.csv");
 }

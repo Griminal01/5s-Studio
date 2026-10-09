@@ -279,7 +279,7 @@ function csvTags() {
         pinAreaName(t),
       ]),
     ],
-    "5S_red_tag_register.csv",
+    "LeanStudio_red_tag_register.csv",
   );
 }
 function csvActions() {
@@ -320,7 +320,7 @@ function csvActions() {
         pinAreaName(a),
       ]),
     ],
-    "5S_action_log.csv",
+    "LeanStudio_action_log.csv",
   );
 }
 

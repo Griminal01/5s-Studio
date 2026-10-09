@@ -382,7 +382,7 @@ function csvSchedule() {
         ];
       }),
     ],
-    `5S_tape_schedule_${fileSafe(sh.name)}.csv`,
+    `LeanStudio_tape_schedule_${fileSafe(sh.name)}.csv`,
   );
 }
 function csvSetout() {
@@ -425,7 +425,7 @@ function csvSetout() {
         m ? "m" : "drawing units",
       ]);
     });
-  csv(rows, `5S_setting_out_${fileSafe(sh.name)}.csv`);
+  csv(rows, `LeanStudio_setting_out_${fileSafe(sh.name)}.csv`);
 }
 
 /* ----- printable marking sheet ----- */

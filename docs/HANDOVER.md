@@ -1,4 +1,4 @@
-# Handover: state of 5S Studio
+# Handover: state of Lean Studio (formerly 5S Studio)
 
 Last updated after areas and problem solving (9 Oct 2026). Read this first when picking the work back up.
 

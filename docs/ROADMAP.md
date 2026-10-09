@@ -1,8 +1,8 @@
-# 5S Studio roadmap
+# Lean Studio roadmap
 
 ## Direction (updated)
 
-5S Studio is a **design tool for the model line**, used by Josh and Sam to work out, before touching the floor:
+Lean Studio (formerly 5S Studio) is a **design tool for the model line**, used by Josh and Sam to work out, before touching the floor:
 
 1. **5S design**: what the area should look like, where floor tape goes, and which items and documents live where.
 2. **SMED**: designing faster changeovers.

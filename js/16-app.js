@@ -82,7 +82,7 @@ async function resolveHeld(bundle, why) {
       if (!bundle) return location.reload();
       download(
         new Blob([JSON.stringify(bundle)], { type: "application/json" }),
-        `5S_unreadable_${today()}.json`,
+        `LeanStudio_unreadable_${today()}.json`,
       );
       got = true;
     } else if ($("#dlg").returnValue === "cancel") break;

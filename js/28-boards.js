@@ -421,4 +421,4 @@ function boardRows() {
     );
   return rows;
 }
-const csvBoards = () => csv(boardRows(), "5S_boards_and_slots.csv");
+const csvBoards = () => csv(boardRows(), "LeanStudio_boards_and_slots.csv");

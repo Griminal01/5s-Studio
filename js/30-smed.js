@@ -910,5 +910,5 @@ function csvChangeover(co) {
       kitShow(s.kit),
     ]),
   );
-  csv(rows, "5S_" + fileSafe(coCode(co) + "_" + co.name) + ".csv");
+  csv(rows, "LeanStudio_" + fileSafe(coCode(co) + "_" + co.name) + ".csv");
 }
