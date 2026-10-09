@@ -82,14 +82,14 @@ function paneItem() {
   if (!sel.length) {
     const blank = !sh.objects.length && !sh.marks.length && !sh.routes.length;
     if (blank && sh.kind === "standard")
-      return `<h2>Build the standard first</h2><ol class="steps">
+      return `<h2>Build the standard first</h2><p class="small muted" style="margin:0 0 8px">New here? Start in <b>Setup</b> (top bar): add the factory map and scale, then draw your lines and zones. Then come back and place items.</p><ol class="steps">
 <li><b>Set the scale.</b> Use Measure on a distance you know so sizes, tolerances and walking are in metres.</li>
 <li><b>Place every movable item</b> where it should live. Tick “home marked on the floor” for corner tape.</li>
 <li><b>Plan the floor tape</b>: walkways, WIP, red tag area, keep-clear.</li>
 <li><b>Trace the ideal routes</b> people and trucks should take.</li>
 <li><b>Pin the documents</b> (SOPs, checklists, boards) where they will live, on the map in the Documents view.</li>
 <li>Try a different design as a <b>proposal</b>; the Compare tab shows what changed.</li>
-<li>Each day, <b>start a daily check</b>: it copies the standard, you move things to where they really are. The Tracking view shows where things actually sit.</li></ol><div class="btns"><button data-a="loadExample">Open the example model line</button></div>`;
+<li>Each day, <b>start a daily check</b>: it copies the standard, you move things to where they really are. The Tracking view shows where things actually sit.</li></ol><div class="btns"><button class="pri" data-a="goSetup">Go to Setup</button><button data-a="loadExample">Open the example model line</button></div>`;
     return `<p class="empty">Select something on the drawing to edit it, or add an item from the left.</p>${sheetStats(sh)}`;
   }
   const backBtn = `<button class="selback" data-a="clearSel">← All items</button>`;

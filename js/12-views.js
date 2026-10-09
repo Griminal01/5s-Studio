@@ -168,6 +168,8 @@ function setView(v, fromHash = false) {
   if (!NAV_ITEMS.some((i) => i[0] === v)) v = "layout";
   if (ui.editDrawing && v !== "layout") setEditDrawing(false);
   const was = ui.view;
+  if (was !== v && document.body.classList.contains("drawfocus"))
+    setDrawFocus(false);
   ui.view = v;
   lastPage[sectionOf(v).id] = v;
   // the action pages differ only in which section's actions they show

@@ -3544,3 +3544,64 @@ body.presenting {
 .tabwarn[hidden] {
   display: none;
 }
+
+/* the drawing on its own */
+body.drawfocus .top,
+body.drawfocus .stripe,
+body.drawfocus .subnav,
+body.drawfocus .days,
+body.drawfocus .sheetbar,
+body.drawfocus .tabbar,
+body.drawfocus #tabWarn {
+  display: none;
+}
+#zFull {
+  min-width: 36px;
+}
+/* phones: the sheet bar shows the name and one Options button; the rest opens from it */
+#sbMore {
+  display: none;
+}
+@media (max-width: 760px) {
+  #sbMore {
+    display: inline-block;
+    min-height: 44px;
+  }
+  .sheetbar .name {
+    flex: 1 1 0;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+  .sheetbar:not(.open) > :not(.kind):not(.name):not(#sbMore) {
+    display: none;
+  }
+}
+body.drawfocus .tools,
+body.drawfocus .side {
+  display: none;
+}
+body.drawfocus .stage {
+  height: 100vh;
+  height: 100dvh;
+}
+/* a table wider than the screen shows a soft edge where more is hidden */
+.regtbl {
+  background:
+    linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)) 0 0 / 40px 100%
+      no-repeat local,
+    linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0)) 100% 0 / 40px
+      100% no-repeat local,
+    radial-gradient(
+        farthest-side at 0 50%,
+        rgba(28, 34, 80, 0.22),
+        rgba(28, 34, 80, 0)
+      )
+      0 0 / 12px 100% no-repeat scroll,
+    radial-gradient(
+        farthest-side at 100% 50%,
+        rgba(28, 34, 80, 0.22),
+        rgba(28, 34, 80, 0)
+      )
+      100% 0 / 12px 100% no-repeat scroll,
+    #fff;
+}

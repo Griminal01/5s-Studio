@@ -201,6 +201,7 @@
         <div class="sheetbar">
           <span class="kind" id="kind"></span>
           <input class="name" id="sName" aria-label="Sheet name" />
+          <button id="sbMore" aria-expanded="false">Options</button>
           <input type="date" id="sDate" aria-label="Sheet date" />
           <label
             >Compare with
@@ -250,7 +251,15 @@
             <button id="zOut" aria-label="Zoom out">−</button
             ><span id="zlabel">100%</span
             ><button id="zIn" aria-label="Zoom in">+</button
-            ><button id="zFit" title="Fit drawing (F)">Fit</button>
+            ><button id="zFit" title="Fit drawing (F)">Fit</button
+            ><button
+              id="zFull"
+              title="Drawing full screen (Esc to come back)"
+              aria-label="Drawing full screen"
+              aria-pressed="false"
+            >
+              ⛶
+            </button>
           </div>
           <div class="scale" id="scale"></div>
         </div>

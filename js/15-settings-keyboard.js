@@ -232,6 +232,33 @@ $("#zFit").onclick = () => {
   fitView();
   draw();
 };
+// the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
+function setDrawFocus(on) {
+  document.body.classList.toggle("drawfocus", on);
+  const b = $("#zFull");
+  b.setAttribute("aria-pressed", String(on));
+  b.textContent = on ? "✕" : "⛶";
+  b.title = on
+    ? "Back to the page (Esc)"
+    : "Drawing full screen (Esc to come back)";
+  requestAnimationFrame(() => {
+    fitView();
+    draw();
+  });
+}
+$("#sbMore").onclick = () => {
+  const bar = $(".sheetbar"),
+    open = bar.classList.toggle("open");
+  $("#sbMore").setAttribute("aria-expanded", String(open));
+  $("#sbMore").textContent = open ? "Less" : "Options";
+  requestAnimationFrame(() => draw());
+};
+$("#zFull").onclick = () =>
+  setDrawFocus(!document.body.classList.contains("drawfocus"));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.body.classList.contains("drawfocus"))
+    setDrawFocus(false);
+});
 $("#bUndo").onclick = () => restore(undoS, redoS);
 $("#bRedo").onclick = () => restore(redoS, undoS);
 window.addEventListener("resize", () => draw());

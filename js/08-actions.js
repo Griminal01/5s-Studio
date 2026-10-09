@@ -190,6 +190,9 @@ function act(a, el) {
       renderAll();
       break;
     }
+    case "goSetup":
+      setView("setup");
+      break;
     case "loadExample":
       loadExample();
       break;
