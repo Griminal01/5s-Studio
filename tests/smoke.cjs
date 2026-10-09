@@ -10,6 +10,7 @@ const VIEWS = [
   "tags",
   "actions",
   "tracking",
+  "problems",
   "layout",
 ];
 
@@ -59,6 +60,7 @@ const VIEWS = [
         tags: "regView",
         actions: "regView",
         tracking: "trackView",
+        problems: "problemView",
       };
       const el = document.getElementById(ids[view]);
       return !!el && !el.hidden && el.innerHTML.trim().length > 0;
@@ -241,6 +243,101 @@ const VIEWS = [
     ar3.left === ar0.n && ar3.released,
     "deleting an area should release its items: " + JSON.stringify(ar3),
   );
+  // problem solving: examples, the real forms, 5-Why, fishbone, countermeasures, A3, Pareto
+  await page.click('[data-view="problems"]');
+  await page.waitForTimeout(200);
+  const pr0 = await page.evaluate(() => ({
+    n: P.problems.length,
+    linked: P.actions.filter((a) => a.prob).length,
+    closed: P.problems.filter((x) => x.status === "Closed").length,
+    pareto: paretoData().list.length,
+    rows: document.querySelectorAll("#psTbl tr.click").length,
+  }));
+  expect(
+    pr0.n >= 4 &&
+      pr0.linked >= 6 &&
+      pr0.closed >= 1 &&
+      pr0.pareto >= 3 &&
+      pr0.rows >= 3,
+    "example problems are missing or do not show: " + JSON.stringify(pr0),
+  );
+  await page.click("#psNew");
+  await page.fill('#dlgForm [name="title"]', "Smoke problem");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  await page.click('[data-ps-sub="why"]');
+  await page.click('[data-pa="why-add"]');
+  await page.fill('[data-why="0:text"]', "Because A");
+  await page.press('[data-why="0:text"]', "Tab");
+  await page.click('[data-pa="why-root"]');
+  await page.click('[data-ps-sub="fish"]');
+  await page.fill('[data-fadd="machine"]', "Worn bearing");
+  await page.press('[data-fadd="machine"]', "Enter");
+  await page.check('[data-fl^="machine:"]');
+  await page.click('[data-ps-sub="act"]');
+  await page.click('[data-pa="act-add"]');
+  await page.fill('#dlgForm [name="title"]', "Replace bearing");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  const pr1 = await page.evaluate(() => {
+    const x = P.problems.at(-1),
+      a = P.actions.at(-1);
+    printProblem(x);
+    const out = {
+      title: x.title,
+      whys: x.whys.length,
+      root: x.root,
+      cause: x.fish.machine[0]?.likely,
+      linked: a.prob === x.id && a.source === probNo(x),
+      a3: document.querySelectorAll("#printDoc .a3cols section").length,
+      fish: document.querySelectorAll("#printDoc .a3fish svg").length,
+      page: document.getElementById("pageStyle")?.textContent || "",
+      view: ui.view,
+    };
+    document.body.classList.remove("printing-doc");
+    document.getElementById("pageStyle")?.remove();
+    document.getElementById("printDoc").className = "";
+    const j = JSON.stringify(P);
+    out.roundTrip = JSON.stringify(validate(JSON.parse(j))) === j;
+    return out;
+  });
+  expect(
+    pr1.title === "Smoke problem" &&
+      pr1.whys === 1 &&
+      pr1.root === "Because A" &&
+      pr1.cause &&
+      pr1.linked,
+    "the 5-Why, fishbone or countermeasure link did not work: " +
+      JSON.stringify(pr1),
+  );
+  expect(
+    pr1.a3 === 6 &&
+      pr1.fish === 1 &&
+      /A3 landscape/.test(pr1.page) &&
+      pr1.view === "problems",
+    "the A3 report did not build: " + JSON.stringify(pr1),
+  );
+  expect(pr1.roundTrip, "problems changed when validated again");
+  await page.click('[data-ps-sub="review"]');
+  await page.click('[data-pa="close"]');
+  await page.click("#dlgOk"); // closing early asks first
+  await page.waitForTimeout(300);
+  const pr2 = await page.evaluate(() => P.problems.at(-1).status);
+  expect(pr2 === "Closed", "closing a problem did not work");
+  await page.click('[data-view="smed"]');
+  await page.click("#smProblem");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(300);
+  const pr3 = await page.evaluate(() => ({
+    co: !!P.problems.at(-1).co,
+    kind: P.problems.at(-1).category,
+    view: ui.view,
+  }));
+  expect(
+    pr3.co && pr3.kind === "Changeover" && pr3.view === "problems",
+    "raising a problem from a changeover did not work: " + JSON.stringify(pr3),
+  );
+  await page.click('[data-view="layout"]');
   // boards: edit a board through the real form, then build and "print" labels
   await page.click('[data-view="boards"]');
   await page.click('[data-bid] [data-bd="edit"]');
@@ -365,6 +462,7 @@ const VIEWS = [
       linked: q.actions[0]?.tag === q.tags[0]?.id,
       audits: q.parked?.audits?.length || 0,
       areas: q.areas.map((a) => a.name + "/" + a.legacy?.line).join(","),
+      problems: q.problems.length,
       again: (validate(JSON.parse(JSON.stringify(q))).parked?.audits || [])
         .length,
     };

@@ -1,6 +1,6 @@
 # Handover: state of 5S Studio
 
-Last updated after the full review (9 Oct 2026). Read this first when picking the work back up.
+Last updated after areas and problem solving (9 Oct 2026). Read this first when picking the work back up.
 
 ## What is built
 
@@ -8,6 +8,8 @@ Last updated after the full review (9 Oct 2026). Read this first when picking th
 |---|---|
 | Layout | Scaled drawing, walls and fixed equipment, items with home marks, floor tape (schedule, setting-out, rolls), routes, layout checks, proposals compared with the standard, daily checks, pins for red tags / actions / documents |
 | SMED | Changeovers: steps stopped / before / after, plan per step, Gantt now vs plan, savings per changeover and per year, stopwatch, trials and history, A3 work sheet |
+| Areas (Layout tab and tool) | Named polygon zones; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
+| Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from SMED, a red tag or an area |
 | Boards | Shadow boards, cleaning stations, kanban racks: numbered slots, location codes (`SB-01-03`), fit check, labels for a label printer, 1:1 outlines, CSV |
 | Documents | Register of SOPs, OPLs, checklists, boards: owner, revision, review date, where kept; document map and tick list |
 | Red tags, Actions | Registers with pins, CSV and print |
@@ -51,5 +53,6 @@ projects always become new projects. Not security: the site is public and nothin
 
 1. Real data: line drawing and scale, tape standard, label printer model and tape size.
 2. SMED video timing (roadmap 2.2) if the team prefers filming to the stopwatch.
-3. Problem solving module (roadmap phase 3): A3, 5-Why, fishbone, linked to red tags, SMED steps
-   and actions.
+3. Try problem solving on one real problem and area layout with Sam, then adjust the A3 wording.
+4. Ideas parked: drag-to-arrange fishbone, SMED step level "raise a problem", problem pins on the
+   layout, per-area daily check score.

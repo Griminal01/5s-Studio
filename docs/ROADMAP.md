@@ -27,7 +27,7 @@ Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 - Action log with pins.
 - Project save/open as a file, browser autosave, opens older v6 files.
 
-**Removed (parked in the project file, code in git at `2ddb593`)**: formal 5S audits and dashboards, TV mode, audit areas and lines. They return only if needed (see section 7).
+**Removed (parked in the project file, code in git at `2ddb593`)**: formal 5S audits and dashboards, TV mode, audit lines. Areas are back as design zones (items designated to them, area sheets). The rest returns only if needed (see section 7).
 
 **Gaps for the new direction**
 
@@ -85,7 +85,7 @@ Design a faster changeover and check it against the layout. Built as a module (1
 
 ---
 
-## 5. Phase 3: Problem solving  |  after SMED
+## 5. Phase 3: Problem solving  |  built (3.1 to 3.6), to be tried on a real problem
 
 A module; every output ends in the existing actions register (one list of what's owed).
 
@@ -144,7 +144,7 @@ Earlier answers that still apply when these resume: TV is a mini PC or the TV's 
 3. **1.2** tape plan print review (with Sam and a real tape colour standard).
 4. **1.7** shared workflow doc, **1.5** side-by-side, **1.6** floor plan import.
 5. ✅ **Phase 2 SMED** core (2.1, 2.3, 2.4, 2.6, 2.7). Next for SMED: video-timestamped steps (2.2).
-6. **Phase 3 problem solving** (A3 + 5-Why first).
+6. ✅ **Phase 3 problem solving** and **areas**. Next: try them on a real problem.
 7. Revisit section 7 with IT.
 
 ## 10. Questions for Josh and Sam

@@ -145,6 +145,7 @@ async function actionModal(a, isNew) {
     <div class="row3"><label class="f">Status<select name="status">${opts(ACT_ST, a.status)}</select></label><label class="f">Done on<input name="done" type="date" value="${esc(a.done)}"></label><label class="f">5S step<select name="s5">${s5opts}</select></label></div>
     <div class="row3"><label class="f">Raised on<input name="raised" type="date" value="${esc(a.raised)}"></label><label class="f">From sheet<select name="sheet">${optsKV([["", "Not linked"], ...P.sheets.map((s) => [s.id, s.name])], a.sheet)}</select></label><label class="f">Linked red tag<select name="tag">${optsKV([["", "None"], ...P.tags.map((t) => [t.id, tagNo(t) + " " + t.title])], a.tag)}</select></label></div>
     <label class="f">Notes<textarea name="note" rows="2">${esc(a.note)}</textarea></label>
+    ${a.prob && P.problems.find((x) => x.id === a.prob) ? `<p class="small muted">A countermeasure for ${esc(probNo(P.problems.find((x) => x.id === a.prob)))} ${esc(P.problems.find((x) => x.id === a.prob).title)}.</p>` : ""}
     <p class="pinfo">${a.x != null ? `Pinned on the layout. Drag the pin to move it. <button type="button" id="actShow">Show on layout</button>` : `Not pinned to the drawing. <button type="button" id="actPin">Pin it on the layout</button>`}</p>
     ${isNew ? "" : '<div class="btns"><button type="button" class="danger" id="actDel">Delete this action</button></div>'}${ownerList()}`;
   const r = await modal(

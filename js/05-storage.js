@@ -331,6 +331,7 @@ function validate(p) {
     board: 0,
     smed: 0,
     area: 0,
+    prob: 0,
     ...(p.counters && typeof p.counters === "object" ? p.counters : {}),
   };
   delete p.counters.audit;
@@ -376,6 +377,7 @@ function validate(p) {
     a.sheet = str(a.sheet);
     a.source = str(a.source);
     a.tag = str(a.tag);
+    a.prob = str(a.prob);
     a.drawing = str(a.drawing);
     a.x = num(a.x);
     a.y = num(a.y);
@@ -476,6 +478,14 @@ function validate(p) {
     );
     for (const c of p.smed.changeovers) if (c.no <= 0) c.no = ++p.counters.smed;
   }
+  p.problems = (Array.isArray(p.problems) ? p.problems : [])
+    .filter((x) => x && typeof x === "object")
+    .map(normProblem);
+  p.counters.prob = Math.max(
+    Number(p.counters.prob) || 0,
+    ...p.problems.map((x) => x.no),
+  );
+  for (const x of p.problems) if (x.no <= 0) x.no = ++p.counters.prob;
   {
     const l = p.labels && typeof p.labels === "object" ? p.labels : {};
     p.labels = {

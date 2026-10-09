@@ -1048,6 +1048,282 @@ function makeExampleProject() {
     },
   );
 
+  /* ----- problems: worked examples, with their countermeasures in the Actions register ----- */
+  {
+    const areaId = (n) => p.areas.find((a) => a.name === n)?.id || "",
+      docId = (t) => p.documents.find((d) => d.title === t)?.id || "",
+      prob = (over, whys = [], fish = {}) => {
+        const x = blankProblem(over);
+        x.no = ++p.counters.prob;
+        for (const [text, evidence] of whys)
+          x.whys.push({ id: uid(), text, evidence: evidence || "" });
+        for (const [cat, list] of Object.entries(fish))
+          for (const [text, likely] of list)
+            x.fish[cat].push({ id: uid(), text, likely: !!likely });
+        p.problems.push(x);
+        return x;
+      },
+      cm = (x, title, owner, due, status, extra = {}) =>
+        action(title, owner, due, "High", status, {
+          source: probNo(x),
+          prob: x.id,
+          done: status === "Done" ? dayOffset(-3) : "",
+          ...extra,
+        });
+    const jam = prob(
+      {
+        title: "Film jams at the packer infeed after a reel change",
+        status: "Countermeasures",
+        owner: "Josh",
+        team: "Sam, nights shift leader",
+        raised: dayOffset(-20),
+        category: "Machine breakdown",
+        area: areaId("Packing line"),
+        count: 14,
+        mins: 210,
+        background:
+          "Every jam stops the packer and wastes film and product. Nights report it most.",
+        current:
+          "14 jams in the last 4 weeks, about 15 minutes each to clear and restart. All happened within an hour of a reel change.",
+        target: "No jam caused by a reel change within 8 weeks.",
+        containment:
+          "Operators check the splice and the film tension by hand after every reel change until the standard is in place.",
+        root: "Unwind brake tension is not set or checked at reel change: it is not in the standard work and there is no gauge at the unwind.",
+        rootCheck: "yes",
+        docs: [docId("Packer start-up and shutdown")].filter(Boolean),
+        items: [items["Film reel rack"].ref],
+        checkOn: dayOffset(40),
+        after: "",
+        standard: "",
+      },
+      [
+        [
+          "The film wanders off the tracking rollers after the reel is loaded",
+          "Seen on 9 of the 14 jams (photos on the tablet)",
+        ],
+        [
+          "The reel is loaded with uneven tension",
+          "Tension reads about 20% over on the left side",
+        ],
+        [
+          "Nobody sets or checks the unwind brake tension at a reel change",
+          "Not a step in the start-up SOP, revision 3",
+        ],
+        [
+          "The brake setting is not part of the standard work and there is no gauge at the unwind",
+          "Confirmed with two operators on each shift",
+        ],
+      ],
+      {
+        people: [["New operators are not shown the tension setting", false]],
+        method: [
+          ["Reel change steps do not include the brake tension", true],
+          ["Shifts load reels in a different order", false],
+        ],
+        machine: [
+          ["Unwind brake wears and drifts", false],
+          ["Left tracking roller is worn", false],
+        ],
+        material: [["Some reels have out-of-round cores", false]],
+        measurement: [["No tension gauge at the unwind", true]],
+        environment: [
+          [
+            "Reel racks are 5 m from the unwind, so reels get knocked in transit",
+            false,
+          ],
+        ],
+      },
+    );
+    cm(
+      jam,
+      "Add the unwind brake tension check to the packer start-up SOP",
+      "Josh",
+      dayOffset(5),
+      "In progress",
+    );
+    cm(
+      jam,
+      "Fit a tension gauge on the unwind and mark the green range",
+      "Sam",
+      dayOffset(12),
+      "Open",
+    );
+    cm(
+      jam,
+      "Replace the worn left tracking roller",
+      "Sam",
+      dayOffset(-2),
+      "Done",
+    );
+    cm(
+      jam,
+      "Re-run reel changes on nights and compare the jam count",
+      "Josh",
+      dayOffset(30),
+      "Open",
+    );
+
+    const slow = prob(
+      {
+        title:
+          "Small to large format changeover is well over the 10 minute target",
+        status: "Verifying",
+        owner: "Josh",
+        team: "Sam, packer operators",
+        raised: dayOffset(-15),
+        category: "Changeover",
+        area: areaId("Packing line"),
+        count: 6,
+        mins: 150,
+        co: t1.id,
+        background:
+          "The packer is stopped for the whole changeover, four times a week.",
+        current:
+          "Timed at the baseline in the SMED view: every step done with the machine stopped.",
+        target: "Stopped time under 10 minutes by the end of next month.",
+        containment: "Next format is staged at the line the shift before.",
+        root: "Parts and tools are fetched with the machine stopped because the next format kit is never staged and the tools have no home.",
+        rootCheck: "yes",
+        checkOn: dayOffset(-1),
+        after:
+          "Trials 2 and 3 on the SMED history chart show the stopped time coming down.",
+        standard: "",
+      },
+      [
+        [
+          "The machine is stopped while people fetch parts and tools",
+          "Steps 2 and 3 on the timing",
+        ],
+        [
+          "The parts and tools are not at the line when the stop starts",
+          "Tools are spread over three places",
+        ],
+        [
+          "There is no standard kit and no home for the changeover tools",
+          "No board or labels until the shadow board design",
+        ],
+      ],
+      {
+        method: [["Everything is done after the stop, none before", true]],
+        machine: [["Guide rails need a spanner and two people", false]],
+        material: [["Next format parts stored in the store room", true]],
+        environment: [["Tool trolley is parked 8 m from the packer", false]],
+      },
+    );
+    cm(
+      slow,
+      "Make the changeover shadow board with outlines and labels",
+      "Josh",
+      dayOffset(-6),
+      "Done",
+      { done: dayOffset(-8) },
+    );
+    cm(
+      slow,
+      "Stage the next format kit on a trolley the shift before",
+      "Sam",
+      dayOffset(-4),
+      "Done",
+      { done: dayOffset(-5) },
+    );
+
+    const clean = prob(
+      {
+        title: "Cleaning kit is missing at the start of the shift",
+        status: "Closed",
+        owner: "Sam",
+        team: "Josh",
+        raised: dayOffset(-50),
+        closed: dayOffset(-12),
+        category: "Housekeeping / 5S",
+        area: areaId("Tooling and cleaning"),
+        count: 9,
+        mins: 45,
+        background:
+          "The first 5 minutes of the shift go on finding brushes and wipes.",
+        current: "Missing on 9 of the last 20 starts.",
+        target: "Complete on every start.",
+        root: "The cleaning kit has no home and nothing shows what is missing, so it walks to other lines.",
+        rootCheck: "yes",
+        checkOn: dayOffset(-14),
+        result: "yes",
+        after: "Complete on every start for the last 12 shifts.",
+        standard:
+          "Cleaning station shadow board with outlines, and a kit count on the start-of-shift checklist.",
+        lessons: "The same shadow board idea fits the quality check station.",
+        docs: [docId("Start-of-shift line checklist")].filter(Boolean),
+      },
+      [
+        [
+          "The brushes and wipes are taken to other lines",
+          "Seen twice, found on Line 2",
+        ],
+        [
+          "Nothing shows where they belong or that they are missing",
+          "No board, no outline, no count",
+        ],
+      ],
+      {
+        method: [["No kit count on the start-of-shift checklist", true]],
+        environment: [["Cleaning station has no shadow board", true]],
+      },
+    );
+    cm(
+      clean,
+      "Make a shadow board for the cleaning station",
+      "Sam",
+      dayOffset(-30),
+      "Done",
+      { done: dayOffset(-24) },
+    );
+    cm(
+      clean,
+      "Add the kit count to the start-of-shift checklist",
+      "Josh",
+      dayOffset(-20),
+      "Done",
+      { done: dayOffset(-16) },
+    );
+
+    prob({
+      title: "Pallets of cartons arrive without labels",
+      owner: "Sam",
+      raised: dayOffset(-6),
+      category: "Information",
+      area: areaId("Goods-in and WIP"),
+      count: 3,
+      mins: 35,
+      tag:
+        p.tags.find((t) => t.title === "Unlabelled pallet of cartons")?.id ||
+        "",
+      containment:
+        "Unlabelled pallets are held in the red tag area until someone owns them.",
+    });
+    prob(
+      {
+        title: "The waste bin wanders off its home along the operator walkway",
+        status: "Analysing",
+        owner: "Josh",
+        raised: dayOffset(-9),
+        category: "Housekeeping / 5S",
+        area: areaId("Packing line"),
+        count: 5,
+        mins: 10,
+        current: "Out of place on 5 of the last 8 daily checks.",
+        target: "In its home on every check.",
+      },
+      [["The bin is pushed along when the walkway is swept", "Seen on nights"]],
+      {
+        method: [
+          [
+            "Sweeping routine does not say to move the bin and put it back",
+            false,
+          ],
+        ],
+      },
+    );
+  }
+
   /* ----- daily checks: eight recent days of where things actually sat ----- */
   const rev = stdRev(p);
   let seed = 7;

@@ -44,12 +44,15 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 28-boards, 29-labels | boards (shadow boards, kanban racks) and slots; label printer output, board layout and 1:1 outline printing |
 | 30-smed, 31-smed-tools | SMED module (`P.smed`): changeover steps, schedule maths, Gantt charts, history; stopwatch capture, work sheet printing |
 | 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
+| 34-areas | areas (`P.areas`): polygons on a drawing, item designation (`o.area`), layout check `outOfArea`, area pane and tab, A3 area sheets |
+| 35-problems, 36-problem-tools | problem solving module (`P.problems`, actions link by `a.prob`): list and detail tabs, 5-Why, fishbone SVG, countermeasures, review, Pareto, A3 print, CSV |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup |
 
-Removed features (formal audits and areas, TV) are preserved untouched in `project.parked` by
+Removed features (formal audits, audit lines, TV) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
-checks and the drift map were removed briefly and restored; `validate()` brings parked tags back.
+checks, the drift map and areas were removed and restored; `validate()` brings parked tags back and
+turns old audit areas into plain areas. Project version is 6 (areas, problems).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a

@@ -27,6 +27,19 @@ const ui = {
     all: false,
   },
   smed: { sel: "", tab: "plan" },
+  prob: {
+    sel: "",
+    tab: "list",
+    sub: "define",
+    st: "open",
+    owner: "",
+    area: "",
+    q: "",
+    by: "category",
+    measure: "mins",
+    range: "all",
+    closed: true,
+  },
   reg: {
     tags: { st: "open", owner: "", cat: "", area: "", q: "" },
     acts: { st: "open", owner: "", s5: "", area: "", q: "" },
@@ -199,11 +212,12 @@ function newProject() {
     tags: [],
     actions: [],
     areas: [],
+    problems: [],
     documents: [],
     boards: [],
     labels: clone(DEFAULT_LABELS),
     smed: { weeks: 48, changeovers: [] },
-    counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0, area: 0 },
+    counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0, area: 0, prob: 0 },
     drawings: {
       d1: {
         w: 1000,

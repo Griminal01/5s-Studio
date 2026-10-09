@@ -13,12 +13,14 @@ function setView(v) {
   $("#boardView").hidden = v !== "boards";
   $("#smedView").hidden = v !== "smed";
   $("#trackView").hidden = v !== "tracking";
+  $("#problemView").hidden = v !== "problems";
   $("#days").hidden = v !== "layout";
   if (reg) renderRegister();
   else if (v === "tracking") renderTracking();
   else if (v === "boards") renderBoards();
   else if (v === "smed") renderSmed();
   else if (v === "documents") renderDocuments();
+  else if (v === "problems") renderProblems();
   else {
     ui.vb = ui.vb || null;
     draw();

@@ -324,7 +324,7 @@ ${rowsFor("Documents here", "#0E7C86", st.docs, (d) => ({ l: docNo(d) + " " + d.
 ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " + t.title, v: t.status }))}
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
 <div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>
-<div class="btns"><button class="pri" data-a="areaPrint">Print area sheet</button><button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete area</button></div>
+<div class="btns"><button class="pri" data-a="areaPrint">Print area sheet</button><button data-a="areaProblem">Raise a problem here</button><button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete area</button></div>
 <p class="small muted">Drag the white dots to reshape it. Drag its dashed edge to move it. Items belong to the area they sit in unless you designate them; a designated item that leaves its area is flagged in the Compare tab and on the daily checks.</p>`;
 }
 function paneAreas() {
@@ -444,6 +444,9 @@ function areaAct(a, el) {
     }
     case "areaPrint":
       if (ar) printAreas([ar]);
+      break;
+    case "areaProblem":
+      if (ar) problemFromArea(ar);
       break;
     case "areaPrintAll":
       printAreas(areasOn());

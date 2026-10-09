@@ -7,6 +7,8 @@ function projectBundle() {
     for (const p of s.photos) if (PH[p.id]) ph[p.id] = PH[p.id];
   for (const t of P.tags)
     for (const p of t.photos) if (PH[p.id]) ph[p.id] = PH[p.id];
+  for (const t of P.problems)
+    for (const p of t.photos) if (PH[p.id]) ph[p.id] = PH[p.id];
   const dr = {};
   for (const id in P.drawings) if (D[id]) dr[id] = D[id];
   return {

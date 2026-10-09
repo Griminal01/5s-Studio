@@ -3,7 +3,8 @@
 A design tool for a production line, used to work out before touching the floor:
 
 1. **5S design**: the layout, where floor tape goes, and which items and documents live where.
-2. **SMED**: cut changeover time. Problem solving is planned next (see `docs/ROADMAP.md`).
+2. **SMED**: cut changeover time.
+3. **Problem solving**: 5-Why, fishbone, Pareto and an A3 report, feeding the action log.
 
 Everything runs in the browser. There is no server and no build step. Data is stored on the device
 (IndexedDB) and can be saved to / opened from a project file.
@@ -13,6 +14,16 @@ Everything runs in the browser. There is no server and no build step. Data is st
 - **Layout**: scaled drawing with walls and fixed equipment, movable items, floor tape (with a tape
   schedule, setting-out and rolls to order), walking and vehicle routes, layout checks (keep-clear,
   aisle widths), proposals compared with the standard, A3 print and PNG export.
+- **Areas**: outline named zones of the line (Area tool, Q) with an owner and a note. An item belongs to
+  the area it sits in, or you designate it to one; a designated item that strays is flagged in Compare,
+  on the map and on daily checks. Each area shows its items, tape, documents, boards, red tags and
+  actions, and prints as an A3 area sheet. Registers have an Area column and filter.
+- **Problems**: raise a problem (from scratch, or from a changeover, a red tag or an area), define it
+  (background, current state, target, containment), find the root cause with a **5-Why** and a
+  **fishbone**, then fix it with **countermeasures** that are normal actions in the action log. Review
+  and close with an effectiveness check, reopen if it comes back. A **Pareto** chart (minutes lost,
+  occurrences or number of problems) shows what to attack first, and everything prints as one **A3
+  report** with the fishbone.
 - **SMED**: record a changeover (stopwatch or typed in), mark each step as done with the machine
   **stopped** or **while it runs**, and plan an improvement for each step (move to external, shorten, do
   in parallel, eliminate). Gantt timelines of now and the plan, stopped time saved per changeover and per

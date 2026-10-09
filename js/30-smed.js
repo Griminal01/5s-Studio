@@ -444,7 +444,7 @@ function renderSmed() {
     .join("")}</div>`;
   if (ui.smed.tab === "history") h += smedHistoryHTML();
   else if (co) {
-    h += `<div class="smedhead"><div><div class="smtitle">${esc(coCode(co))} · ${esc(co.name)}${co.trial > 1 ? ` <span class="count">trial ${co.trial}</span>` : ""}</div><p class="small muted" style="margin:2px 0 0">${[co.line, co.from && co.to ? co.from + " to " + co.to : "", fmtDate(co.date), co.crew + " people"].filter(Boolean).map(esc).join(" · ")}${co.notes ? " · " + esc(co.notes) : ""}</p></div><div class="btns" style="margin:0"><button id="smEdit">Details</button><button id="smPrint" class="pri">Print work sheet</button><button id="smNext">Next trial from the plan</button><button id="smCsv">Export CSV</button><button id="smDel" class="danger">Delete</button></div></div>`;
+    h += `<div class="smedhead"><div><div class="smtitle">${esc(coCode(co))} · ${esc(co.name)}${co.trial > 1 ? ` <span class="count">trial ${co.trial}</span>` : ""}</div><p class="small muted" style="margin:2px 0 0">${[co.line, co.from && co.to ? co.from + " to " + co.to : "", fmtDate(co.date), co.crew + " people"].filter(Boolean).map(esc).join(" · ")}${co.notes ? " · " + esc(co.notes) : ""}</p></div><div class="btns" style="margin:0"><button id="smEdit">Details</button><button id="smProblem" title="Start a problem record linked to this changeover">Raise a problem</button><button id="smPrint" class="pri">Print work sheet</button><button id="smNext">Next trial from the plan</button><button id="smCsv">Export CSV</button><button id="smDel" class="danger">Delete</button></div></div>`;
     h += `<div id="smViz">${smedVizHTML(co)}</div><h3 style="margin:18px 0 6px">Steps</h3><div id="smSteps">${smedStepsHTML(co)}</div>`;
   }
   el.innerHTML = h;
@@ -522,6 +522,7 @@ $("#smedView").addEventListener("click", (e) => {
   }
   if (!co) return;
   if (t.closest("#smEdit")) return void changeoverModal(co);
+  if (t.closest("#smProblem")) return void problemFromChangeover(co);
   if (t.closest("#smPrint")) return void printSmedSheet(co);
   if (t.closest("#smNext")) return void nextTrial(co);
   if (t.closest("#smCsv")) return void csvChangeover(co);

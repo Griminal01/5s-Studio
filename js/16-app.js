@@ -16,6 +16,7 @@ function renderAll() {
   const openT = P.tags.filter((t) => t.status !== "Closed"),
     openA = P.actions.filter((a) => !["Done", "Cancelled"].includes(a.status)),
     liveD = P.documents.filter((d) => d.status !== "Withdrawn");
+  updateProbBadge();
   for (const [id, n, late] of [
     ["#bgTags", openT.length, openT.some(tagOverdue)],
     ["#bgActs", openA.length, openA.some(actOverdue)],
@@ -31,6 +32,7 @@ function renderAll() {
   else if (ui.view === "boards") renderBoards();
   else if (ui.view === "smed") renderSmed();
   else if (ui.view === "documents") renderDocuments();
+  else if (ui.view === "problems") renderProblems();
   else draw();
   updateBackupChip();
   save();

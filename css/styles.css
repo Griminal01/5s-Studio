@@ -2458,3 +2458,246 @@ body.locked > *:not(#auth):not(dialog):not(#toast):not(script) {
     flex: 1 1 260px;
   }
 }
+
+/* problem solving */
+.psmode,
+.psteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 12px;
+}
+.psmode button,
+.psteps button {
+  border-radius: 999px;
+  padding: 9px 16px;
+  min-height: 44px;
+}
+.psmode button.on,
+.psteps button.on {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+.psteps .count {
+  margin-left: 8px;
+}
+.psteps button.on .count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.psform .row3,
+.psform .row2 {
+  margin-bottom: 4px;
+}
+.pchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+.pchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 4px 2px 12px;
+  font-size: 13px;
+}
+.pchip button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  padding: 0;
+}
+.whys {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+}
+.why {
+  display: grid;
+  grid-template-columns: 78px 1fr auto;
+  gap: 10px;
+  align-items: start;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--navy);
+  border-radius: 8px;
+  padding: 10px 10px 10px 12px;
+}
+.why.prob {
+  grid-template-columns: 78px 1fr;
+  border-left-color: var(--bad);
+  background: #fff6f3;
+}
+.why .wn {
+  font: 700 14px var(--disp);
+  color: var(--navy);
+  padding-top: 8px;
+}
+.why .wq {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.why input {
+  width: 100%;
+  margin-bottom: 4px;
+}
+.why > button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.block.root {
+  border-left: 5px solid var(--bad);
+}
+.fishwrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  margin: 4px 0 12px;
+}
+.fishsvg {
+  display: block;
+  width: 100%;
+  min-width: 760px;
+  height: auto;
+}
+.fishcards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+.cause {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.cause > input:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.cause .chk {
+  white-space: nowrap;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.cause button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.pareto {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media print {
+  .pd.a3 {
+    font-size: 9.5pt;
+  }
+  .a3head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14pt;
+    border-bottom: 3pt solid #202c86;
+    margin-bottom: 8pt;
+  }
+  .a3head h1 {
+    font-size: 18pt;
+  }
+  .a3meta {
+    width: auto !important;
+    flex: none;
+  }
+  .a3cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10pt;
+    align-items: start;
+  }
+  .a3cols section {
+    border: 1px solid #1c2250;
+    margin-bottom: 8pt;
+    padding: 0 7pt 5pt;
+  }
+  .a3cols section h3 {
+    margin: 0 -7pt 5pt;
+    padding: 3pt 7pt;
+    background: #202c86;
+    color: #fff;
+    font: 600 11pt var(--disp);
+  }
+  .a3cols p {
+    margin: 0 0 4pt;
+  }
+  .a3why {
+    margin: 0 0 6pt;
+    padding-left: 16pt;
+  }
+  .a3why li span {
+    display: block;
+    color: #5e6584;
+    font-size: 8.5pt;
+  }
+  .a3root {
+    background: #fff1ec;
+    border: 1px solid #c3361a;
+    padding: 4pt 6pt;
+    margin-bottom: 6pt;
+  }
+  .a3root span {
+    color: #5e6584;
+    font-size: 8.5pt;
+  }
+  .a3fish svg {
+    width: 100%;
+    height: auto;
+    border: 1px solid #b8bccb;
+  }
+  .a3ph {
+    display: flex;
+    gap: 6pt;
+  }
+  .a3ph img {
+    max-height: 38mm;
+    max-width: 32%;
+    object-fit: cover;
+    border: 1px solid #999;
+  }
+  .a3sign td {
+    height: 18pt;
+  }
+}
+@media (max-width: 700px) {
+  .why {
+    grid-template-columns: 1fr auto;
+  }
+  .why .wn {
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+  .why.prob {
+    grid-template-columns: 1fr;
+  }
+  .why > div {
+    grid-column: 1;
+  }
+  .why > button {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+@media print {
+  .pd.a3 {
+    font-size: 11pt;
+  }
+}

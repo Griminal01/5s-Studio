@@ -63,7 +63,10 @@ function act(a, el) {
       const names = [];
       for (const f of live) {
         f.arr.splice(f.arr.indexOf(f.x), 1);
-        if (f.t === "area") releaseArea(f.x.id);
+        if (f.t === "area") {
+          releaseArea(f.x.id);
+          for (const pr of P.problems) if (pr.area === f.x.id) pr.area = "";
+        }
         names.push(f.x.label || f.x.name || TAPE[f.x.type]?.n);
       }
       const miss =

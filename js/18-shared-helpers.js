@@ -7,6 +7,7 @@ const owners = () =>
         ...P.tags.map((t) => t.owner),
         ...P.actions.map((a) => a.owner),
         ...P.documents.map((d) => d.owner),
+        ...P.problems.map((x) => x.owner),
         ...P.tags.map((t) => t.by),
         ...P.sheets.map((s) => s.checker),
       ]
@@ -70,6 +71,7 @@ const blankAct = (i) => ({
   sheet: i.sheet || "",
   source: i.source || "",
   tag: i.tag || "",
+  prob: i.prob || "",
   drawing: i.drawing || "",
   x: i.x ?? null,
   y: i.y ?? null,
