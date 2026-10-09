@@ -20,7 +20,10 @@
         <div>
           <h1>5S Studio</h1>
           <button id="projectIdentity" aria-label="Rename project"></button>
-          <p>Design the layout, tape, boards and documents; track where things sit</p>
+          <p>
+            Design the layout, tape, boards and documents; track where things
+            sit
+          </p>
         </div>
       </div>
       <nav class="views" aria-label="View">
@@ -55,10 +58,26 @@
       </button>
       <button id="bPrint" title="Print the current sheet">Print</button>
       <button id="bSettings">Settings</button>
-      <button id="userBtn" class="usr" title="Account, projects and team"></button>
-      <button id="teamChip" class="bkchip" hidden title="The team folder needs your permission again">Team folder: reconnect</button>
+      <button
+        id="userBtn"
+        class="usr"
+        title="Account, projects and team"
+      ></button>
+      <button
+        id="teamChip"
+        class="bkchip"
+        hidden
+        title="The team folder needs your permission again"
+      >
+        Team folder: reconnect
+      </button>
       <span id="saved" aria-live="polite"></span>
-      <button id="bkChip" class="bkchip" hidden title="Download a backup file of everything"></button>
+      <button
+        id="bkChip"
+        class="bkchip"
+        hidden
+        title="Download a backup file of everything"
+      ></button>
     </header>
     <div class="stripe"></div>
     <section class="days" id="days" aria-label="Sheets"></section>
@@ -77,6 +96,14 @@
                 <path d="M3 18h7V6h11" />
                 <path d="M3 21h10V9h8" stroke-dasharray="2 2" /></svg
               >Tape
+            </button>
+            <button data-tool="area" title="Outline an area (Q)">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 7l6-3 9 4-2 11-10 1z" stroke-dasharray="3 2" />
+                <circle cx="4" cy="7" r="1.2" />
+                <circle cx="10" cy="4" r="1.2" />
+                <circle cx="19" cy="8" r="1.2" /></svg
+              >Area
             </button>
             <button data-tool="route" title="Walking or vehicle route (W)">
               <svg viewBox="0 0 24 24">
@@ -210,6 +237,7 @@
           <button data-tab="check">Compare</button>
           <button data-tab="move">Movement</button>
           <button data-tab="mark">Marking</button>
+          <button data-tab="areas">Areas</button>
           <button data-tab="s5">5S &amp; notes</button>
         </div>
         <div class="pane" id="pane"></div>
@@ -283,6 +311,7 @@
     <script src="js/31-smed-tools.js"></script>
     <script src="js/32-accounts.js"></script>
     <script src="js/33-team.js"></script>
+    <script src="js/34-areas.js"></script>
     <script src="js/40-main.js"></script>
   </body>
 </html>

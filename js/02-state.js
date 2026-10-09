@@ -7,6 +7,7 @@ const ui = {
   categoryClosed: new Set(),
   itemQuery: "",
   itemFilter: "",
+  itemArea: "",
   hiddenCategories: new Set(),
   editDrawing: false,
   wall: { th: 0.2 },
@@ -27,9 +28,9 @@ const ui = {
   },
   smed: { sel: "", tab: "plan" },
   reg: {
-    tags: { st: "open", owner: "", cat: "", q: "" },
-    acts: { st: "open", owner: "", s5: "", q: "" },
-    docs: { st: "all", type: "", owner: "", q: "" },
+    tags: { st: "open", owner: "", cat: "", area: "", q: "" },
+    acts: { st: "open", owner: "", s5: "", area: "", q: "" },
+    docs: { st: "all", type: "", owner: "", area: "", q: "" },
   },
   layers: {
     drawing: true,
@@ -45,6 +46,7 @@ const ui = {
     snap: true,
     pins: true,
     docs: true,
+    areas: true,
   },
   vb: null,
   draft: null,
@@ -183,7 +185,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 5,
+    version: 6,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {
@@ -196,11 +198,12 @@ function newProject() {
     revisions: {},
     tags: [],
     actions: [],
+    areas: [],
     documents: [],
     boards: [],
     labels: clone(DEFAULT_LABELS),
     smed: { weeks: 48, changeovers: [] },
-    counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0 },
+    counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0, area: 0 },
     drawings: {
       d1: {
         w: 1000,
@@ -284,6 +287,10 @@ function find(id, sh = S()) {
     const x = arr.find((o) => o.id === id);
     if (x) return { t, x, arr };
   }
+  const ar = (P.areas || []).find(
+    (a) => a.id === id && a.drawing === sh.drawing,
+  );
+  if (ar) return { t: "area", x: ar, arr: P.areas };
   const fx = DM(sh)?.fixed || [],
     x = fx.find((o) => o.id === id);
   if (x) return { t: x.t === "wall" ? "mark" : "obj", x, arr: fx, fx: true };

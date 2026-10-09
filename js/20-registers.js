@@ -20,6 +20,7 @@ function tagFiltered() {
       if (f.st === "late" && !tagOverdue(t)) return false;
       if (f.owner && t.owner !== f.owner) return false;
       if (f.cat && t.cat !== f.cat) return false;
+      if (!areaPass(f.area, t)) return false;
       if (
         q &&
         !(
@@ -53,13 +54,13 @@ function tagRows() {
   const rows = tagFiltered();
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>Tag</th><th>Raised</th><th>What is it</th><th>Category</th><th>What happens to it</th><th>Owner</th><th>Decide by</th><th>Status</th><th class="n">Days</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>Tag</th><th>Raised</th><th>What is it</th><th>Category</th><th>What happens to it</th><th>Owner</th><th>Area</th><th>Decide by</th><th>Status</th><th class="n">Days</th><th></th></tr>${rows
     .map((t) => {
       const days =
         t.status === "Closed"
           ? daysBetween(t.raised || t.closed, t.closed || today())
           : daysBetween(t.raised || today(), today());
-      return `<tr class="click" data-tag="${esc(t.id)}"><td><b>${tagNo(t)}</b></td><td>${esc(fmtD(t.raised))}</td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td><td>${t.status === "Closed" ? esc(fmtD(t.due)) : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button>` : ""}</td></tr>`;
+      return `<tr class="click" data-tag="${esc(t.id)}"><td><b>${tagNo(t)}</b></td><td>${esc(fmtD(t.raised))}</td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td>${areaCell(t)}<td>${t.status === "Closed" ? esc(fmtD(t.due)) : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button>` : ""}</td></tr>`;
     })
     .join("")}</table>`;
 }
@@ -102,7 +103,7 @@ function tagsHTML() {
     F.st,
   )}</select></label>
     <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersT.map((o) => [o, o])], F.owner)}</select></label>
-    <label>Category<select data-f="cat">${optsKV([["", "All"], ...TAG_CATS.map((o) => [o, o])], F.cat)}</select></label>
+    <label>Category<select data-f="cat">${optsKV([["", "All"], ...TAG_CATS.map((o) => [o, o])], F.cat)}</select></label>${areaFilterHTML(F.area)}
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Tag, item, owner"></label></div>
     <div class="regtbl" id="regTbl">${tagRows()}</div>`;
   return h;
@@ -118,6 +119,7 @@ function actFiltered() {
       if (f.st === "late" && !actOverdue(a)) return false;
       if (f.owner && a.owner !== f.owner) return false;
       if (f.s5 && a.s5 !== f.s5) return false;
+      if (!areaPass(f.area, a)) return false;
       if (
         q &&
         !(actNo(a) + " " + a.title + " " + a.owner + " " + a.note)
@@ -143,14 +145,14 @@ function actRows() {
   const rows = actFiltered();
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>Action</th><th>What needs doing</th><th>5S step</th><th>Owner</th><th>Due</th><th>Priority</th><th>Status</th><th>From</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>Action</th><th>What needs doing</th><th>5S step</th><th>Owner</th><th>Area</th><th>Due</th><th>Priority</th><th>Status</th><th>From</th><th></th></tr>${rows
     .map((a) => {
       const fin = ["Done", "Cancelled"].includes(a.status),
         tg = P.tags.find((t) => t.id === a.tag),
         from = [sheetLabel(a.sheet), tg ? tagNo(tg) : "", a.source || ""]
           .filter(Boolean)
           .join(", ");
-      return `<tr class="click" data-actid="${esc(a.id)}"><td><b>${actNo(a)}</b></td><td class="t"><b>${esc(a.title)}</b>${a.note ? `<span class="sub">${esc(a.note)}</span>` : ""}</td><td>${esc(s5name(a.s5))}</td><td>${esc(a.owner) || '<span class="muted">none</span>'}</td><td>${fin ? esc(fmtD(a.done)) : dueCell(a.due, actOverdue(a))}</td><td>${pill(a.pri, a.pri === "High" && !fin ? "hi" : "")}</td><td>${pill(a.status, a.status === "Done" ? "done" : a.status === "In progress" ? "prog" : a.status === "Cancelled" ? "" : "open")}</td><td style="max-width:200px;font-size:12px;color:var(--muted)">${esc(from)}</td><td>${a.x != null && !fin ? `<button data-show="act:${a.id}">Show</button>` : ""}</td></tr>`;
+      return `<tr class="click" data-actid="${esc(a.id)}"><td><b>${actNo(a)}</b></td><td class="t"><b>${esc(a.title)}</b>${a.note ? `<span class="sub">${esc(a.note)}</span>` : ""}</td><td>${esc(s5name(a.s5))}</td><td>${esc(a.owner) || '<span class="muted">none</span>'}</td>${areaCell(a)}<td>${fin ? esc(fmtD(a.done)) : dueCell(a.due, actOverdue(a))}</td><td>${pill(a.pri, a.pri === "High" && !fin ? "hi" : "")}</td><td>${pill(a.status, a.status === "Done" ? "done" : a.status === "In progress" ? "prog" : a.status === "Cancelled" ? "" : "open")}</td><td style="max-width:200px;font-size:12px;color:var(--muted)">${esc(from)}</td><td>${a.x != null && !fin ? `<button data-show="act:${a.id}">Show</button>` : ""}</td></tr>`;
     })
     .join("")}</table>`;
 }
@@ -190,7 +192,7 @@ function actionsHTML() {
     F.st,
   )}</select></label>
     <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersA.map((o) => [o, o])], F.owner)}</select></label>
-    <label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>
+    <label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>${areaFilterHTML(F.area)}
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Action, owner"></label></div>
     <div class="regtbl" id="regTbl">${actRows()}</div>`;
   return h;
@@ -251,6 +253,7 @@ function csvTags() {
         "Days open",
         "Pinned",
         "Notes",
+        "Area",
       ],
       ...P.tags.map((t) => [
         tagNo(t),
@@ -269,6 +272,7 @@ function csvTags() {
           : daysBetween(t.raised || today(), today()),
         t.x != null ? "Yes" : "No",
         t.note,
+        pinAreaName(t),
       ]),
     ],
     "5S_red_tag_register.csv",
@@ -291,6 +295,7 @@ function csvActions() {
         "Red tag",
         "Overdue",
         "Notes",
+        "Area",
       ],
       ...P.actions.map((a) => [
         actNo(a),
@@ -308,6 +313,7 @@ function csvActions() {
           : "",
         actOverdue(a) ? "Yes" : "No",
         a.note,
+        pinAreaName(a),
       ]),
     ],
     "5S_action_log.csv",

@@ -260,6 +260,7 @@ function buildSVG(sh, o) {
   }
   if (L.grid)
     s += `<rect x="0" y="0" width="${W}" height="${H}" fill="url(#grid)" pointer-events="none"/>`;
+  if (L.areas) s += areaSVG(sh, k);
   const midPos = s.length;
   if (L.objects)
     for (const z of sh.objects) if (z.kind !== "item") s += objSVG(z, k);
@@ -310,8 +311,16 @@ function buildSVG(sh, o) {
           wallHits: [],
           aisleClash: [],
           conflicts: [],
+          outOfArea: [],
         });
   if (L.objects) {
+    if (L.areas)
+      s += outOfAreaSVG(
+        (IS.outOfArea || []).filter(
+          (z) => !ui.hiddenCategories.has(itemCategoryId(z.o)),
+        ),
+        k,
+      );
     for (const b of [...IS.structure, ...IS.walkBlock]) {
       const x = b.o;
       if (x.kind === "item" && ui.hiddenCategories.has(itemCategoryId(x)))
@@ -378,7 +387,9 @@ function buildSVG(sh, o) {
             ? COL[ui.route.who]
             : d.tool === "tape"
               ? "#3A3F55"
-              : COL.bad;
+              : d.tool === "area"
+                ? COL.ok
+                : COL.bad;
       if (d.tool === "tape") {
         const T = tapeOf(ui.tape),
           w = tapeW(T, u, k, 4),
@@ -401,7 +412,9 @@ function buildSVG(sh, o) {
             sp(E.b, w, T.c) +
             sp(pts, 1.2 * k, "#1C2250");
         } else s += sp(pts, w + 1.4 * k, T.edge) + sp(pts, w, T.c);
-      } else if (d.tool === "wall")
+      } else if (d.tool === "area")
+        s += `<polygon points="${pts.map((p) => p.x + "," + p.y).join(" ")}" fill="${COL.ok}" fill-opacity=".1" stroke="${COL.ok}" stroke-width="${2.4 * k}" stroke-dasharray="${9 * k} ${5 * k}"/>`;
+      else if (d.tool === "wall")
         s += `<polyline points="${pts.map((p) => p.x + "," + p.y).join(" ")}" fill="none" stroke="#4A4F66" stroke-opacity=".75" stroke-width="${ui.wall.th * upm(sh)}" stroke-linejoin="miter" stroke-linecap="square"/>`;
       else
         s += `<polyline points="${pts.map((p) => p.x + "," + p.y).join(" ")}" fill="none" stroke="${col}" stroke-width="${2.4 * k}" stroke-dasharray="${6 * k} ${4 * k}"/>`;
@@ -530,12 +543,18 @@ function snapPoint(p, e, last) {
   const k = kNow(),
     sh = S();
   let q = { ...p };
-  if (ui.tool === "tape" || ui.tool === "measure" || ui.tool === "wall") {
+  if (
+    ui.tool === "tape" ||
+    ui.tool === "measure" ||
+    ui.tool === "wall" ||
+    ui.tool === "area"
+  ) {
     let best = null,
       bd = 9 * k;
     for (const m of [
       ...sh.marks,
       ...(DM(sh).fixed || []).filter((f) => f.t === "wall"),
+      ...(ui.tool === "area" ? areasOn(sh) : []),
     ])
       for (const v of m.pts) {
         const d = Math.hypot(v.x - p.x, v.y - p.y);
@@ -656,6 +675,7 @@ svg.addEventListener("pointerdown", (e) => {
   if (ui.tab !== "check" && ui.tab !== "move" && ui.tab !== "mark")
     ui.tab = "item";
   if (ui.tab === "move" && find(id)?.t !== "route") ui.tab = "item";
+  if (find(id)?.t === "area") ui.tab = "item";
   const orig = {};
   for (const f of selected()) orig[f.x.id] = clone(f.x);
   ui.drag = {
@@ -873,6 +893,7 @@ svg.addEventListener("drop", (e) => {
 /* ============ drawing tools ============ */
 function setTool(t) {
   if (t === "select") ui.placing = null;
+  if (t === "area") ui.layers.areas = true;
   if (ui.draft && ui.draft.tool !== t) ui.draft = null;
   ui.tool = t;
   ui.cursor = null;
@@ -903,7 +924,9 @@ function addDraftPoint(e, p) {
     return;
   }
   if (
-    ((d.tool === "tape" && ui.tapeMode === "line") || d.tool === "wall") &&
+    ((d.tool === "tape" && ui.tapeMode === "line") ||
+      d.tool === "wall" ||
+      d.tool === "area") &&
     d.pts.length >= 3 &&
     Math.hypot(q.x - d.pts[0].x, q.y - d.pts[0].y) < 9 * k
   ) {
@@ -935,6 +958,10 @@ async function finishDraft() {
   ui.draft = null;
   ui.cursor = null;
   const sh = S();
+  if (d.tool === "area") {
+    finishArea(d);
+    return;
+  }
   if (d.pts.length < 2) {
     updateHint();
     draw();
@@ -1120,6 +1147,7 @@ function updateHint() {
       "Click along the path taken. Double-click, Enter or right-click to finish. Shift keeps lines straight.",
     wall: "Click along the wall. Double-click, Enter or right-click to finish. Click the first point to close a room. Shift keeps it straight.",
     measure: "Click two points of a distance you know.",
+    area: "Click each corner of the area. Click the first corner, double-click or press Enter to close it. Shift keeps edges straight.",
     doc: "Click the drawing where the document lives.",
     tag: "Click the drawing where the red tag belongs.",
     action: "Click the drawing where the action belongs.",

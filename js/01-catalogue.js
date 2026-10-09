@@ -398,6 +398,10 @@ function categoryGroupsHTML(sh) {
   const q = ui.itemQuery.trim().toLocaleLowerCase();
   const matches = (o) =>
     (!ui.itemFilter || itemCategoryId(o) === ui.itemFilter) &&
+    (!ui.itemArea ||
+      (ui.itemArea === "none"
+        ? !areaOf(o, sh)
+        : areaOf(o, sh)?.id === ui.itemArea)) &&
     (!q ||
       (
         o.label +
@@ -411,6 +415,20 @@ function categoryGroupsHTML(sh) {
   let html = `<section class="item-categories"><h3>Items by category <span class="count">${all.length}</span></h3>
     <label class="f">Find items<input id="itemSearch" type="search" value="${esc(ui.itemQuery)}" placeholder="Name or category" autocomplete="off"></label>
     <label class="f">Category<select id="itemFilter"><option value="">All categories</option>${P.itemCategories.map((c) => `<option value="${esc(c.id)}"${ui.itemFilter === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label>
+    ${
+      areasOn(sh).length
+        ? `<label class="f">Area<select id="itemArea"><option value="">All areas</option>${areasOn(
+            sh,
+          )
+            .map(
+              (a) =>
+                `<option value="${esc(a.id)}"${ui.itemArea === a.id ? " selected" : ""}>${esc(a.name)}</option>`,
+            )
+            .join(
+              "",
+            )}<option value="none"${ui.itemArea === "none" ? " selected" : ""}>Not in an area</option></select></label>`
+        : ""
+    }
     <div class="btns"><button data-manage-categories>Manage categories and colours</button><button data-show-categories>Show all on map</button></div>
     <p class="small muted">Visibility affects the map only. Checks and totals include every item.</p>`;
   let found = 0;
@@ -422,7 +440,7 @@ function categoryGroupsHTML(sh) {
     if (
       !members.length ||
       (ui.itemFilter && ui.itemFilter !== c.id) ||
-      (q && !items.length)
+      ((q || ui.itemArea) && !items.length)
     )
       continue;
     found += items.length;

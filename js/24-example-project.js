@@ -216,6 +216,102 @@ function makeExampleProject() {
   });
   item("First aid point", 28.4, 14.8, 0.5, 0.3, "#1F8A55", 0, { fp: false });
 
+  /* ----- areas: named zones, with the key items designated to them ----- */
+  const area = (name, owner, note, x0, y0, x1, y1) => {
+    const no = ++p.counters.area;
+    p.areas.push({
+      id: uid(),
+      no,
+      name,
+      color: AREA_COLS[(no - 1) % AREA_COLS.length],
+      owner,
+      note,
+      drawing: "d1",
+      pts: [pt(x0, y0), pt(x1, y0), pt(x1, y1), pt(x0, y1)],
+      closed: true,
+      created: dayOffset(-90),
+    });
+  };
+  area(
+    "Supplies and staging",
+    "Sam",
+    "Film, cartons and pallets for the next order. Nothing else stays here.",
+    6.5,
+    1.2,
+    29,
+    6,
+  );
+  area(
+    "Packing line",
+    "Josh",
+    "Packer, case packer and palletiser with their operator positions.",
+    6.5,
+    6.5,
+    29,
+    11.2,
+  );
+  area(
+    "Goods-in and WIP",
+    "Sam",
+    "Pallets in from goods-in and the WIP buffer before the infeed.",
+    1,
+    6,
+    6,
+    12.5,
+  );
+  area(
+    "Tooling and cleaning",
+    "Josh",
+    "Changeover parts, cleaning kit and the quality check station.",
+    7.5,
+    13,
+    23.8,
+    16.2,
+  );
+  area(
+    "Finished goods",
+    "Sam",
+    "Palletised product waiting for dispatch, recycling and the KPI board.",
+    24,
+    12.5,
+    29.5,
+    16.2,
+  );
+  area(
+    "Red tag area",
+    "Sam",
+    "Everything waiting for a decision. Kept clear of the line.",
+    1.6,
+    1.6,
+    4.4,
+    4.2,
+  );
+  area(
+    "Entry and hygiene",
+    "Josh",
+    "Personnel door, hand wash and the emergency exit route.",
+    1,
+    13,
+    7,
+    16.2,
+  );
+  {
+    const idOf = (n) => p.areas.find((a) => a.name === n).id;
+    for (const [label, areaName] of [
+      ["Film reel rack", "Supplies and staging"],
+      ["Film reel rack 2", "Supplies and staging"],
+      ["Carton pallet", "Supplies and staging"],
+      ["Carton pallet 2", "Supplies and staging"],
+      ["Tool trolley", "Tooling and cleaning"],
+      ["Changeover shadow board", "Tooling and cleaning"],
+      ["Cleaning station", "Tooling and cleaning"],
+      ["Spill kit", "Tooling and cleaning"],
+      ["Spares kanban rack", "Tooling and cleaning"],
+      ["Quality check station", "Tooling and cleaning"],
+    ])
+      items[label].area = idOf(areaName);
+  }
+
   /* ----- floor tape ----- */
   const mark = (type, pts, extra = {}) => {
     const id = uid();
@@ -988,6 +1084,11 @@ function makeExampleProject() {
           c.y = u(10.2 + (n % 4 === 0 ? 0.9 : 0.2));
         }
         if (o.label === "Film reel rack 2" && n === 5) c.x += u(0.7);
+        // the spill kit gets left by the packer after a clean-up, outside its area
+        if (o.label === "Spill kit" && n >= 5) {
+          c.x = u(22.4) + jit(0.1);
+          c.y = u(12.2) + jit(0.1);
+        }
         if (o.label === "Pallet truck" && (n === 1 || n === 6)) continue; // missing
       }
       d.objects.push(c);

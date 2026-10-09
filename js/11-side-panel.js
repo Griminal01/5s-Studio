@@ -21,6 +21,7 @@ function renderSide() {
         move: paneMove,
         mark: paneMark,
         s5: paneS5,
+        areas: paneAreas,
       }[ui.tab]();
   if (!ui.editDrawing && ui.tab === "item")
     p.insertAdjacentHTML("beforeend", categoryGroupsHTML(S()));
@@ -83,7 +84,7 @@ function paneItem() {
     return `<p class="empty">Select something on the drawing to edit it, or add an item from the left.</p>${sheetStats(sh)}`;
   }
   if (sel.length > 1)
-    return `<h2>${sel.length} selected</h2>${categoryAssignmentHTML(sel.filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item").map((f) => f.x))}<p class="small muted">Drag any of them to move them together. Arrow keys nudge.</p><div class="btns"><button data-a="dup">Duplicate</button><button data-a="rot90">Rotate 90°</button><button data-a="lock">Lock or unlock</button><button data-a="del" class="danger">Delete</button></div>`;
+    return `<h2>${sel.length} selected</h2>${categoryAssignmentHTML(sel.filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item").map((f) => f.x))}${areaSelectHTML(sel.filter((f) => !f.fx && f.t === "obj" && f.x.kind === "item").map((f) => f.x))}<p class="small muted">Drag any of them to move them together. Arrow keys nudge.</p><div class="btns"><button data-a="dup">Duplicate</button><button data-a="rot90">Rotate 90°</button><button data-a="lock">Lock or unlock</button><button data-a="del" class="danger">Delete</button></div>`;
   const { t, x } = sel[0];
   if (t === "obj") {
     const c = cmpCache;
@@ -113,7 +114,7 @@ function paneItem() {
     return (
       st +
       `<label class="f">Label<input data-f="label" value="${esc(x.label)}"></label>
-${x.kind === "item" ? categoryAssignmentHTML([x]) : ""}
+${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) : ""}
 <div class="row2"><label class="f">Width (${u})<input data-f="w" type="number" step="${u === "m" ? 0.05 : 1}" value="${toUser(x.w)}"></label><label class="f">Depth (${u})<input data-f="h" type="number" step="${u === "m" ? 0.05 : 1}" value="${toUser(x.h)}"></label></div>
 <div class="row2"><label class="f">Rotation (°)<input data-f="a" type="number" step="15" value="${Math.round(x.a)}"></label><label class="f">Colour<input data-f="c" type="color" value="${esc(x.c)}"></label></div>
 <label class="f">Type<select data-f="kind"><option value="item"${x.kind === "item" ? " selected" : ""}>Movable item</option><option value="zone"${x.kind === "zone" ? " selected" : ""}>Area</option><option value="keepclear"${x.kind === "keepclear" ? " selected" : ""}>Keep-clear area</option></select></label>
@@ -124,6 +125,7 @@ ${x.kind === "item" ? (sh.kind === "daily" ? '<p class="small muted">Floor home 
 ${x.kind === "item" ? `<h3><span>Boards kept here</span><span class="count">${bds.length}</span></h3>${bds.map((b) => `<button class="irow" style="--c:#202C86" data-a="openBoard" data-id="${esc(b.id)}"><span>${esc(boardCode(b))} ${esc(b.name)}</span><span>${b.slots.length} slots</span></button>`).join("")}<div class="btns"><button data-a="newBoardFor">Add a board here</button></div>` : ""}`
     );
   }
+  if (t === "area") return paneArea(x);
   if (t === "mark") {
     const nar =
       x.kind === "aisle" &&
@@ -260,6 +262,17 @@ function paneCheck() {
       x: b.o.x,
       y: b.o.y,
       id: b.o.id,
+    })),
+  );
+  h += rowsHTML(
+    "Outside the area they are designated to",
+    COL.warn,
+    (iss.outOfArea || []).map((z) => ({
+      l: z.o.label,
+      v: z.a.name,
+      x: z.o.x,
+      y: z.o.y,
+      id: z.o.id,
     })),
   );
   h += rowsHTML(

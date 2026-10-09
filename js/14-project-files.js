@@ -11,7 +11,7 @@ function projectBundle() {
   for (const id in P.drawings) if (D[id]) dr[id] = D[id];
   return {
     app: "5s-studio",
-    version: 5,
+    version: 6,
     saved: new Date().toISOString(),
     by: CUR ? CUR.name : "",
     project: P,

@@ -290,9 +290,27 @@ function validate(p) {
       if (parked.counters && !Object.keys(parked.counters).length)
         delete parked.counters;
     }
-    for (const k of ["audits", "areas", "lines", "audit"]) {
+    for (const k of ["audits", "lines", "audit"]) {
       if (hasData(p[k])) parked[k] = p[k];
       delete p[k];
+    }
+    // Areas are back. Older files kept them as audit areas: they come back
+    // as plain areas, and anything that is not a usable polygon stays parked.
+    {
+      const okPoly = (a) =>
+          a &&
+          typeof a === "object" &&
+          Array.isArray(a.pts) &&
+          a.pts.length >= 3 &&
+          a.pts.every((q) => q && Number.isFinite(q.x) && Number.isFinite(q.y)),
+        have = Array.isArray(p.areas) ? p.areas : [],
+        old = Array.isArray(parked.areas) ? parked.areas : [],
+        ids = new Set(have.map((a) => a && a.id)),
+        all = [...have, ...old.filter((a) => !(a && ids.has(a.id)))];
+      p.areas = all.filter(okPoly);
+      const bad = all.filter((a) => !okPoly(a));
+      delete parked.areas;
+      if (bad.length) parked.areas = bad;
     }
     if (p.counters && Number(p.counters.audit) > 0)
       (parked.counters = parked.counters || {}).audit = p.counters.audit;
@@ -312,6 +330,7 @@ function validate(p) {
     doc: 0,
     board: 0,
     smed: 0,
+    area: 0,
     ...(p.counters && typeof p.counters === "object" ? p.counters : {}),
   };
   delete p.counters.audit;
@@ -485,6 +504,38 @@ function validate(p) {
     if (dm.datum && !["x", "y"].every((k) => Number.isFinite(dm.datum[k])))
       dm.datum = null;
   }
+  {
+    const firstDrawing = Object.keys(p.drawings)[0] || "d1";
+    p.areas = p.areas.map((a, i) => ({
+      id: str(a.id, uid()),
+      no: Number(a.no) || 0,
+      name: str(a.name, "Area"),
+      color: /^#[0-9a-f]{6}$/i.test(a.color)
+        ? a.color
+        : AREA_COLS[i % AREA_COLS.length],
+      owner: str(a.owner),
+      note: str(a.note),
+      drawing: p.drawings[a.drawing] ? a.drawing : firstDrawing,
+      pts: a.pts.map((q) => ({ x: q.x, y: q.y })),
+      closed: true,
+      created: str(a.created),
+      ...(a.line || a.freq
+        ? { legacy: { line: str(a.line), freq: num(Number(a.freq)) } }
+        : a.legacy
+          ? { legacy: a.legacy }
+          : {}),
+    }));
+    const seenA = new Set();
+    for (const a of p.areas) {
+      while (seenA.has(a.id)) a.id = uid();
+      seenA.add(a.id);
+    }
+    p.counters.area = Math.max(
+      Number(p.counters.area) || 0,
+      ...p.areas.map((a) => a.no),
+    );
+    for (const a of p.areas) if (a.no <= 0) a.no = ++p.counters.area;
+  }
   p.sheets = p.sheets.filter((sheet) => sheet && typeof sheet === "object");
   if (!p.sheets.length) throw Error("No valid sheets");
   p.journal = Array.isArray(p.journal)
@@ -533,6 +584,7 @@ function validate(p) {
       o.type = String(o.type || o.label);
       o.fpStyle = o.fpStyle === "outline" ? "outline" : "corners";
       o.fpLaid = !!o.fpLaid;
+      o.area = typeof o.area === "string" ? o.area : "";
     }
     for (const arr of [s.marks, s.routes])
       for (let i = arr.length - 1; i >= 0; i--) {
@@ -570,7 +622,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 5;
+  p.version = 6;
   p.app = "5s-studio";
   return p;
 }

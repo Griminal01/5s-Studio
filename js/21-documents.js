@@ -157,6 +157,7 @@ function docsFiltered() {
       if (f.st === "withdrawn" && d.status !== "Withdrawn") return false;
       if (f.type && d.type !== f.type) return false;
       if (f.owner && d.owner !== f.owner) return false;
+      if (!areaPass(f.area, d)) return false;
       if (
         q &&
         !(
@@ -188,10 +189,10 @@ function docsFiltered() {
 function docRows(rows) {
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>No.</th><th>Document</th><th>Type</th><th>Owner</th><th>Rev</th><th>Review by</th><th>Kept at</th><th>Format</th><th>Status</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>No.</th><th>Document</th><th>Type</th><th>Owner</th><th>Rev</th><th>Review by</th><th>Kept at</th><th>Area</th><th>Format</th><th>Status</th><th></th></tr>${rows
     .map(
       (d) =>
-        `<tr class="click" data-docid="${esc(d.id)}"><td><b>${docNo(d)}</b></td><td class="t"><b>${esc(d.title)}</b>${d.ref ? `<span class="sub">${esc(d.ref)}</span>` : ""}</td><td>${esc(d.type)}</td><td>${esc(d.owner) || '<span class="muted">none</span>'}</td><td>${esc(d.rev) || '<span class="muted">-</span>'}</td><td>${d.status === "Withdrawn" ? "" : d.review ? dueCell(d.review, docOverdue(d)) : '<span class="muted">not set</span>'}</td><td>${esc(docWhere(d))}</td><td>${esc(d.format)}${d.qty > 1 ? " x" + d.qty : ""}</td><td>${pill(d.status, d.status === "Current" ? "done" : d.status === "Withdrawn" ? "" : d.status === "Under review" ? "prog" : "open")}</td><td>${d.x != null && d.status !== "Withdrawn" ? `<button data-docshow="${esc(d.id)}">Show</button>` : d.status !== "Withdrawn" ? `<button data-docpin="${esc(d.id)}">Pin</button>` : ""}</td></tr>`,
+        `<tr class="click" data-docid="${esc(d.id)}"><td><b>${docNo(d)}</b></td><td class="t"><b>${esc(d.title)}</b>${d.ref ? `<span class="sub">${esc(d.ref)}</span>` : ""}</td><td>${esc(d.type)}</td><td>${esc(d.owner) || '<span class="muted">none</span>'}</td><td>${esc(d.rev) || '<span class="muted">-</span>'}</td><td>${d.status === "Withdrawn" ? "" : d.review ? dueCell(d.review, docOverdue(d)) : '<span class="muted">not set</span>'}</td><td>${esc(docWhere(d))}</td>${areaCell(d)}<td>${esc(d.format)}${d.qty > 1 ? " x" + d.qty : ""}</td><td>${pill(d.status, d.status === "Current" ? "done" : d.status === "Withdrawn" ? "" : d.status === "Under review" ? "prog" : "open")}</td><td>${d.x != null && d.status !== "Withdrawn" ? `<button data-docshow="${esc(d.id)}">Show</button>` : d.status !== "Withdrawn" ? `<button data-docpin="${esc(d.id)}">Pin</button>` : ""}</td></tr>`,
     )
     .join("")}</table>`;
 }
@@ -224,7 +225,7 @@ function documentsHTML() {
     F.st,
   )}</select></label>
     <label>Type<select data-f="type">${optsKV([["", "All"], ...DOC_TYPES.map((o) => [o, o])], F.type)}</select></label>
-    <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersD.map((o) => [o, o])], F.owner)}</select></label>
+    <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersD.map((o) => [o, o])], F.owner)}</select></label>${areaFilterHTML(F.area)}
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Title, reference, place"></label></div>
     <div class="regtbl" id="docTbl">${docRows(docsFiltered())}</div>`;
   return h;
@@ -287,6 +288,7 @@ function csvDocuments() {
         "Status",
         "Pinned",
         "Notes",
+        "Area",
       ],
       ...P.documents.map((d) => [
         docNo(d),
@@ -305,6 +307,7 @@ function csvDocuments() {
         d.status,
         d.x != null ? "Yes" : "No",
         d.note,
+        pinAreaName(d),
       ]),
     ],
     "5S_documents.csv",

@@ -175,6 +175,7 @@ document.addEventListener("keydown", (e) => {
         g: "tag",
         a: "action",
         d: "doc",
+        q: "area",
       };
   if (tools[key]) {
     setTool(tools[key]);

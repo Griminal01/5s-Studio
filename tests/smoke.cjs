@@ -143,6 +143,104 @@ const VIEWS = [
   expect(ex.map > 10 && ex.list > 10, "document map or list did not print");
   expect(ex.overdue >= 1, "example should show an overdue document review");
   expect(ex.roundTrip, "example project changed when validated again");
+  // areas: in the example, drawn with the real tool, designation, flags, print, old files
+  const ar0 = await page.evaluate(() => {
+    const sh = STD(),
+      daily = P.sheets.filter((x) => x.kind === "daily").pop();
+    return {
+      n: P.areas.length,
+      empty: P.areas.filter((a) => !areaItems(a, sh).length).length,
+      unplaced: sh.objects
+        .filter((o) => o.kind === "item" && !areaOf(o, sh))
+        .map((o) => o.label),
+      std: issues(sh).outOfArea.length,
+      daily: issues(daily).outOfArea.length,
+    };
+  });
+  expect(
+    ar0.n >= 6 && ar0.empty === 0 && ar0.unplaced.length === 0,
+    "example areas are missing or leave items out: " + JSON.stringify(ar0),
+  );
+  expect(
+    ar0.std === 0 && ar0.daily >= 1,
+    "designated items should leave the standard clean and be flagged on a daily check: " +
+      JSON.stringify(ar0),
+  );
+  await page.evaluate(() => openSheet(STD().id));
+  await page.waitForTimeout(300);
+  await page.keyboard.press("q");
+  const bb = await page.locator("#svg").boundingBox();
+  for (const [a, b] of [
+    [0.05, 0.05],
+    [0.12, 0.05],
+    [0.12, 0.12],
+    [0.05, 0.12],
+  ]) {
+    await page.mouse.click(bb.x + bb.width * a, bb.y + bb.height * b);
+    await page.waitForTimeout(450);
+  }
+  await page.mouse.click(bb.x + bb.width * 0.05, bb.y + bb.height * 0.05);
+  await page.waitForTimeout(400);
+  const ar1 = await page.evaluate(() => ({
+    n: P.areas.length,
+    corners: P.areas.at(-1).pts.length,
+    tool: ui.tool,
+    selected: ui.sel[0] === P.areas.at(-1).id,
+  }));
+  expect(
+    ar1.n === ar0.n + 1 &&
+      ar1.corners === 4 &&
+      ar1.tool === "select" &&
+      ar1.selected,
+    "drawing an area with the Area tool did not work: " + JSON.stringify(ar1),
+  );
+  await page.fill('#pane [data-f="name"]', "Smoke zone");
+  await page.press('#pane [data-f="name"]', "Tab");
+  const ar2 = await page.evaluate(() => {
+    const o = STD().objects.find((x) => x.label === "Waste bin"),
+      a = P.areas.at(-1);
+    ui.sel = [o.id];
+    ui.tab = "item";
+    renderSide();
+    return {
+      name: a.name,
+      hasSelect: !!document.querySelector("#pane [data-item-area]"),
+    };
+  });
+  expect(
+    ar2.name === "Smoke zone" && ar2.hasSelect,
+    "renaming an area or the designation list did not work: " +
+      JSON.stringify(ar2),
+  );
+  await page.selectOption("#pane [data-item-area]", { label: "Smoke zone" });
+  const ar3 = await page.evaluate(() => {
+    const o = STD().objects.find((x) => x.label === "Waste bin"),
+      flagged = issues(STD()).outOfArea.some((z) => z.o === o);
+    printAreas(areasOn());
+    const out = {
+      flagged,
+      sheets: document.querySelectorAll("#printDoc .areapage").length,
+      page: document.getElementById("pageStyle")?.textContent || "",
+    };
+    document.body.classList.remove("printing-doc");
+    document.getElementById("pageStyle")?.remove();
+    document.getElementById("printDoc").className = "";
+    ui.sel = [P.areas.at(-1).id];
+    act("del");
+    return {
+      ...out,
+      left: P.areas.length,
+      released: STD().objects.find((x) => x.label === "Waste bin").area === "",
+    };
+  });
+  expect(
+    ar3.flagged && ar3.sheets === ar0.n + 1 && /A3 landscape/.test(ar3.page),
+    "designation flag or area printing did not work: " + JSON.stringify(ar3),
+  );
+  expect(
+    ar3.left === ar0.n && ar3.released,
+    "deleting an area should release its items: " + JSON.stringify(ar3),
+  );
   // boards: edit a board through the real form, then build and "print" labels
   await page.click('[data-view="boards"]');
   await page.click('[data-bid] [data-bd="edit"]');
@@ -266,6 +364,7 @@ const VIEWS = [
       tags: q.tags.length,
       linked: q.actions[0]?.tag === q.tags[0]?.id,
       audits: q.parked?.audits?.length || 0,
+      areas: q.areas.map((a) => a.name + "/" + a.legacy?.line).join(","),
       again: (validate(JSON.parse(JSON.stringify(q))).parked?.audits || [])
         .length,
     };
@@ -273,6 +372,10 @@ const VIEWS = [
   expect(
     old.kinds === "standard,daily" && old.tags === 1 && old.linked,
     "old v7 backup did not open fully: " + JSON.stringify(old),
+  );
+  expect(
+    old.areas === "Area 1/ld",
+    "an old audit area did not come back as an area: " + JSON.stringify(old),
   );
   expect(
     old.audits === 1 && old.again === 1,

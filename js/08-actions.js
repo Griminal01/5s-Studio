@@ -63,6 +63,7 @@ function act(a, el) {
       const names = [];
       for (const f of live) {
         f.arr.splice(f.arr.indexOf(f.x), 1);
+        if (f.t === "area") releaseArea(f.x.id);
         names.push(f.x.label || f.x.name || TAPE[f.x.type]?.n);
       }
       const miss =
@@ -105,6 +106,10 @@ function act(a, el) {
           n.x += off;
           n.y += off;
         } else n.pts = n.pts.map((p) => ({ x: p.x + off, y: p.y + off }));
+        if (f.t === "area") {
+          n.no = ++P.counters.area;
+          n.name = f.x.name + " copy";
+        }
         f.arr.push(n);
         ids.push(n.id);
       }
@@ -239,6 +244,8 @@ function act(a, el) {
     case "photo":
       $("#fPhoto").click();
       break;
+    default:
+      areaAct(a, el);
   }
 }
 function restoreMissing(ref) {

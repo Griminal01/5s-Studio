@@ -150,6 +150,7 @@ function issues(sh) {
     aisleClash,
     aisleNarrow,
     conflicts: conflicts(sh),
+    outOfArea: outOfArea(sh),
     damaged: sh.marks.filter((m) => m.status === "worn"),
   };
 }
@@ -204,6 +205,7 @@ function compare(a, b) {
     res.structure.length +
     res.walkBlock.length +
     res.aisleClash.length +
+    res.outOfArea.length +
     res.damaged.length +
     res.tapeMissing.length;
   return res;
