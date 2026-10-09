@@ -10,6 +10,7 @@ Last updated after the code audit (11 Oct 2026). Read this first when picking th
 | Setup | Factory map (plan image, scale, walls), lines, zones: cards edited in place |
 | Lines and zones (Zones tab and Zone tool) | Named polygons: a line holds zones (`a.parent`); items belong to zones by position or designation; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
 | Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from a red tag or a zone |
+| Present | Layout only for now: full-screen TV view of the open sheet, tour through factory, lines and zones, optional change overlay. Documents, tasks and problems are not presentable yet |
 | Bring items | Layout panel button: choose another project, tick items, they are copied to the open sheet (new refs, scale-converted, categories matched, tasks come too). Documents, tape and zones are not brought |
 | Operator tasks | Per zone: task, who, when, minutes, 5S step, linked document, steps, and the items it uses (by item ref). KPIs: zones with tasks, items used, minutes per shift. Zone and item panels list them; zone A3 sheet, print, CSV |
 | Documents | Register of SOPs, OPLs, checklists, boards: owner, revision, review date, where kept; document map and tick list |

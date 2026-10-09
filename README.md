@@ -26,6 +26,9 @@ filter to it.
   under the selection (rotate, duplicate, lock, align, delete), items snap to the edges of other items
   and walls (hold Alt to place freely), Shift-drag to box-select, align and space evenly, copy and paste
   between sheets (Ctrl+C / Ctrl+V), exact positions from the datum, and a shortcuts list (press ?).
+- **Present**: the *Present* button on the Layout shows the layout full screen for a TV or projector.
+  Arrow keys (or the buttons that appear when you move the pointer) step through the whole factory, each
+  line and each zone; *Tour* (Space) does it on a timer; *C* shows what changed on a proposal. Esc exits.
 - **Lines and zones**: outline each production line, then the zones inside it (Zone tool, Q), each with an
   owner and a note. An item belongs to the zone it sits in, or you designate it to one; a designated item
   that strays is flagged in Compare, on the map and on daily checks. Each zone shows its items, tape,

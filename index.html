@@ -191,6 +191,13 @@
             <select id="cmpSel"></select
           ></label>
           <button
+            id="bPresent"
+            class="pri"
+            title="Show this layout full screen, for a TV or projector"
+          >
+            Present
+          </button>
+          <button
             id="bEditDraw"
             title="Add walls, columns and other fixed things to the drawing"
           >
@@ -264,6 +271,20 @@
         </div>
       </form>
     </dialog>
+    <div id="present" hidden role="dialog" aria-label="Presentation">
+      <div class="prhead">
+        <div><b id="prTitle"></b><span id="prSub"></span></div>
+        <div id="prStep"></div>
+      </div>
+      <div class="prstage" id="prStage"></div>
+      <div class="prctl" id="prCtl">
+        <button id="prPrev" aria-label="Previous">← Previous</button>
+        <button id="prPlay" aria-label="Play or pause the tour">▶ Tour</button>
+        <button id="prNext" aria-label="Next">Next →</button>
+        <button id="prCmp" hidden>Show changes</button>
+        <button id="prExit" class="pri">Exit</button>
+      </div>
+    </div>
     <div id="printDoc"></div>
     <div id="toast" role="status"></div>
     <input type="file" id="fTeam" accept=".json,application/json" hidden />
@@ -320,6 +341,7 @@
     <script src="js/37-layout-edit.js"></script>
     <script src="js/38-problem-board.js"></script>
     <script src="js/39-document-map.js"></script>
+    <script src="js/39-present.js"></script>
     <script src="js/40-main.js"></script>
   </body>
 </html>

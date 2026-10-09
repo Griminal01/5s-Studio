@@ -3425,3 +3425,97 @@ table.keys td {
   width: auto;
   flex: none;
 }
+
+/* presentation mode */
+#present {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: #0f1330;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  cursor: none;
+}
+#present.active {
+  cursor: default;
+}
+.prhead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 28px;
+  font-size: clamp(16px, 2.2vw, 30px);
+}
+.prhead #prSub {
+  opacity: 0.65;
+}
+#prStep small {
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6em;
+}
+#prStep span {
+  opacity: 0.65;
+  font-size: 0.7em;
+  margin-left: 8px;
+}
+.prstage {
+  flex: 1;
+  min-height: 0;
+  margin: 0 28px 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.prstage svg {
+  display: block;
+}
+.prctl {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 19, 48, 0.92);
+  padding: 10px 12px;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+#present.active .prctl {
+  opacity: 1;
+  pointer-events: auto;
+}
+.prctl button {
+  min-height: 48px;
+  padding: 0 18px;
+  font-size: 16px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+}
+.prctl button.pri {
+  background: var(--tape);
+  color: #1c2250;
+  border-color: var(--tape);
+  font-weight: 700;
+}
+.prctl button:disabled {
+  opacity: 0.35;
+}
+body.presenting {
+  overflow: hidden;
+}
+@media print {
+  #present {
+    display: none !important;
+  }
+}

@@ -832,6 +832,39 @@ const VIEWS = [
     );
   });
   await page.waitForTimeout(600);
+  // presentation mode: the layout full screen, stepping through the factory, lines and zones
+  await go("layout");
+  await page.click("#bPresent");
+  await page.waitForSelector("#prStage svg");
+  const pm0 = await page.evaluate(() => ({
+    steps: pr.steps.length,
+    step: document.getElementById("prStep").textContent,
+    shapes: document.querySelectorAll("#prStage svg [data-t]").length,
+  }));
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  const pm1 = await page.evaluate(() => ({
+    i: pr.i,
+    step: document.getElementById("prStep").textContent,
+    scope: ui.scope,
+    shapes: document.querySelectorAll("#prStage svg [data-t]").length,
+  }));
+  await page.keyboard.press("Escape");
+  const pm2 = await page.evaluate(() => ({
+    hidden: document.getElementById("present").hidden,
+    scope: ui.scope,
+  }));
+  expect(
+    pm0.steps >= 8 &&
+      pm0.shapes > 10 &&
+      pm1.i === 2 &&
+      pm1.step !== pm0.step &&
+      pm1.scope === "" &&
+      pm2.hidden &&
+      pm2.scope === "",
+    "presentation mode did not step through the layout: " +
+      JSON.stringify({ pm0, pm1, pm2 }),
+  );
   // lock a zone: it cannot be deleted or reshaped, and unlocking gives that back
   await go("layout");
   const lk = await page.evaluate(() => {
