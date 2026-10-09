@@ -29,7 +29,9 @@ filter to it.
 - **Lines and zones**: outline each production line, then the zones inside it (Zone tool, Q), each with an
   owner and a note. An item belongs to the zone it sits in, or you designate it to one; a designated item
   that strays is flagged in Compare, on the map and on daily checks. Each zone shows its items, tape,
-  documents, operator tasks, red tags and actions, and prints as an A3 zone sheet.
+  documents, operator tasks, red tags and actions, and prints as an A3 zone sheet. **Lock** a line or
+  zone (toolbar under the selection, side panel, or its Setup card) so it cannot be moved, reshaped or
+  deleted by accident.
 - **Problems**: each problem is a **board** laid out like the whiteboard version: problem statement,
   a fishbone (machine, method, material, environment, people, measurement) with likely causes starred,
   a hypothesis and how it was confirmed, the why chain to the root cause, and the action list. An

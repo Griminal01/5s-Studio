@@ -275,8 +275,8 @@ function areaSVG(sh, k, only) {
         line ? (xs0 + xs1) / 2 : top.x + 8 * k,
         top.y + (line ? 1 : 14) * k,
         line
-          ? `${a.name.toUpperCase()}${n ? " · " + n + " zone" + (n > 1 ? "s" : "") : ""}`
-          : `${a.name}${n ? " · " + n : ""}`,
+          ? `${a.name.toUpperCase()}${n ? " · " + n + " zone" + (n > 1 ? "s" : "") : ""}${a.locked ? " · locked" : ""}`
+          : `${a.name}${n ? " · " + n : ""}${a.locked ? " · locked" : ""}`,
         fs,
         k,
         { anchor: line ? "middle" : "start", fill: a.color, w: 700 },
@@ -409,7 +409,8 @@ ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " 
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
 ${zoneTasksHTML(a)}
 ${line ? "" : `<div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>`}
-<div class="btns"><button class="pri" data-a="areaScope" title="Show only this ${word} on the 5S pages, so they are not cluttered">Work on this ${word}</button><button data-a="areaPrint">Print ${word} sheet</button>${line ? "" : '<button data-a="areaProblem">Raise a problem here</button>'}<button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete ${word}</button></div>
+<div class="btns"><button class="pri" data-a="areaScope" title="Show only this ${word} on the 5S pages, so they are not cluttered">Work on this ${word}</button><button data-a="areaPrint">Print ${word} sheet</button>${line ? "" : '<button data-a="areaProblem">Raise a problem here</button>'}<button data-a="dup">Duplicate</button><button data-a="lock" title="Lock so it cannot be moved, reshaped or deleted by accident">${a.locked ? "Unlock" : "Lock"} ${word}</button><button data-a="del" class="danger"${a.locked ? " disabled" : ""}>Delete ${word}</button></div>
+${a.locked ? `<p class="small muted">Locked: unlock it to move, reshape or delete it. You can still rename it and change its owner.</p>` : ""}
 <p class="small muted">Drag the white dots to reshape it. Drag its edge to move it.${line ? " A zone drawn inside a line joins it automatically." : " Items belong to the zone they sit in unless you designate them; a designated item that leaves its zone is flagged in the Compare tab and on the daily checks."}</p>`;
 }
 function paneAreas() {

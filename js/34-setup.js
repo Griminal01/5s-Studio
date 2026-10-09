@@ -119,7 +119,7 @@ function setupCard(a, sh) {
       <label class="scol">Colour<input type="color" data-sf="color" data-id="${esc(a.id)}" value="${esc(a.color)}"></label>
     </div>
     <dl>${facts.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-    <div class="btns"><button data-su="work" data-id="${esc(a.id)}" title="Open the 5S pages showing only this ${word}">Show in 5S</button><button data-su="edit" data-id="${esc(a.id)}">Reshape on the map</button><button data-su="del" data-id="${esc(a.id)}" class="danger">Delete</button></div>
+    <div class="btns"><button data-su="work" data-id="${esc(a.id)}" title="Open the 5S pages showing only this ${word}">Show in 5S</button><button data-su="edit" data-id="${esc(a.id)}">${a.locked ? "View on the map" : "Reshape on the map"}</button><button data-su="lock" data-id="${esc(a.id)}" title="Lock so it cannot be moved, reshaped or deleted by accident">${a.locked ? "Unlock" : "Lock"}</button><button data-su="del" data-id="${esc(a.id)}" class="danger"${a.locked ? " disabled" : ""}>Delete</button></div>
   </div>`;
 }
 
@@ -219,6 +219,14 @@ $("#setupView").addEventListener("click", (e) => {
         return setupToLayout(() => areaAct("areaOpen", { dataset: { id } }));
       case "print":
         return printAreas(areasOn(STD()));
+      case "lock": {
+        const a = P.areas.find((x) => x.id === id);
+        if (!a) return;
+        checkpoint();
+        a.locked = !a.locked;
+        record(a.locked ? "Locked" : "Unlocked", a.name);
+        return renderAll();
+      }
       case "del":
         return setupDelete(id);
     }
@@ -257,6 +265,7 @@ $("#setupView").addEventListener("change", (e) => {
 async function setupDelete(id) {
   const a = P.areas.find((x) => x.id === id);
   if (!a) return;
+  if (a.locked) return toast("Locked. Unlock it first to delete it.");
   const line = isLine(a),
     n = line ? zonesOfLine(a).length : 0,
     ok = await modal(

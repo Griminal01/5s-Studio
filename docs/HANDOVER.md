@@ -24,7 +24,7 @@ whole factory, one line (with all its zones) or one zone, and it follows you bet
 is drawn sharp with a faded margin of context (`scopeBox`, 28% round it); the document map zooms to it;
 lists, registers and problems filter to it. Tracking is always the whole factory. Lines and zones live in
 `P.areas` (`a.level`, `a.parent`); drawing them hands off to the layout with a Back to Setup button.
-Actions have a `stream` ("5s", "doc", "improve") and optionally a linked document `a.doc`. Project version 10 (adds `P.tasks`).
+Actions have a `stream` ("5s", "doc", "improve") and optionally a linked document `a.doc`. Project version 11 (10 added `P.tasks`, 11 added `a.locked` on lines and zones: no reshape handles, no drag, no delete; rename and owner still editable).
 Boards and SMED were removed (11 Oct): their data is parked in the project file, the code is in git
 before `c0594d8`. Ideas for Improve (nothing built): improvement log, one-point lessons, factory overview.
 

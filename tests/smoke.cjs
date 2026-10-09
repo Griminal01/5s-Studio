@@ -832,6 +832,54 @@ const VIEWS = [
     );
   });
   await page.waitForTimeout(600);
+  // lock a zone: it cannot be deleted or reshaped, and unlocking gives that back
+  await go("layout");
+  const lk = await page.evaluate(() => {
+    const z = areasOn(STD())[0];
+    ui.sel = [z.id];
+    renderSide();
+    const handles = () => document.querySelectorAll('#svg [data-t="v"]').length;
+    drawNow();
+    const open0 = handles();
+    act("lock");
+    drawNow();
+    const locked = z.locked,
+      open1 = handles();
+    act("del");
+    const kept = P.areas.includes(z);
+    act("lock");
+    drawNow();
+    return {
+      open0,
+      open1,
+      locked,
+      kept,
+      unlocked: !z.locked,
+      open2: handles(),
+      n: P.areas.length,
+    };
+  });
+  expect(
+    lk.open0 >= 3 &&
+      lk.locked &&
+      lk.open1 === 0 &&
+      lk.kept &&
+      lk.unlocked &&
+      lk.open2 >= 3,
+    "locking a zone did not protect it: " + JSON.stringify(lk),
+  );
+  await go("zones");
+  await page.click('#setupView [data-su="lock"]');
+  const lk2 = await page.evaluate(() => ({
+    locked: areasOn(STD())[0].locked,
+    delDisabled: document.querySelector('#setupView [data-su="del"]').disabled,
+    roundTrip: validate(JSON.parse(JSON.stringify(P))).areas[0].locked,
+  }));
+  expect(
+    lk2.locked && lk2.delDisabled && lk2.roundTrip,
+    "the Lock button on a Setup card did not work: " + JSON.stringify(lk2),
+  );
+  await page.click('#setupView [data-su="lock"]');
   // audit fixes: Reshape on the map, the settings dialog, the red tag register under a scope
   await go("zones");
   await page.click('#setupView [data-su="edit"]');

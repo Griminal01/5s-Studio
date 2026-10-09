@@ -44,11 +44,12 @@ function selbarHTML(sel) {
   let h = `<span class="sbn">${sel.length > 1 ? sel.length + " selected" : esc(one.x.label || one.x.name || tapeOf(one.x.type)?.n || "")}</span>`;
   if (objs.length) h += b("rot90", "Rotate", "Rotate 90° (R)");
   h += b("dup", "Duplicate", "Duplicate (Ctrl+D)");
-  if (objs.length)
+  const lockable = sel.filter((f) => f.t === "obj" || f.t === "area");
+  if (lockable.length)
     h += b(
       "lock",
-      objs.every((f) => f.x.locked) ? "Unlock" : "Lock",
-      "Lock so it cannot be moved by accident",
+      lockable.every((f) => f.x.locked) ? "Unlock" : "Lock",
+      "Lock so it cannot be moved, reshaped or deleted by accident",
     );
   if (objs.length >= 2)
     h += `<details class="menu sbmenu"><summary title="Line them up or space them evenly">Align</summary><div class="pop">${ALIGN.map(([k, l]) => `<button type="button" data-sb="al-${k}"${k.startsWith("dist") && objs.length < 3 ? " disabled" : ""}>${l}</button>`).join("")}</div></details>`;

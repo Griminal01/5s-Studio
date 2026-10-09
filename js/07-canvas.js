@@ -412,10 +412,12 @@ function buildSVG(sh, o) {
       } else {
         const col = f.t === "route" ? COL[x.who] : COL.sel;
         s += `<polyline points="${(x.closed ? [...x.pts, x.pts[0]] : x.pts).map((p) => p.x + "," + p.y).join(" ")}" fill="none" stroke="${COL.sel}" stroke-width="${1.2 * k}" stroke-dasharray="${4 * k} ${3 * k}" pointer-events="none"/>`;
-        x.pts.forEach(
-          (p, i) =>
-            (s += `<circle data-t="v" data-k="${esc(f.t)}" data-id="${esc(x.id)}" data-i="${esc(i)}" cx="${p.x}" cy="${p.y}" r="${5.5 * k * TOUCH}" fill="#fff" stroke="${col}" stroke-width="${2 * k}"/>`),
-        );
+        // a locked line or zone has no reshape handles
+        if (!x.locked)
+          x.pts.forEach(
+            (p, i) =>
+              (s += `<circle data-t="v" data-k="${esc(f.t)}" data-id="${esc(x.id)}" data-i="${esc(i)}" cx="${p.x}" cy="${p.y}" r="${5.5 * k * TOUCH}" fill="#fff" stroke="${col}" stroke-width="${2 * k}"/>`),
+          );
       }
     }
     s += labelTagsSVG(sh, k) + guidesSVG(k) + marqueeSVG(k);
@@ -719,6 +721,7 @@ svg.addEventListener("pointerdown", (e) => {
     return;
   }
   if (kind === "v") {
+    if (find(id)?.x.locked) return toast("Locked. Unlock it to reshape it.");
     ui.drag = {
       mode: "v",
       id,
@@ -740,6 +743,13 @@ svg.addEventListener("pointerdown", (e) => {
     ui.tab = "item";
   if (ui.tab === "move" && find(id)?.t !== "route") ui.tab = "item";
   if (find(id)?.t === "area") ui.tab = "item";
+  // everything selected is locked: a drag pans the view instead of recording a move that cannot happen
+  if (selected().every((f) => f.x.locked)) {
+    startPan(e, false);
+    draw();
+    renderSide();
+    return;
+  }
   const orig = {};
   for (const f of selected()) orig[f.x.id] = clone(f.x);
   ui.drag = {

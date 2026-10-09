@@ -136,12 +136,15 @@ function act(a, el) {
       break;
     }
     case "lock": {
-      const objs = sel.filter((f) => f.t === "obj");
+      const objs = sel.filter((f) => f.t === "obj" || f.t === "area");
       if (!objs.length) return;
       checkpoint();
       const v = !objs.every((f) => f.x.locked);
       objs.forEach((f) => (f.x.locked = v));
-      record(v ? "Locked" : "Unlocked", objs.map((f) => f.x.label).join(", "));
+      record(
+        v ? "Locked" : "Unlocked",
+        objs.map((f) => f.x.label || f.x.name).join(", "),
+      );
       renderAll();
       break;
     }

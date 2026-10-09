@@ -482,6 +482,7 @@ function validate(p) {
       id: str(a.id, uid()),
       no: Number(a.no) || 0,
       level: a.level === "line" ? "line" : "zone",
+      locked: !!a.locked,
       parent: str(a.parent),
       name: str(a.name, a.level === "line" ? "Line" : "Zone"),
       color: /^#[0-9a-f]{6}$/i.test(a.color)
@@ -655,7 +656,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 10;
+  p.version = 11;
   p.app = "5s-studio";
   return p;
 }

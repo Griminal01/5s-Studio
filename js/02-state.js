@@ -203,7 +203,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 10,
+    version: 11,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {
