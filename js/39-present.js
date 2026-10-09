@@ -40,16 +40,20 @@ function openPresent() {
   pr.on = true;
   $("#present").hidden = false;
   document.body.classList.add("presenting");
-  $("#present")
-    .requestFullscreen?.()
-    .catch(() => {});
+  // the whole page goes full screen (more dependable than one element); the overlay covers it
+  document.documentElement.requestFullscreen?.().catch(() => {});
   renderPresent();
+  // the size can change as full screen starts, so draw again whenever the stage changes size
+  pr.watch ||= new ResizeObserver(() => renderPresent());
+  pr.watch.observe($("#prStage"));
+  requestAnimationFrame(renderPresent);
   pokePresent();
 }
 function closePresent() {
   if (!pr.on) return;
   pr.on = false;
   stopTour();
+  pr.watch?.disconnect();
   $("#present").hidden = true;
   document.body.classList.remove("presenting");
   if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
@@ -111,6 +115,9 @@ function renderPresent() {
       grid: false,
     });
     svgText = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}" width="${W}" height="${H}" aria-label="Layout">${buildSVG(sh, { k, cmp: ref ? compare(sh, ref) : null, scoped: true, export: true })}</svg>`;
+  } catch (err) {
+    console.error(err);
+    svgText = `<p style="padding:24px;color:#1c2250;font-size:18px">The layout could not be drawn for the presentation (${esc(err.message)}). Press Exit and try again.</p>`;
   } finally {
     ui.scope = saveScope;
     Object.assign(ui.layers, saveLayers);

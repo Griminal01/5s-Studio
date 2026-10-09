@@ -44,6 +44,8 @@ placed, dragged and opened; the Layout's Document tool is gone and its document 
 
 The example model line (Settings, or the empty layout) fills every view.
 
+Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
+
 ## Code audit (11 Oct)
 
 Four independent read-through reviews plus random-click runs. Fixed: the Settings dialog could not be saved
