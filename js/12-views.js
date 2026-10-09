@@ -100,7 +100,7 @@ function setView(v, fromHash = false) {
   $("#trackView").hidden = v !== "tracking";
   $("#problemView").hidden = v !== "problems";
   $("#days").hidden = v !== "layout";
-  document.body.dataset.view = v;
+  document.body.dataset.section = v;
   if (reg) renderRegister();
   else if (v === "tracking") renderTracking();
   else if (v === "boards") renderBoards();
