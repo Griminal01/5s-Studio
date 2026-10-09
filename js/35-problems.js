@@ -393,7 +393,7 @@ function drawProblems() {
 function probDetailHTML(p) {
   const sub = ui.prob.sub === "details" ? "details" : "board",
     ar = probArea(p);
-  return `<div class="smedhead"><div><button id="psBack">← All problems</button></div>
+  return `<div class="probhead"><div><button id="psBack">← All problems</button></div>
     <div class="btns" style="margin:0"><button class="pri" data-pb="print-board" title="The board as it looks here, on one A3 page">Print board</button><button data-pa="print" title="Background, analysis, countermeasures and follow-up on one A3 page">Print A3 report</button>${ar ? '<button data-pa="area-show">Show the area</button>' : ""}<button class="danger" data-pa="del">Delete</button></div></div>
     <div class="psteps"><button data-ps-sub="board" class="${sub === "board" ? "on" : ""}">Board</button><button data-ps-sub="details" class="${sub === "details" ? "on" : ""}">A3 details and close</button></div>
     ${sub === "board" ? boardHTML(p) : probDetailsHTML(p)}`;

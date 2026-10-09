@@ -61,7 +61,10 @@ function sheetStats(sh) {
       : "") +
     kv([
       ["Movable items", objs.filter((o) => o.kind === "item").length],
-      ["Zones and keep-clear", objs.filter((o) => o.kind !== "item").length],
+      [
+        "Marked and keep-clear areas",
+        objs.filter((o) => o.kind !== "item").length,
+      ],
       [
         "Floor tape",
         marks.length
@@ -140,7 +143,7 @@ ${x.kind === "item" ? categoryAssignmentHTML([x]) + areaSelectHTML([x]) + itemTa
 <div class="row2">${num("px", `Across (${u})`, toUser(x.x - ox))}${num("py", `Down (${u})`, toUser(x.y - oy))}</div>
 <p class="small muted" style="margin:-4px 0 8px">Centre of the item, measured from ${dt ? "the datum" : 'the top-left corner of the drawing. <button class="linkbtn" data-a="setDatum">Set a datum</button> to measure from a column or door instead'}.</p>
 <h3>Look and type</h3>
-<div class="row2"><label class="f">Type<select data-f="kind"><option value="item"${x.kind === "item" ? " selected" : ""}>Movable item</option><option value="zone"${x.kind === "zone" ? " selected" : ""}>Marked zone</option><option value="keepclear"${x.kind === "keepclear" ? " selected" : ""}>Keep-clear zone</option></select></label><label class="f">Colour<input data-f="c" type="color" value="${esc(x.c)}"></label></div>
+<div class="row2"><label class="f">Type<select data-f="kind"><option value="item"${x.kind === "item" ? " selected" : ""}>Movable item</option><option value="zone"${x.kind === "zone" ? " selected" : ""}>Marked floor area</option><option value="keepclear"${x.kind === "keepclear" ? " selected" : ""}>Keep-clear area</option></select></label><label class="f">Colour<input data-f="c" type="color" value="${esc(x.c)}"></label></div>
 ${x.kind === "item" ? (sh.kind === "daily" ? '<p class="small muted">Floor home marks come from the standard, so you can see when an item has drifted off its tape.</p>' : `<label class="f">Home marking on the floor<select data-f="home"><option value="none"${!x.fp ? " selected" : ""}>None</option><option value="corners"${x.fp && x.fpStyle !== "outline" ? " selected" : ""}>Corner marks</option><option value="outline"${x.fp && x.fpStyle === "outline" ? " selected" : ""}>Full outline</option></select></label>${x.fp ? `<label class="chk"><input type="checkbox" data-f="fpLaid"${x.fpLaid ? " checked" : ""}>Home tape is laid on the floor</label>` : ""}`) : ""}
 <label class="f">Note<textarea data-f="note" rows="2" placeholder="e.g. Returns here after every changeover">${esc(x.note || "")}</textarea></label>
 <div class="btns">${x.kind === "item" ? '<button data-a="tagItem">Red tag this</button>' : ""}<button data-a="del" class="danger">${inStd ? "Mark missing" : "Delete"}</button></div>

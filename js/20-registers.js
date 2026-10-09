@@ -120,7 +120,7 @@ function actFiltered() {
       if (f.owner && a.owner !== f.owner) return false;
       if (f.s5 && a.s5 !== f.s5) return false;
       if (f.stream !== "all" && a.stream !== f.stream) return false;
-      if (!scopePass(a)) return false;
+      if (!scopePass(a, true)) return false;
       if (
         q &&
         !(actNo(a) + " " + a.title + " " + a.owner + " " + a.note)
@@ -160,7 +160,8 @@ function actRows() {
 function actionsHTML() {
   const F = ui.reg.acts,
     base = P.actions.filter(
-      (a) => (F.stream === "all" || a.stream === F.stream) && scopePass(a),
+      (a) =>
+        (F.stream === "all" || a.stream === F.stream) && scopePass(a, true),
     ),
     open = base.filter((a) => !["Done", "Cancelled"].includes(a.status)),
     late = open.filter(actOverdue),

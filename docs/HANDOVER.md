@@ -1,6 +1,6 @@
 # Handover: state of Lean Studio (formerly 5S Studio)
 
-Last updated after areas and problem solving (9 Oct 2026). Read this first when picking the work back up.
+Last updated after the code audit (11 Oct 2026). Read this first when picking the work back up.
 
 ## What is built
 
@@ -30,7 +30,7 @@ before `c0594d8`. Ideas for Improve (nothing built): improvement log, one-point 
 Layout editing (cleaned up 10 Oct, `js/37-layout-edit.js`): toolbar under the selection, smart guides,
 Shift-drag box select, align / space evenly, copy and paste across sheets, typed positions from the datum,
 full names shown for small items on hover or selection, the item list hidden while something is selected,
-"Marked zone" / "Keep-clear zone" wording so zones are not confused with Areas. Not done yet: touch box
+"Marked floor area" / "Keep-clear area" wording so they are not confused with zones (production zones). Not done yet: touch box
 select, group/ungroup, align for tape and routes.
 
 Problem solving (reworked 10 Oct): problems open as one board like the team's whiteboard: fishbone, likely causes, causes and

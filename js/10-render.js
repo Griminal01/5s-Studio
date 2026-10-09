@@ -43,7 +43,7 @@ const LAYERS = [
   ["grid", "Grid (1 m when scaled)"],
   ["marks", "Floor tape and home marks"],
   ["areas", "Lines and zones"],
-  ["objects", "Items and zones"],
+  ["objects", "Items and marked areas"],
   ["routes", "Routes"],
   ["dims", "Tape dimensions and datum"],
   ["runs", "Run numbers on tape"],
@@ -237,7 +237,7 @@ $("#bCustom").onclick = async () => {
     "Add custom item",
     `<label class="f">Name<input name="n" required placeholder="e.g. Glue pot trolley"></label>
   <div class="row2"><label class="f">Width (m)<input name="w" type="number" step="0.05" value="1"></label><label class="f">Depth (m)<input name="h" type="number" step="0.05" value="0.8"></label></div>
-  <div class="row2"><label class="f">Type<select name="k"><option value="item">Movable item</option><option value="zone">Marked zone</option><option value="keepclear">Keep-clear zone</option></select></label><label class="f">Colour<input name="c" type="color" value="#202C86"></label></div>
+  <div class="row2"><label class="f">Type<select name="k"><option value="item">Movable item</option><option value="zone">Marked floor area</option><option value="keepclear">Keep-clear area</option></select></label><label class="f">Colour<input name="c" type="color" value="#202C86"></label></div>
   ${u === "u" ? '<p class="small muted">No scale set yet, so sizes are approximate until you set one with Measure.</p>' : ""}`,
     "Add",
   );

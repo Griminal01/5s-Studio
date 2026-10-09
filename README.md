@@ -26,10 +26,10 @@ filter to it.
   under the selection (rotate, duplicate, lock, align, delete), items snap to the edges of other items
   and walls (hold Alt to place freely), Shift-drag to box-select, align and space evenly, copy and paste
   between sheets (Ctrl+C / Ctrl+V), exact positions from the datum, and a shortcuts list (press ?).
-- **Areas**: outline named zones of the line (Area tool, Q) with an owner and a note. An item belongs to
-  the area it sits in, or you designate it to one; a designated item that strays is flagged in Compare,
-  on the map and on daily checks. Each area shows its items, tape, documents, boards, red tags and
-  actions, and prints as an A3 area sheet. Registers have an Area column and filter.
+- **Lines and zones**: outline each production line, then the zones inside it (Zone tool, Q), each with an
+  owner and a note. An item belongs to the zone it sits in, or you designate it to one; a designated item
+  that strays is flagged in Compare, on the map and on daily checks. Each zone shows its items, tape,
+  documents, operator tasks, red tags and actions, and prints as an A3 zone sheet.
 - **Problems**: each problem is a **board** laid out like the whiteboard version: problem statement,
   a fishbone (machine, method, material, environment, people, measurement) with likely causes starred,
   a hypothesis and how it was confirmed, the why chain to the root cause, and the action list. An

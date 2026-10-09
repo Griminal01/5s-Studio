@@ -282,6 +282,14 @@ function afterProjectChange() {
   ui.cmp = "auto";
   ui.tab = "item";
   ui.drift.focus = "";
+  // what was being shown belongs to the project that has just closed
+  ui.scope = "";
+  ui.fromSetup = "";
+  ui.prob.sel = "";
+  su.focus = "";
+  dm.focus = "";
+  dm.place = "";
+  dm.vb = null;
   ui.hiddenCategories.clear();
   if (ui.editDrawing) setEditDrawing(false);
   setTool("select");
