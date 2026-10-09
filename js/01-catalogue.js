@@ -68,7 +68,9 @@ const DEFAULT_TYPES = [
     w: 50,
     use: "Fire, electrical and access clearance",
   },
-];
+].map((t) => ({ ...t, roll: 0, supplier: "", code: "", ref: "" }));
+// what to order for a tape type: roll is metres per roll (0 = the standard's default roll length),
+// supplier and code are what goes on the order, ref is the colour reference (e.g. a RAL number)
 const TAPE = {};
 function edgeFor(t) {
   if (t.pattern === "stripe" && t.c2) return t.c2;
@@ -90,6 +92,10 @@ function applyMarking(p = P) {
       pattern: t.pattern,
       w: t.w,
       use: t.use,
+      roll: t.roll || p.marking.roll, // metres per roll for this tape
+      supplier: t.supplier || "",
+      code: t.code || "",
+      ref: t.ref || "",
       edge: edgeFor(t),
     };
   if (!TAPE[ui.tape]) ui.tape = p.marking.types[0].id;

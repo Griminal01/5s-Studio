@@ -207,7 +207,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 11,
+    version: 12,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {
@@ -216,6 +216,7 @@ function newProject() {
       waste: 10,
       minAisle: 1.2,
       homeType: "walkway",
+      std: { no: "", rev: "", owner: "" },
     },
     revisions: {},
     tags: [],

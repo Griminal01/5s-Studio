@@ -228,6 +228,11 @@ function validate(p) {
           : "solid",
         w: Number(t.w) > 0 ? Number(t.w) : 50,
         use: String(t.use || ""),
+        // version 12: ordering details per tape type
+        roll: Number(t.roll) > 0 ? Number(t.roll) : 0,
+        supplier: String(t.supplier || "").slice(0, 80),
+        code: String(t.code || "").slice(0, 80),
+        ref: String(t.ref || "").slice(0, 80),
       }));
     const seen = new Set();
     types = types.filter((t) => !seen.has(t.id) && seen.add(t.id));
@@ -243,6 +248,12 @@ function validate(p) {
       homeType: types.some((t) => t.id === mk.homeType)
         ? mk.homeType
         : (types.find((t) => t.id === "walkway") || types[0]).id,
+      // version 12: the colour standard as a document: its number, revision and owner
+      std: {
+        no: String(mk.std?.no || "").slice(0, 60),
+        rev: String(mk.std?.rev || "").slice(0, 20),
+        owner: String(mk.std?.owner || "").slice(0, 60),
+      },
     };
   }
   p.revisions =
@@ -661,7 +672,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 11;
+  p.version = 12;
   p.app = "5s-studio";
   return p;
 }

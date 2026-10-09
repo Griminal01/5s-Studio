@@ -15,7 +15,7 @@ function projectBundle() {
   for (const id in P.drawings) if (D[id]) dr[id] = D[id];
   return {
     app: "5s-studio",
-    version: 11,
+    version: 12,
     saved: new Date().toISOString(),
     by: CUR ? CUR.name : "",
     device: deviceId(),
