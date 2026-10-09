@@ -763,6 +763,75 @@ const VIEWS = [
     document.getElementById("printDoc").className = "";
   });
 
+  // bring items from another project: pick a project, tick items, they arrive with their tasks
+  const imp = await page.evaluate(async () => {
+    const srcName = P.projectName;
+    await startNewProject("Smoke destination");
+    return {
+      srcName,
+      items: STD().objects.filter((o) => o.kind === "item").length,
+    };
+  });
+  await page.waitForTimeout(500);
+  await go("layout");
+  await page.click("#bFromProject");
+  await page.selectOption("#bpPid", { label: imp.srcName });
+  await page.waitForSelector("#bpList");
+  await page.fill("#bpSearch", "rack");
+  const vis = await page.evaluate(
+    () =>
+      [...document.querySelectorAll("#bpList [data-bplabel]")].filter(
+        (l) => !l.hidden,
+      ).length,
+  );
+  await page.fill("#bpSearch", "");
+  await page.click("#bpAll");
+  await page.click("#dlgOk");
+  await page.waitForTimeout(400);
+  const imp2 = await page.evaluate(() => ({
+    items: STD().objects.filter((o) => o.kind === "item").length,
+    tasks: P.tasks.length,
+    linked: P.tasks.every(
+      (t) =>
+        t.items.length &&
+        t.items.every((r) => STD().objects.some((o) => o.ref === r)),
+    ),
+    refsNew:
+      new Set(STD().objects.map((o) => o.ref)).size === STD().objects.length,
+    sel: ui.sel.length,
+    undoable: undoS.length > 0,
+  }));
+  expect(
+    vis >= 1 &&
+      imp2.items > imp.items &&
+      imp2.tasks >= 8 &&
+      imp2.linked &&
+      imp2.refsNew &&
+      imp2.sel === imp2.items &&
+      imp2.undoable,
+    "bringing items from another project did not work: " +
+      JSON.stringify({ vis, imp, imp2 }),
+  );
+  await page.evaluate(() => restore(undoS, redoS));
+  const imp3 = await page.evaluate(() => ({
+    items: STD().objects.filter((o) => o.kind === "item").length,
+    tasks: P.tasks.length,
+  }));
+  expect(
+    imp3.items === imp.items && imp3.tasks === 0,
+    "Undo did not take the brought-in items back out: " + JSON.stringify(imp3),
+  );
+  // back to the example project for the rest of the test
+  await page.evaluate(async () => {
+    const e = IDX.list.find(
+      (x) => x.name !== "Smoke destination" && /Example/.test(x.name),
+    );
+    await openProject(e.id);
+    await deleteProject(
+      IDX.list.find((x) => x.name === "Smoke destination").id,
+    );
+  });
+  await page.waitForTimeout(600);
   // audit fixes: Reshape on the map, the settings dialog, the red tag register under a scope
   await go("zones");
   await page.click('#setupView [data-su="edit"]');

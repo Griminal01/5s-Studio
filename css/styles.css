@@ -3420,3 +3420,8 @@ table.keys td {
   flex-wrap: wrap;
   max-width: calc(100% - 20px);
 }
+.chk input[type="radio"],
+.chk input[type="checkbox"] {
+  width: auto;
+  flex: none;
+}

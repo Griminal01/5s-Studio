@@ -41,6 +41,10 @@ filter to it.
   each is kept, who owns it and when it is reviewed. Documents have their own **map** (over a faded
   copy of the layout, with a line to the item each is kept at), so the layout itself stays about
   items and tape. Print a document map or a tick-off list.
+- **Bring items from another project**: on the Layout, *Bring items from another project* lists the items
+  of any project in My projects (your own or a teammate's copy). Tick the ones you want and they are
+  copied onto the layout you have open, together or at the same positions, sized to your scale, with the
+  operator tasks that use them. Nothing in the other project changes, and Undo takes them back out.
 - **Operator tasks**: define what operators do in each zone (change the film reel, end-of-shift clean,
   update the KPI board) with who, how often, how long, the 5S step, an optional document and the
   **items each task uses**. See which items nobody uses, which zones have no tasks, and the minutes a
