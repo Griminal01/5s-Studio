@@ -528,6 +528,9 @@ function fitView() {
   ui.vb.y = (b.y0 + b.y1) / 2 - vbH() / 2;
 }
 function world(e) {
+  // a tap can land before the first draw after a project opens (ui.vb is reset then)
+  if (!ui.vb) fitView();
+  if (!ui.vb) return viewCentre();
   const r = svg.getBoundingClientRect(),
     h = vbH();
   return {
