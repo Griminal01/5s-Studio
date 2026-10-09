@@ -5,6 +5,8 @@ const path = require("node:path");
 
 const VIEWS = [
   "setup",
+  "lines",
+  "zones",
   "documents",
   "docmap",
   "docactions",
@@ -38,7 +40,9 @@ const VIEWS = [
   const expect = (cond, msg) => cond || failures.push(msg);
   // go to a page the way a person does: the section button, then the page in the bar under the header
   const SECTION = {
-    setup: "5s",
+    setup: "setup",
+    lines: "setup",
+    zones: "setup",
     layout: "5s",
     tracking: "5s",
     tags: "5s",
@@ -73,6 +77,8 @@ const VIEWS = [
     const visible = await page.evaluate((view) => {
       const ids = {
         setup: "setupView",
+        lines: "setupView",
+        zones: "setupView",
         layout: "layoutView",
         documents: "docView",
         docmap: "docView",
@@ -101,12 +107,12 @@ const VIEWS = [
     title: document.title,
   }));
   expect(
-    nav1.sections === 3 &&
+    nav1.sections === 4 &&
       nav1.pages === "problems" &&
       nav1.hash === "#/problems" &&
       nav1.cur === "improve" &&
       /Problem/.test(nav1.title),
-    "navigation did not follow Sam's three sections: " + JSON.stringify(nav1),
+    "navigation did not follow the four sections: " + JSON.stringify(nav1),
   );
   await page.goBack();
   await page.waitForTimeout(250);
@@ -134,8 +140,8 @@ const VIEWS = [
     tabs: document.querySelectorAll("#tabbar button").length,
   }));
   expect(
-    nav3.bar === "flex" && nav3.gnav === "none" && nav3.tabs === 3,
-    "phone navigation is not a three-section tab bar: " + JSON.stringify(nav3),
+    nav3.bar === "flex" && nav3.gnav === "none" && nav3.tabs === 4,
+    "phone navigation is not a four-section tab bar: " + JSON.stringify(nav3),
   );
   await page.click('#tabbar [data-section="docs"]');
   await page.waitForTimeout(250);
@@ -226,8 +232,8 @@ const VIEWS = [
     const sh = STD(),
       daily = P.sheets.filter((x) => x.kind === "daily").pop();
     return {
-      n: P.areas.length,
-      empty: P.areas.filter((a) => !areaItems(a, sh).length).length,
+      n: areasOn(sh).length,
+      empty: areasOn(sh).filter((a) => !areaItems(a, sh).length).length,
       unplaced: sh.objects
         .filter((o) => o.kind === "item" && !areaOf(o, sh))
         .map((o) => o.label),
@@ -260,7 +266,7 @@ const VIEWS = [
   await page.mouse.click(bb.x + bb.width * 0.05, bb.y + bb.height * 0.05);
   await page.waitForTimeout(400);
   const ar1 = await page.evaluate(() => ({
-    n: P.areas.length,
+    n: areasOn().length,
     corners: P.areas.at(-1).pts.length,
     tool: ui.tool,
     selected: ui.sel[0] === P.areas.at(-1).id,
@@ -307,7 +313,7 @@ const VIEWS = [
     act("del");
     return {
       ...out,
-      left: P.areas.length,
+      left: areasOn().length,
       released: STD().objects.find((x) => x.label === "Waste bin").area === "",
     };
   });
@@ -562,71 +568,164 @@ const VIEWS = [
     ),
     "pinning a document on the document map did not work",
   );
-  // scope: the whole factory, then one area, through the real picker
+  // setup: lines and zones, edited in place and drawn with the Area tool
+  await go("lines");
+  const lz = await page.evaluate(() => ({
+    lines: document.querySelectorAll("#setupView [data-scard]").length,
+    expected: linesOn(STD()).length,
+  }));
+  expect(
+    lz.lines >= 2 && lz.lines === lz.expected,
+    "Setup does not list the lines: " + JSON.stringify(lz),
+  );
+  await go("zones");
+  const zz = await page.evaluate(() => ({
+    cards: document.querySelectorAll("#setupView [data-scard]").length,
+    groups: document.querySelectorAll("#setupView .sgroup").length,
+    zones: areasOn(STD()).length,
+    lined: areasOn(STD()).every((z) => z.parent),
+  }));
+  expect(
+    zz.cards === zz.zones && zz.groups >= 2 && zz.lined,
+    "Setup does not list the zones under their lines: " + JSON.stringify(zz),
+  );
+  await page.fill('#setupView [data-sf="name"]', "Renamed zone");
+  await page.press('#setupView [data-sf="name"]', "Tab");
+  expect(
+    await page.evaluate(() =>
+      areasOn(STD()).some((z) => z.name === "Renamed zone"),
+    ),
+    "renaming a zone on the Setup page did not save",
+  );
+  // draw a new line and a zone with the Area tool, from Setup, and come back
+  await page.click('[data-su="newzone"]');
+  const dr = await page.evaluate(() => ({
+    view: ui.view,
+    tool: ui.tool,
+    level: ui.areaLevel,
+    back: !document.getElementById("scopeBack")?.hidden,
+  }));
+  expect(
+    dr.view === "layout" &&
+      dr.tool === "area" &&
+      dr.level === "zone" &&
+      dr.back,
+    "Draw a zone from Setup did not start the Area tool: " + JSON.stringify(dr),
+  );
+  const madeZ = await page.evaluate(() => {
+    const line = linesOn(STD())[0],
+      b = areaBox(line),
+      c = { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2 },
+      n = P.areas.length;
+    finishArea({
+      pts: [
+        { x: c.x - 4, y: c.y - 4 },
+        { x: c.x + 4, y: c.y - 4 },
+        { x: c.x + 4, y: c.y + 4 },
+      ],
+    });
+    const z = P.areas.at(-1);
+    return {
+      added: P.areas.length === n + 1,
+      zone: !isLine(z),
+      joined: z.parent === line.id,
+      name: z.name,
+    };
+  });
+  expect(
+    madeZ.added && madeZ.zone && madeZ.joined,
+    "a zone drawn inside a line did not join it: " + JSON.stringify(madeZ),
+  );
+  await page.click("#scopeBack");
+  expect(
+    (await page.evaluate(() => ui.view)) === "zones",
+    "Back to Setup did not return to the zones page",
+  );
+
+  // scope: the whole factory, one zone, then one line, through the Showing picker
   await go("layout");
   const sc0 = await page.evaluate(() => {
     const sh = STD(),
-      a = P.areas.find((x) => areaItems(x, sh).length);
+      z = areasOn(sh).find((x) => areaItems(x, sh).length > 1),
+      line = P.areas.find((l) => l.id === z.parent);
     return {
-      id: a && a.id,
+      zone: z.id,
+      line: line.id,
       all: document.querySelectorAll('#svg [data-t="obj"]').length,
       scope: ui.scope,
     };
   });
-  expect(sc0.id && sc0.scope === "", "scope test needs an area with items");
-  // choose it on the Setup page, from the chip on the layout
-  await page.click("#subnav .scopechip");
-  await page.waitForSelector("#setupView .scard");
-  const su0 = await page.evaluate(() => ({
-    view: ui.view,
-    cards: document.querySelectorAll("#setupView [data-scard]").length,
-    areas: areasOn(STD()).length,
-  }));
-  expect(
-    su0.view === "setup" && su0.cards === su0.areas + 1,
-    "Setup page does not list the factory and every area: " +
-      JSON.stringify(su0),
-  );
-  await page.click(`#setupView [data-su="work"][data-id="${sc0.id}"]`);
+  expect(sc0.zone && sc0.scope === "", "scope test needs a zone with items");
+  const count = () =>
+    page.evaluate(() => ({
+      sharp: [...document.querySelectorAll('#svg [data-t="obj"]')].filter(
+        (e) => !e.closest("g[opacity]"),
+      ).length,
+      faded: document.querySelectorAll('#svg g[opacity=".4"] [data-t="obj"]')
+        .length,
+      scope: ui.scope,
+      sel: document.getElementById("scopeSel")?.value,
+      bar: !document.getElementById("scopeBar").hidden,
+      hash: location.hash,
+    }));
+  await page.selectOption("#scopeSel", sc0.zone);
   await page.waitForTimeout(300);
-  const sc1 = await page.evaluate(() => ({
-    scope: ui.scope,
-    n: document.querySelectorAll('#svg [data-t="obj"]').length,
-    bar: !document.getElementById("scopeBar").hidden,
-    hash: location.hash,
-    tagArea: ui.reg.tags.area,
-  }));
+  const sc1 = await count();
   expect(
-    sc1.scope === sc0.id &&
-      sc1.n > 0 &&
-      sc1.n < sc0.all &&
+    sc1.scope === sc0.zone &&
+      sc1.sel === sc0.zone &&
+      sc1.sharp > 0 &&
+      sc1.sharp < sc0.all &&
+      sc1.faded > 0 &&
       sc1.bar &&
-      sc1.hash.includes(sc0.id) &&
-      sc1.tagArea === sc0.id,
-    "choosing an area did not scope the layout: " +
+      sc1.hash.includes(sc0.zone),
+    "choosing a zone did not show it with some context: " +
       JSON.stringify({ sc0, sc1 }),
   );
-  // document pages are always the whole factory, whatever the 5S scope
-  await go("docactions");
+  await page.selectOption("#scopeSel", sc0.line);
+  await page.waitForTimeout(300);
+  const sc1b = await count();
+  expect(
+    sc1b.scope === sc0.line && sc1b.sharp > sc1.sharp,
+    "choosing a line did not show more than one of its zones: " +
+      JSON.stringify({ sc1, sc1b }),
+  );
+  await page.selectOption("#scopeSel", sc0.zone);
+  await page.waitForTimeout(200);
+  // the choice follows into Documents and Improve
+  await go("docmap");
+  await page.waitForTimeout(300);
   const sc2 = await page.evaluate(() => ({
-    rows: document.querySelectorAll("#regTbl tr[data-actid]").length,
-    area: !!document.querySelector('#regView [data-f="area"]'),
+    sel: document.getElementById("scopeSel")?.value,
+    listed: document.querySelectorAll(".dmlist [data-dmgo]").length,
+    all: P.documents.filter((d) => d.status !== "Withdrawn").length,
+    title: document.querySelector("#docView h2")?.textContent,
   }));
   expect(
-    sc2.rows >= 3 && !sc2.area,
-    "document actions are hidden by the 5S area scope: " + JSON.stringify(sc2),
+    sc2.sel === sc0.zone &&
+      sc2.listed < sc2.all &&
+      /Document map/.test(sc2.title),
+    "the document map ignores the chosen zone: " + JSON.stringify(sc2),
+  );
+  await go("docactions");
+  await go("problems");
+  const sc3 = await page.evaluate(() => ({
+    sel: document.getElementById("scopeSel")?.value,
+    rows: document.querySelectorAll("#problemView [data-ps-open]").length,
+  }));
+  expect(
+    sc3.sel === sc0.zone,
+    "the Improve section does not offer the chosen zone: " +
+      JSON.stringify(sc3),
   );
   await go("layout");
   await page.click("#scopeAll");
   await page.waitForTimeout(300);
-  const sc3 = await page.evaluate(() => ({
-    scope: ui.scope,
-    n: document.querySelectorAll('#svg [data-t="obj"]').length,
-  }));
+  const sc4 = await count();
   expect(
-    sc3.scope === "" && sc3.n === sc0.all,
+    sc4.scope === "" && sc4.sharp === sc0.all && sc4.faded === 0,
     "Show the whole factory did not bring everything back: " +
-      JSON.stringify({ sc0, sc3 }),
+      JSON.stringify({ sc0, sc4 }),
   );
   for (const v of VIEWS) {
     await go(v);

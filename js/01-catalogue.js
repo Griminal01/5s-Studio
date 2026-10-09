@@ -181,7 +181,7 @@ const actNo = (a) => "A-" + String(a.no).padStart(3, "0");
 const actOverdue = (a) =>
   !!a.due && a.due < today() && !["Done", "Cancelled"].includes(a.status);
 
-/* documents that live in an area */
+/* documents that live in a zone */
 const DOC_TYPES = [
   "SOP",
   "One-point lesson",
@@ -407,7 +407,7 @@ function categoryGroupsHTML(sh) {
     <label class="f">Category<select id="itemFilter"><option value="">All categories</option>${P.itemCategories.map((c) => `<option value="${esc(c.id)}"${ui.itemFilter === c.id ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label>
     ${
       areasOn(sh).length
-        ? `<label class="f">Area<select id="itemArea"><option value="">All areas</option>${areasOn(
+        ? `<label class="f">Zone<select id="itemArea"><option value="">All zones</option>${areasOn(
             sh,
           )
             .map(
@@ -416,7 +416,7 @@ function categoryGroupsHTML(sh) {
             )
             .join(
               "",
-            )}<option value="none"${ui.itemArea === "none" ? " selected" : ""}>Not in an area</option></select></label>`
+            )}<option value="none"${ui.itemArea === "none" ? " selected" : ""}>Not in a zone</option></select></label>`
         : ""
     }
     <div class="btns"><button data-manage-categories>Manage categories and colours</button><button data-show-categories>Show all on map</button></div>

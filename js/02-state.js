@@ -16,6 +16,8 @@ const ui = {
   aisleW: 1.5,
   view: "layout",
   tool: "select",
+  areaLevel: "zone",
+  fromSetup: "",
   sel: [],
   tab: "item",
   cmp: "auto",
@@ -215,7 +217,16 @@ function newProject() {
     areas: [],
     problems: [],
     documents: [],
-    counters: { tag: 0, act: 0, doc: 0, board: 0, smed: 0, area: 0, prob: 0 },
+    counters: {
+      tag: 0,
+      act: 0,
+      doc: 0,
+      board: 0,
+      smed: 0,
+      area: 0,
+      line: 0,
+      prob: 0,
+    },
     drawings: {
       d1: {
         w: 1000,

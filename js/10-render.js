@@ -42,7 +42,7 @@ const LAYERS = [
   ["fade", "Fade the drawing"],
   ["grid", "Grid (1 m when scaled)"],
   ["marks", "Floor tape and home marks"],
-  ["areas", "Areas"],
+  ["areas", "Lines and zones"],
   ["objects", "Items and zones"],
   ["routes", "Routes"],
   ["dims", "Tape dimensions and datum"],
@@ -165,7 +165,10 @@ function renderTools() {
   if (t === "doc")
     h = `<div class="toolopts small">Click the drawing where a document lives, such as an SOP holder, board or noticeboard. Fill in what it is, who owns it and when it is reviewed. Pins can be dragged afterwards.</div>`;
   if (t === "area")
-    h = `<div class="toolopts small">Outline a named zone of the line: click each corner and close it. Items sitting inside belong to it, and you can designate an item to an area from the Item tab so daily checks flag it when it strays.</div>`;
+    h =
+      ui.areaLevel === "line"
+        ? `<div class="toolopts small">Outline a production line: click each corner and close it. Zones drawn inside it join it automatically.</div>`
+        : `<div class="toolopts small">Outline a zone of a line: click each corner and close it. Items sitting inside belong to it, and you can designate an item to a zone from the Item tab so daily checks flag it when it strays.</div>`;
   if (t === "measure")
     h = `<div class="toolopts small">Click two points. Measure something you know (column grid, conveyor length, a door) and enter its real length to set the scale in metres.${mpu() ? `<p style="margin:6px 0 0"><b>Current scale:</b> 10 m = ${Math.round(10 / mpu())} drawing units.</p>` : ""}</div>`;
   el.innerHTML = h;

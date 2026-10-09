@@ -1,16 +1,26 @@
 "use strict";
-/* ============ navigation: three sections, their pages, badges, deep links ============ */
-// Three sections (5S, Document mapping, Improve), each with its own pages in a bar under the header.
-// 5S pages can be scoped to one area (see setScope in 34-areas.js); the Setup page is where that is
-// chosen. The document pages always show the whole factory. The address bar follows the page (#/layout/<area>,
-// #/problems/<id>/board) so reload keeps your place and the browser Back button works.
+/* ============ navigation: four sections, their pages, badges, deep links ============ */
+// Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working
+// sections. Each has its pages in a bar under the header, and the Showing picker at its right
+// chooses the whole factory, one line or one zone (setScope in 34-areas.js). The address bar
+// follows the page (#/layout/<zone>, #/problems/<id>/board) so reload keeps your place and the
+// browser Back button works.
 const NAV = [
+  {
+    id: "setup",
+    g: "Setup",
+    short: "Setup",
+    items: [
+      ["setup", "1 Factory map"],
+      ["lines", "2 Lines"],
+      ["zones", "3 Zones"],
+    ],
+  },
   {
     id: "5s",
     g: "5S",
     short: "5S",
     items: [
-      ["setup", "Setup"],
       ["layout", "Layout"],
       ["tracking", "Tracking"],
       ["tags", "Red tags"],
@@ -19,11 +29,11 @@ const NAV = [
   },
   {
     id: "docs",
-    g: "Document mapping",
+    g: "Documents",
     short: "Documents",
     items: [
       ["documents", "Document list"],
-      ["docmap", "Factory map"],
+      ["docmap", "Document map"],
       ["docactions", "Document actions"],
     ],
   },
@@ -35,11 +45,26 @@ const NAV = [
   },
 ];
 const NAV_ITEMS = NAV.flatMap((g) => g.items);
-const SCOPED_VIEWS = ["setup", "layout", "tracking", "tags", "actions"];
+// pages that follow the Showing picker (Tracking is always the whole factory)
+const SCOPED_VIEWS = [
+  "layout",
+  "tags",
+  "actions",
+  "documents",
+  "docmap",
+  "docactions",
+  "problems",
+];
+const SETUP_VIEWS = ["setup", "lines", "zones"];
 const sectionOf = (v) =>
   NAV.find((g) => g.items.some((i) => i[0] === v)) || NAV[0];
 const navLabel = (v) => NAV_ITEMS.find((i) => i[0] === v)?.[1] || "";
-const lastPage = { "5s": "layout", docs: "docmap", improve: "problems" };
+const lastPage = {
+  setup: "setup",
+  "5s": "layout",
+  docs: "docmap",
+  improve: "problems",
+};
 let subnavSig = "";
 
 function renderNav() {
@@ -54,15 +79,39 @@ function renderNav() {
   renderSubnav(true);
   document.title = "Lean Studio · " + navLabel(ui.view);
 }
-/* the pages of the current section, and the area picker for 5S pages */
+/* the options of the Showing picker: the whole factory, then each line with its zones */
+function scopeOptionsHTML() {
+  const sh = S(),
+    lines = linesOn(sh),
+    zones = areasOn(sh),
+    opt = (a, label) =>
+      `<option value="${esc(a.id)}"${a.id === ui.scope ? " selected" : ""}>${esc(label || a.name)}</option>`;
+  let h = `<option value="">Whole factory</option>`;
+  for (const l of lines)
+    h += `<optgroup label="${esc(l.name)}">${opt(l, "All of " + l.name)}${zones
+      .filter((z) => z.parent === l.id)
+      .map((z) => opt(z))
+      .join("")}</optgroup>`;
+  const loose = zones.filter((z) => !lines.some((l) => l.id === z.parent));
+  if (loose.length)
+    h += lines.length
+      ? `<optgroup label="Not in a line">${loose.map((z) => opt(z)).join("")}</optgroup>`
+      : loose.map((z) => opt(z)).join("");
+  return h;
+}
+/* the pages of the current section, and the Showing picker */
 function renderSubnav(force) {
   const cur = sectionOf(ui.view),
-    areas = P ? areasOn(S()) : [],
-    sig = [cur.id, ui.view, ui.scope, areas.map((a) => a.name).join()].join(
-      "|",
-    );
+    sig = [
+      cur.id,
+      ui.view,
+      ui.scope,
+      P ? P.areas.map((a) => a.id + a.name + a.level + a.parent).join() : "",
+    ].join("|");
   if (!force && sig === subnavSig) return;
   subnavSig = sig;
+  if (P && ui.scope && !scopeArea()) ui.scope = "";
+  const scoped = SCOPED_VIEWS.includes(ui.view);
   $("#subnav").innerHTML =
     `<div class="subpages" role="tablist">${cur.items
       .map(
@@ -70,11 +119,11 @@ function renderSubnav(force) {
           `<button data-view="${v}" role="tab" class="${v === ui.view ? "on" : ""}"${v === ui.view ? ' aria-current="page"' : ""}><span>${l}</span><span class="bdg" data-badge="${v}" hidden></span></button>`,
       )
       .join("")}</div>` +
-    (cur.id === "5s"
-      ? ui.view === "setup"
-        ? ""
-        : `<button class="scopechip" data-view="setup" title="Choose the whole factory or one area on the Setup page">Showing <b>${esc((P && scopeArea()?.name) || "whole factory")}</b><span>change</span></button>`
-      : `<span class="subnote">${cur.id === "docs" ? "Always the whole factory" : ""}</span>`);
+    (scoped && P
+      ? `<label class="scopepick" title="Show the whole factory, or just one line or zone with a little around it"><span>Showing</span><select id="scopeSel" aria-label="Show the whole factory, one line or one zone">${scopeOptionsHTML()}</select></label>`
+      : ui.view === "tracking"
+        ? '<span class="subnote">Always the whole factory</span>'
+        : "");
   updateNavBadges();
 }
 /* counts on the page buttons (open things, red when something is late) and on the sections (late things) */
@@ -128,13 +177,14 @@ function setView(v, fromHash = false) {
   const reg = v === "tags" || v === "actions" || v === "docactions";
   $("#regView").hidden = !reg;
   $("#docView").hidden = v !== "documents" && v !== "docmap";
-  $("#setupView").hidden = v !== "setup";
+  $("#setupView").hidden = !SETUP_VIEWS.includes(v);
+  if (v !== "layout") ui.fromSetup = "";
   $("#trackView").hidden = v !== "tracking";
   $("#problemView").hidden = v !== "problems";
   $("#days").hidden = v !== "layout";
   document.body.dataset.section = v;
   if (reg) renderRegister();
-  else if (v === "setup") renderSetup();
+  else if (SETUP_VIEWS.includes(v)) renderSetup();
   else if (v === "tracking") renderTracking();
   else if (v === "documents" || v === "docmap") renderDocuments();
   else if (v === "problems") renderProblems();
@@ -147,6 +197,9 @@ function setView(v, fromHash = false) {
 }
 
 /* ---- navigation events ---- */
+document.addEventListener("change", (e) => {
+  if (e.target.id === "scopeSel") setScope(e.target.value);
+});
 document.addEventListener("click", (e) => {
   const sec = e.target.closest("[data-section]");
   if (sec && sec.closest("#gnav,#tabbar")) {
@@ -162,7 +215,8 @@ document.addEventListener("click", (e) => {
 /* ---- the address bar follows the page ---- */
 function hashFor() {
   let h = "#/" + ui.view;
-  if (SCOPED_VIEWS.includes(ui.view) && ui.scope) h += "/" + ui.scope;
+  if (SCOPED_VIEWS.includes(ui.view) && ui.view !== "problems" && ui.scope)
+    h += "/" + ui.scope;
   if (ui.view === "problems") {
     if (ui.prob.tab === "pareto") h += "/pareto";
     else if (ui.prob.sel) h += "/" + ui.prob.sel + "/" + ui.prob.sub;
@@ -180,10 +234,9 @@ function syncHash(push) {
 function applyHash() {
   const m = location.hash.match(/^#\/(\w+)(?:\/([^/]+))?(?:\/([^/]+))?/);
   if (!m || !NAV_ITEMS.some((i) => i[0] === m[1])) return false;
-  if (SCOPED_VIEWS.includes(m[1])) {
+  if (SCOPED_VIEWS.includes(m[1]) && m[1] !== "problems") {
     const a = m[2] && P.areas.find((x) => x.id === m[2]);
     ui.scope = a ? a.id : "";
-    ui.reg.tags.area = ui.reg.acts.area = ui.scope;
     ui.vb = null;
   }
   if (m[1] === "problems") {

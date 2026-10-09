@@ -235,7 +235,7 @@ function overlaySVG(c, k) {
 }
 
 function buildSVG(sh, o) {
-  // working on one area: only what is inside it is drawn and checked
+  // working on one line or zone: only what is inside it is drawn and checked
   const A = o.scoped ? scopeArea() : null;
   if (A) {
     sh = {
@@ -253,6 +253,26 @@ function buildSVG(sh, o) {
     k = o.k,
     L = ui.layers,
     u = upm(sh);
+  // a little of what is around the scoped area, faded, so it can be placed in context
+  let ctxS = "";
+  if (A && !o.export) {
+    const all = sh._all,
+      bx = scopeBox(A),
+      inBox = (p) =>
+        p.x >= bx.x0 && p.x <= bx.x1 && p.y >= bx.y0 && p.y <= bx.y1;
+    for (const z of all.objects)
+      if (
+        !scopeObj(z, A) &&
+        inBox(z) &&
+        !(z.kind === "item" && ui.hiddenCategories.has(itemCategoryId(z)))
+      )
+        ctxS += objSVG(z, k);
+    for (const m of all.marks)
+      if (!scopeMark(m, A) && m.pts.some(inBox)) ctxS += markSVG(m, k, u);
+    for (const r of all.routes)
+      if (!scopeMark(r, A) && r.pts.some(inBox)) ctxS += routeSVG(r, k);
+    if (ctxS) ctxS = `<g opacity=".4" pointer-events="none">${ctxS}</g>`;
+  }
   let s = `<defs><pattern id="hz" patternUnits="userSpaceOnUse" width="${10 * k}" height="${10 * k}" patternTransform="rotate(45)"><rect width="${10 * k}" height="${10 * k}" fill="#fff" fill-opacity=".6"/><rect width="${5 * k}" height="${10 * k}" fill="#D3401D" fill-opacity=".5"/></pattern>`;
   for (const [id, c] of [
     ["walk", COL.walk],
@@ -368,7 +388,7 @@ function buildSVG(sh, o) {
       : s.slice(0, midPos) +
         fx +
         (A
-          ? `<path d="M-100000 -100000H100000V100000H-100000Z M${A.pts.map((p) => p.x + " " + p.y).join(" L")} Z" fill="#fff" fill-opacity=".72" fill-rule="evenodd" pointer-events="none"/>`
+          ? `<path d="M-100000 -100000H100000V100000H-100000Z M${A.pts.map((p) => p.x + " " + p.y).join(" L")} Z" fill="#fff" fill-opacity=".72" fill-rule="evenodd" pointer-events="none"/>${ctxS}`
           : "") +
         s.slice(midPos);
   }
@@ -966,9 +986,12 @@ svg.addEventListener("drop", (e) => {
 });
 
 /* ============ drawing tools ============ */
-function setTool(t) {
+function setTool(t, level) {
   if (t === "select") ui.placing = null;
-  if (t === "area") ui.layers.areas = true;
+  if (t === "area") {
+    ui.layers.areas = true;
+    ui.areaLevel = level === "line" ? "line" : "zone";
+  }
   if (ui.draft && ui.draft.tool !== t) ui.draft = null;
   ui.tool = t;
   ui.cursor = null;
@@ -1160,7 +1183,7 @@ async function finishDraft() {
       if (n) {
         const q = await modal(
           "Resize items to match the new scale?",
-          `<p style="margin-top:0">${n} item${n > 1 ? "s and areas are" : " or area is"} already on this drawing (walls and fixed objects count too). Resize ${n > 1 ? "them" : "it"} so sizes are true metres?</p><p class="small muted">${prev ? "Sizes stay as real metres at the new scale." : "Items placed before a scale was set were drawn at an assumed size, so this is usually what you want."} Positions do not move.</p>`,
+          `<p style="margin-top:0">${n} item${n > 1 ? "s and zones are" : " or zone is"} already on this drawing (walls and fixed objects count too). Resize ${n > 1 ? "them" : "it"} so sizes are true metres?</p><p class="small muted">${prev ? "Sizes stay as real metres at the new scale." : "Items placed before a scale was set were drawn at an assumed size, so this is usually what you want."} Positions do not move.</p>`,
           "Resize",
           { cancel: "Leave sizes alone" },
         );
@@ -1222,7 +1245,7 @@ function updateHint() {
       "Click along the path taken. Double-click, Enter or right-click to finish. Shift keeps lines straight.",
     wall: "Click along the wall. Double-click, Enter or right-click to finish. Click the first point to close a room. Shift keeps it straight.",
     measure: "Click two points of a distance you know.",
-    area: "Click each corner of the area. Click the first corner, double-click or press Enter to close it. Shift keeps edges straight.",
+    area: "Click each corner of the zone or line. Click the first corner, double-click or press Enter to close it. Shift keeps edges straight.",
     doc: "Click the drawing where the document lives.",
     tag: "Click the drawing where the red tag belongs.",
     action: "Click the drawing where the action belongs.",

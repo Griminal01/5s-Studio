@@ -221,6 +221,8 @@ function makeExampleProject() {
     p.areas.push({
       id: uid(),
       no,
+      level: "zone",
+      parent: "",
       name,
       color: AREA_COLS[(no - 1) % AREA_COLS.length],
       owner,
@@ -294,6 +296,53 @@ function makeExampleProject() {
     7,
     16.2,
   );
+  // two lines, each drawn round its zones
+  for (const [name, owner, note, zones] of [
+    [
+      "Model packing line",
+      "Josh",
+      "Goods in, supplies and the packer line: one flow from left to right.",
+      [
+        "Supplies and staging",
+        "Packing line",
+        "Goods-in and WIP",
+        "Red tag area",
+      ],
+    ],
+    [
+      "Support and despatch",
+      "Sam",
+      "Tooling, finished goods and the entry along the bottom wall.",
+      ["Tooling and cleaning", "Finished goods", "Entry and hygiene"],
+    ],
+  ]) {
+    const no = ++p.counters.line,
+      mine = p.areas.filter((a) => zones.includes(a.name)),
+      xs = mine.flatMap((a) => a.pts.map((q) => q.x)),
+      ys = mine.flatMap((a) => a.pts.map((q) => q.y)),
+      pad = u(0.25),
+      line = {
+        id: uid(),
+        no,
+        level: "line",
+        parent: "",
+        name,
+        color: LINE_COLS[(no - 1) % LINE_COLS.length],
+        owner,
+        note,
+        drawing: "d1",
+        pts: [
+          { x: Math.min(...xs) - pad, y: Math.min(...ys) - pad },
+          { x: Math.max(...xs) + pad, y: Math.min(...ys) - pad },
+          { x: Math.max(...xs) + pad, y: Math.max(...ys) + pad },
+          { x: Math.min(...xs) - pad, y: Math.max(...ys) + pad },
+        ],
+        closed: true,
+        created: dayOffset(-90),
+      };
+    p.areas.push(line);
+    for (const z of mine) z.parent = line.id;
+  }
   {
     const idOf = (n) => p.areas.find((a) => a.name === n).id;
     for (const [label, areaName] of [

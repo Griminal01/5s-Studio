@@ -6,7 +6,15 @@
 
 const dm = { vb: null, focus: "", place: "", drag: null };
 const dmSheet = () => STD();
-const dmLive = () => P.documents.filter((d) => d.status !== "Withdrawn");
+const dmAll = () => P.documents.filter((d) => d.status !== "Withdrawn");
+// the documents in the zone or line being shown (unplaced ones always show, so they can be pinned)
+const dmLive = () => dmAll().filter((d) => scopePass(d, true));
+// the part of the drawing being shown: the whole factory, or the scope with room around it
+const dmBox = () => {
+  const A = scopeArea(),
+    d = DM(dmSheet());
+  return A ? scopeBox(A) : { x0: 0, y0: 0, x1: d.w, y1: d.h };
+};
 
 function docMapHTML() {
   const live = dmLive(),
@@ -53,12 +61,14 @@ function dmFit() {
   const el = $("#dmSvg");
   if (!el) return;
   const r = el.getBoundingClientRect(),
-    d = DM(dmSheet());
+    b = dmBox(),
+    bw = b.x1 - b.x0,
+    bh = b.y1 - b.y0;
   if (!r.width || !r.height) return;
-  const sc = Math.min(r.width / (d.w * 1.04), r.height / (d.h * 1.06));
+  const sc = Math.min(r.width / (bw * 1.04), r.height / (bh * 1.06));
   dm.vb = { w: r.width / sc, x: 0, y: 0 };
-  dm.vb.x = d.w / 2 - dm.vb.w / 2;
-  dm.vb.y = d.h / 2 - (dm.vb.w * r.height) / r.width / 2;
+  dm.vb.x = b.x0 + bw / 2 - dm.vb.w / 2;
+  dm.vb.y = b.y0 + bh / 2 - (dm.vb.w * r.height) / r.width / 2;
 }
 /* the layout drawn quietly: every layer that helps people find their way, no pins; also used by Setup */
 function quietLayoutSVG(sh, k, withAreas = true) {
@@ -98,7 +108,18 @@ function drawDocMap() {
   el.setAttribute("viewBox", `${dm.vb.x} ${dm.vb.y} ${dm.vb.w} ${h}`);
   const base = quietLayoutSVG(sh, k);
   let s = `<g opacity=".42" pointer-events="none">${base}</g>`;
-  const pins = dmLive().filter((d) => d.x != null && d.drawing === sh.drawing);
+  const A = scopeArea();
+  // zone or line: fade everything outside it and outline it, pins just outside it stay as context
+  if (A)
+    s += `<path d="M-100000 -100000H100000V100000H-100000Z M${A.pts.map((p) => p.x + " " + p.y).join(" L")} Z" fill="#fff" fill-opacity=".6" fill-rule="evenodd" pointer-events="none"/><polygon points="${A.pts.map((p) => p.x + "," + p.y).join(" ")}" fill="none" stroke="${esc(A.color)}" stroke-width="${2.6 * k}" stroke-dasharray="${9 * k} ${5 * k}" stroke-linejoin="round" pointer-events="none"/>`;
+  const cb = A ? scopeBox(A) : null,
+    pins = dmAll().filter(
+      (d) =>
+        d.x != null &&
+        d.drawing === sh.drawing &&
+        (!A || (d.x >= cb.x0 && d.x <= cb.x1 && d.y >= cb.y0 && d.y <= cb.y1)),
+    ),
+    inScope = (d) => !A || scopePass(d);
   for (const d of pins) {
     const holder = d.holder && sh.objects.find((o) => o.ref === d.holder);
     if (holder && Math.hypot(holder.x - d.x, holder.y - d.y) > 4 * k)
@@ -107,7 +128,8 @@ function drawDocMap() {
   for (const d of pins) {
     if (d.id === dm.focus)
       s += `<circle cx="${d.x}" cy="${d.y}" r="${16 * k}" fill="#FEC20F" fill-opacity=".35" stroke="#FEC20F" stroke-width="${2.5 * k}" pointer-events="none"/>`;
-    s += pinSVG({ k: "doc", o: d }, k * 1.25);
+    const pin = pinSVG({ k: "doc", o: d }, k * 1.25);
+    s += inScope(d) ? pin : `<g opacity=".4">${pin}</g>`;
   }
   el.innerHTML = s;
 }

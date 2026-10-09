@@ -20,7 +20,7 @@ function tagFiltered() {
       if (f.st === "late" && !tagOverdue(t)) return false;
       if (f.owner && t.owner !== f.owner) return false;
       if (f.cat && t.cat !== f.cat) return false;
-      if (!areaPass(f.area, t)) return false;
+      if (!scopePass(t)) return false;
       if (
         q &&
         !(
@@ -54,7 +54,7 @@ function tagRows() {
   const rows = tagFiltered();
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>Tag</th><th>Raised</th><th>What is it</th><th>Category</th><th>What happens to it</th><th>Owner</th><th>Area</th><th>Decide by</th><th>Status</th><th class="n">Days</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>Tag</th><th>Raised</th><th>What is it</th><th>Category</th><th>What happens to it</th><th>Owner</th><th>Zone</th><th>Decide by</th><th>Status</th><th class="n">Days</th><th></th></tr>${rows
     .map((t) => {
       const days =
         t.status === "Closed"
@@ -103,7 +103,7 @@ function tagsHTML() {
     F.st,
   )}</select></label>
     <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersT.map((o) => [o, o])], F.owner)}</select></label>
-    <label>Category<select data-f="cat">${optsKV([["", "All"], ...TAG_CATS.map((o) => [o, o])], F.cat)}</select></label>${areaFilterHTML(F.area)}
+    <label>Category<select data-f="cat">${optsKV([["", "All"], ...TAG_CATS.map((o) => [o, o])], F.cat)}</select></label>
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Tag, item, owner"></label></div>
     <div class="regtbl" id="regTbl">${tagRows()}</div>`;
   return h;
@@ -120,7 +120,7 @@ function actFiltered() {
       if (f.owner && a.owner !== f.owner) return false;
       if (f.s5 && a.s5 !== f.s5) return false;
       if (f.stream !== "all" && a.stream !== f.stream) return false;
-      if (ui.view !== "docactions" && !areaPass(f.area, a)) return false;
+      if (!scopePass(a)) return false;
       if (
         q &&
         !(actNo(a) + " " + a.title + " " + a.owner + " " + a.note)
@@ -146,7 +146,7 @@ function actRows() {
   const rows = actFiltered();
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>Action</th><th>What needs doing</th><th>5S step</th><th>Owner</th><th>Area</th><th>Due</th><th>Priority</th><th>Status</th><th>From</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>Action</th><th>What needs doing</th><th>5S step</th><th>Owner</th><th>Zone</th><th>Due</th><th>Priority</th><th>Status</th><th>From</th><th></th></tr>${rows
     .map((a) => {
       const fin = ["Done", "Cancelled"].includes(a.status),
         tg = P.tags.find((t) => t.id === a.tag),
@@ -159,10 +159,9 @@ function actRows() {
 }
 function actionsHTML() {
   const F = ui.reg.acts,
-    base =
-      F.stream === "all"
-        ? P.actions
-        : P.actions.filter((a) => a.stream === F.stream),
+    base = P.actions.filter(
+      (a) => (F.stream === "all" || a.stream === F.stream) && scopePass(a),
+    ),
     open = base.filter((a) => !["Done", "Cancelled"].includes(a.status)),
     late = open.filter(actOverdue),
     done = base.filter((a) => a.status === "Done"),
@@ -207,7 +206,7 @@ function actionsHTML() {
       ],
       F.stream,
     )}</select></label>
-    ${doc ? "" : `<label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>${areaFilterHTML(F.area)}`}
+    ${doc ? "" : `<label>5S step<select data-f="s5">${optsKV([["", "All"], ...S5.map((x) => [x[0], x[1]])], F.s5)}</select></label>`}
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Action, owner"></label></div>
     <div class="regtbl" id="regTbl">${actRows()}</div>`;
   return h;
@@ -274,7 +273,7 @@ function csvTags() {
         "Days open",
         "Pinned",
         "Notes",
-        "Area",
+        "Zone",
       ],
       ...P.tags.map((t) => [
         tagNo(t),
@@ -316,7 +315,7 @@ function csvActions() {
         "Red tag",
         "Overdue",
         "Notes",
-        "Area",
+        "Zone",
       ],
       ...P.actions.map((a) => [
         actNo(a),

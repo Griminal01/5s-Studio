@@ -345,6 +345,7 @@ function validate(p) {
     board: 0,
     smed: 0,
     area: 0,
+    line: 0,
     prob: 0,
     ...(p.counters && typeof p.counters === "object" ? p.counters : {}),
   };
@@ -468,7 +469,9 @@ function validate(p) {
     p.areas = p.areas.map((a, i) => ({
       id: str(a.id, uid()),
       no: Number(a.no) || 0,
-      name: str(a.name, "Area"),
+      level: a.level === "line" ? "line" : "zone",
+      parent: str(a.parent),
+      name: str(a.name, a.level === "line" ? "Line" : "Zone"),
       color: /^#[0-9a-f]{6}$/i.test(a.color)
         ? a.color
         : AREA_COLS[i % AREA_COLS.length],
@@ -489,11 +492,23 @@ function validate(p) {
       while (seenA.has(a.id)) a.id = uid();
       seenA.add(a.id);
     }
-    p.counters.area = Math.max(
-      Number(p.counters.area) || 0,
-      ...p.areas.map((a) => a.no),
+    // lines are the outlines of production lines; a zone sits in one line (or none yet)
+    const lineIds = new Set(
+      p.areas.filter((a) => a.level === "line").map((a) => a.id),
     );
-    for (const a of p.areas) if (a.no <= 0) a.no = ++p.counters.area;
+    for (const a of p.areas)
+      if (a.level === "line" || !lineIds.has(a.parent)) a.parent = "";
+    for (const [lvl, key] of [
+      ["zone", "area"],
+      ["line", "line"],
+    ]) {
+      const mine = p.areas.filter((a) => a.level === lvl);
+      p.counters[key] = Math.max(
+        Number(p.counters[key]) || 0,
+        ...mine.map((a) => a.no),
+      );
+      for (const a of mine) if (a.no <= 0) a.no = ++p.counters[key];
+    }
   }
   p.sheets = p.sheets.filter((sheet) => sheet && typeof sheet === "object");
   if (!p.sheets.length) throw Error("No valid sheets");

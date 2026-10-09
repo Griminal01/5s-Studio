@@ -57,7 +57,7 @@ function sheetStats(sh) {
     a = scopeArea();
   return (
     (a
-      ? `<p class="small muted" style="margin:0 0 6px">Showing ${esc(a.name)} only. Counts are for this area.</p>`
+      ? `<p class="small muted" style="margin:0 0 6px">Showing ${esc(a.name)} only. Counts are for this ${isLine(a) ? "line" : "zone"}.</p>`
       : "") +
     kv([
       ["Movable items", objs.filter((o) => o.kind === "item").length],
@@ -287,7 +287,7 @@ function paneCheck() {
     })),
   );
   h += rowsHTML(
-    "Outside the area they are designated to",
+    "Outside the zone they are designated to",
     COL.warn,
     (iss.outOfArea || []).map((z) => ({
       l: z.o.label,

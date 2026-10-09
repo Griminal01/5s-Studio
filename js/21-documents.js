@@ -60,7 +60,7 @@ async function docModal(d, isNew) {
     <div class="row3"><label class="f">Type<select name="type">${opts(DOC_TYPES, d.type)}</select></label><label class="f">Document no. or reference<input name="ref" value="${esc(d.ref)}" placeholder="e.g. SOP-0123"></label><label class="f">Revision<input name="rev" value="${esc(d.rev)}" placeholder="e.g. 3"></label></div>
     <div class="row3"><label class="f">Owner<input name="owner" list="owners" value="${esc(d.owner)}"></label><label class="f">Issued<input name="issued" type="date" value="${esc(d.issued)}"></label><label class="f">Review by<input name="review" type="date" value="${esc(d.review)}"></label></div>
     <div class="btns" style="margin-top:-4px"><span class="small muted">Set the review date:</span><button type="button" data-rv="6">6 months</button><button type="button" data-rv="12">12 months</button><button type="button" data-rv="24">24 months</button></div>
-    <div class="row3"><label class="f">Format<select name="format">${opts(DOC_FORMATS, d.format)}</select></label><label class="f">Copies in the area<input name="qty" type="number" min="1" step="1" value="${esc(d.qty)}"></label><label class="f">Status<select name="status">${opts(DOC_ST, d.status)}</select></label></div>
+    <div class="row3"><label class="f">Format<select name="format">${opts(DOC_FORMATS, d.format)}</select></label><label class="f">Copies in the zone<input name="qty" type="number" min="1" step="1" value="${esc(d.qty)}"></label><label class="f">Status<select name="status">${opts(DOC_ST, d.status)}</select></label></div>
     <div class="row2"><label class="f">Kept at<select name="holder">${optsKV([["", "Not at a listed holder"], ...holderChoices()], d.holder)}</select></label><label class="f">Exactly where<input name="where" value="${esc(d.where)}" placeholder="e.g. eye level, left of the HMI"></label></div>
     <label class="f">Notes<textarea name="note" rows="2">${esc(d.note)}</textarea></label>
     <p class="pinfo">${d.x != null ? `Pinned on the document map. Drag the pin there to move it. <button type="button" id="docShow">Show on the map</button>` : `Not pinned yet. <button type="button" id="docPin">Pin it on the document map</button>`}</p>
@@ -157,7 +157,7 @@ function docsFiltered() {
       if (f.st === "withdrawn" && d.status !== "Withdrawn") return false;
       if (f.type && d.type !== f.type) return false;
       if (f.owner && d.owner !== f.owner) return false;
-      if (!areaPass(f.area, d)) return false;
+      if (!scopePass(d, true)) return false;
       if (
         q &&
         !(
@@ -189,7 +189,7 @@ function docsFiltered() {
 function docRows(rows) {
   if (!rows.length)
     return `<p class="empty" style="padding:14px 4px">Nothing matches these filters.</p>`;
-  return `<table class="tbl" style="width:100%"><tr><th>No.</th><th>Document</th><th>Type</th><th>Owner</th><th>Rev</th><th>Review by</th><th>Kept at</th><th>Area</th><th>Format</th><th>Status</th><th></th></tr>${rows
+  return `<table class="tbl" style="width:100%"><tr><th>No.</th><th>Document</th><th>Type</th><th>Owner</th><th>Rev</th><th>Review by</th><th>Kept at</th><th>Zone</th><th>Format</th><th>Status</th><th></th></tr>${rows
     .map(
       (d) =>
         `<tr class="click" data-docid="${esc(d.id)}"><td><b>${docNo(d)}</b></td><td class="t"><b>${esc(d.title)}</b>${d.ref ? `<span class="sub">${esc(d.ref)}</span>` : ""}</td><td>${esc(d.type)}</td><td>${esc(d.owner) || '<span class="muted">none</span>'}</td><td>${esc(d.rev) || '<span class="muted">-</span>'}</td><td>${d.status === "Withdrawn" ? "" : d.review ? dueCell(d.review, docOverdue(d)) : '<span class="muted">not set</span>'}</td><td>${esc(docWhere(d))}</td>${areaCell(d)}<td>${esc(d.format)}${d.qty > 1 ? " x" + d.qty : ""}</td><td>${pill(d.status, d.status === "Current" ? "done" : d.status === "Withdrawn" ? "" : d.status === "Under review" ? "prog" : "open")}</td><td>${d.x != null && d.status !== "Withdrawn" ? `<button data-docshow="${esc(d.id)}">Show</button>` : d.status !== "Withdrawn" ? `<button data-docpin="${esc(d.id)}">Pin</button>` : ""}</td></tr>`,
@@ -198,21 +198,23 @@ function docRows(rows) {
 }
 function documentsHTML() {
   const F = ui.reg.docs,
-    live = P.documents.filter((d) => d.status !== "Withdrawn"),
+    live = P.documents.filter(
+      (d) => d.status !== "Withdrawn" && scopePass(d, true),
+    ),
     late = live.filter(docOverdue),
     soon = live.filter(dueSoon),
     unplaced = live.filter((d) => d.x == null),
     ownersD = [
       ...new Set(P.documents.map((d) => d.owner).filter(Boolean)),
     ].sort();
-  let h = `<header><div><h2>${ui.view === "docmap" ? "Document map: the whole factory" : "Document list"}</h2><p class="muted" style="margin:4px 0 0">What information lives where: SOPs, one-point lessons, checklists and boards, with an owner and a review date.</p></div>
+  let h = `<header><div><h2>${ui.view === "docmap" ? "Document map" : "Document list"}: ${esc(scopeArea()?.name || "the whole factory")}</h2><p class="muted" style="margin:4px 0 0">What information lives where: SOPs, one-point lessons, checklists and boards, with an owner and a review date.</p></div>
     <div class="kpis"><div><b>${live.length}</b><span>In use</span></div><div><b class="${late.length ? "c-bad" : ""}">${late.length}</b><span>Review overdue</span></div><div><b>${soon.length}</b><span>Due in 30 days</span></div><div><b>${unplaced.length}</b><span>Not pinned</span></div></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pri" id="dNew">New document</button><button id="dMap">Print document map</button><button id="dList">Print list</button><button id="dCsv">Export CSV</button></div></header>`;
   if (P.documents.length && ui.view === "docmap") return h + docMapHTML();
   if (!P.documents.length)
     return (
       h +
-      `<div class="emptybox"><b>No documents yet</b>List the SOPs, checklists, one-point lessons and boards that belong in this area, say where each is kept, and who reviews it. You can pin each one on the document map, then print it for the area.<div style="margin-top:14px"><button class="pri" id="dNew2">New document</button></div></div>`
+      `<div class="emptybox"><b>No documents yet</b>List the SOPs, checklists, one-point lessons and boards that belong in the factory, say where each is kept, and who reviews it. You can pin each one on the document map, then print it for the area.<div style="margin-top:14px"><button class="pri" id="dNew2">New document</button></div></div>`
     );
   h += `<div class="filters"><label>Show<select data-f="st">${optsKV(
     [
@@ -226,7 +228,7 @@ function documentsHTML() {
     F.st,
   )}</select></label>
     <label>Type<select data-f="type">${optsKV([["", "All"], ...DOC_TYPES.map((o) => [o, o])], F.type)}</select></label>
-    <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersD.map((o) => [o, o])], F.owner)}</select></label>${areaFilterHTML(F.area)}
+    <label>Owner<select data-f="owner">${optsKV([["", "Anyone"], ...ownersD.map((o) => [o, o])], F.owner)}</select></label>
     <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Title, reference, place"></label></div>
     <div class="regtbl" id="docTbl">${docRows(docsFiltered())}</div>`;
   return h;
@@ -290,7 +292,7 @@ function csvDocuments() {
         "Status",
         "Pinned",
         "Notes",
-        "Area",
+        "Zone",
       ],
       ...P.documents.map((d) => [
         docNo(d),

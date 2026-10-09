@@ -300,7 +300,7 @@ function probFiltered() {
       if (f.st === "closed" && probOpen(p)) return false;
       if (f.st === "late" && !probLate(p)) return false;
       if (f.owner && p.owner !== f.owner) return false;
-      if (f.area && p.area !== f.area) return false;
+      if (!scopeProblem(p)) return false;
       if (
         q &&
         !(
@@ -384,7 +384,6 @@ function drawProblems() {
       ui.prob.st,
     )}</select></label>
     <label>Owner<select data-pfilter="owner">${optsKV([["", "Anyone"], ...owners.map((o) => [o, o])], ui.prob.owner)}</select></label>
-    ${P.areas.length ? `<label>Where<select data-pfilter="area">${optsKV([["", "Anywhere"], ...P.areas.map((a) => [a.id, a.name])], ui.prob.area)}</select></label>` : ""}
     <label>Search<input type="search" data-pfilter="q" value="${esc(ui.prob.q)}" placeholder="Problem, owner, root cause"></label></div>
     <div class="regtbl" id="psTbl">${probRows()}</div>`;
   }

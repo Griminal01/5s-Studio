@@ -10,7 +10,7 @@ Lean Studio (formerly 5S Studio) is a **design tool for the model line**, used b
 
 Mobile auditing, the factory TV dashboard and cloud sync are **deferred** until IT and existing systems are known. They stay designed (section 7) so we can expand later, but nothing in the first phases depends on them. Everything below works offline, local-first, with no IT involvement.
 
-Navigation is three sections (5S, Document mapping, Improve) with a whole-factory / one-area scope on the 5S pages. Next for it: scope Tracking and Boards by area, a whole-factory overview dashboard, decide whether SMED stays, and ideas for Improve (improvement log, one-point lessons).
+Navigation is four sections (Setup, 5S, Documents, Improve) with a whole-factory / line / zone Showing picker. Boards and SMED were removed in version 9 (data parked). Next: scope Tracking, a whole-factory overview dashboard, and ideas for Improve (improvement log, one-point lessons).
 
 Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 

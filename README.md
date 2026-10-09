@@ -3,19 +3,20 @@
 Lean tools for a production line (it started as 5S Studio), used to work out before touching the floor:
 
 1. **5S design**: the layout, where floor tape goes, and which items and documents live where.
-2. **SMED**: cut changeover time.
-3. **Problem solving**: 5-Why, fishbone, Pareto and an A3 report, feeding the action log.
+2. **Problem solving**: 5-Why, fishbone, Pareto and an A3 report, feeding the action log.
 
 Everything runs in the browser. There is no server and no build step. Data is stored on the device
 (IndexedDB) and can be saved to / opened from a project file.
 
 ## How it is laid out
 
-Three sections along the top: **5S** (setup, layout, boards, tracking, red tags, 5S actions), **Document mapping**
-(document list, factory map, document actions) and **Improve** (problem solving, SMED). In the 5S section
-the **Setup** page is where you choose the whole factory or one area (a plan, and a card for each), so a
-layout is not cluttered; a chip under the header shows what you are looking at. Document pages always
-show the whole factory.
+Four sections along the top. **Setup** is done once: the factory map (plan image, scale, walls), then
+the production **lines**, then the **zones** in each line. The working sections are **5S** (layout,
+tracking, red tags, 5S actions), **Documents** (document list, document map, document actions) and
+**Improve** (problem solving). In each of those, the **Showing** picker at the right of the page bar
+chooses the whole factory, one line, or one zone. A zone is shown with a faded margin of context
+around it, so a layout is not cluttered; the document map zooms to it, and lists and registers
+filter to it.
 
 ## What is in it
 
@@ -35,20 +36,7 @@ show the whole factory.
   action raised from a cause gets the same number as the cause. Actions are normal actions in the
   action log. The A3 details tab holds background, target, containment, links, photos and the
   effectiveness check before closing. Print the board on one A3 sheet or print an A3 report; a
-  **Pareto** chart shows what to attack first. Raise a problem from scratch, a changeover, a red tag
-  or an area.
-- **SMED**: works through the four SMED steps. **Record** the changeover (stopwatch, or type the steps
-  in), **Separate** each step into machine stopped / before the stop / after the restart with one tap,
-  **Improve** each stopped step (make external, shorten, in parallel, eliminate), and print the
-  **Standard work** with where each part or tool comes from. Trials of the same changeover sit side
-  by side, and a click on a bar in the timeline finds its step. Gantt timelines of now and the plan, stopped time saved per changeover and per
-  year, a target line, a "look here first" list, walking distance from layout routes, a history across
-  trials, and a printable standard-work checklist.
-- **Boards**: shadow boards, cleaning stations and kanban racks. List what lives on each board in
-  numbered slots (tools, cleaning kit, spares, changeover parts, kanban bins with min / max). Each slot
-  gets a location code such as `SB-01-03`. Print labels sized for your label printer (Brother TZe, Dymo,
-  Zebra or a custom size), a scaled board layout, 1:1 outlines to cut from (A4 or A3), or export a CSV for
-  label software.
+  **Pareto** chart shows what to attack first. Raise a problem from scratch, a red tag or a zone.
 - **Documents**: a register of the SOPs, one-point lessons, checklists and boards in the area, where
   each is kept, who owns it and when it is reviewed. Documents have their own **map** (over a faded
   copy of the layout, with a line to the item each is kept at), so the layout itself stays about
@@ -63,7 +51,7 @@ show the whole factory.
 - **Example**: *Settings > Open the example model line* (or the button on an empty layout) loads a
   complete example project to explore.
 
-Removed (parked, not lost: old project files keep that data): formal 5S audits and dashboards and the TV
+Removed (parked, not lost: old project files keep that data): Boards, SMED, formal 5S audits and dashboards and the TV
 display. They are in git history at commit `2ddb593`.
 
 ## Accounts, projects and sharing

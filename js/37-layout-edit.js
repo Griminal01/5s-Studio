@@ -362,7 +362,7 @@ function pasteClip() {
     else if (it.t === "route") sh.routes.push(n);
     else if (it.t === "area") {
       n.drawing = sh.drawing;
-      n.no = ++P.counters.area;
+      n.no = ++P.counters[isLine(n) ? "line" : "area"];
       P.areas.push(n);
     }
     ids.push(n.id);

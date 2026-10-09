@@ -64,6 +64,8 @@ function act(a, el) {
       for (const f of live) {
         f.arr.splice(f.arr.indexOf(f.x), 1);
         if (f.t === "area") {
+          if (isLine(f.x))
+            for (const z of P.areas) if (z.parent === f.x.id) z.parent = "";
           releaseArea(f.x.id);
           for (const pr of P.problems) if (pr.area === f.x.id) pr.area = "";
         }
@@ -109,7 +111,7 @@ function act(a, el) {
           n.y += off;
         } else n.pts = n.pts.map((p) => ({ x: p.x + off, y: p.y + off }));
         if (f.t === "area") {
-          n.no = ++P.counters.area;
+          n.no = ++P.counters[isLine(f.x) ? "line" : "area"];
           n.name = f.x.name + " copy";
         }
         f.arr.push(n);

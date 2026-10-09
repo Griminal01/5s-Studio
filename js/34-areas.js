@@ -14,8 +14,37 @@ const AREA_COLS = [
   "#8A6D00",
   "#4A4F66",
 ];
-const areaCode = (a) => "AR-" + pad2(a.no);
-const areasOn = (sh = S()) => P.areas.filter((a) => a.drawing === sh.drawing);
+const LINE_COLS = [
+  "#202C86",
+  "#0E7C86",
+  "#6B3FA0",
+  "#C3361A",
+  "#8A6D00",
+  "#1F8A55",
+];
+/* a line is the outline of a production line (level "line"); a zone sits inside one (a.parent) */
+const isLine = (a) => !!a && a.level === "line";
+const areaCode = (a) => (isLine(a) ? "LN-" : "ZN-") + pad2(a.no);
+const areasOn = (sh = S()) =>
+  P.areas.filter((a) => !isLine(a) && a.drawing === sh.drawing);
+const linesOn = (sh = S()) =>
+  P.areas.filter((a) => isLine(a) && a.drawing === sh.drawing);
+const zonesOfLine = (l) =>
+  P.areas.filter((z) => !isLine(z) && z.parent === l.id);
+/* the line a point sits in (smallest first), for suggesting a zone's line */
+function lineAt(p, sh = S()) {
+  let best = null,
+    bs = Infinity;
+  for (const a of linesOn(sh))
+    if (ptInPoly(p, a.pts)) {
+      const s = polySize(a.pts);
+      if (s < bs) {
+        bs = s;
+        best = a;
+      }
+    }
+  return best;
+}
 
 /* ---- geometry ---- */
 function ptInPoly(p, pts) {
@@ -125,7 +154,7 @@ function pinArea(p) {
   let best = null,
     bs = Infinity;
   for (const a of P.areas)
-    if (a.drawing === p.drawing && ptInPoly(p, a.pts)) {
+    if (!isLine(a) && a.drawing === p.drawing && ptInPoly(p, a.pts)) {
       const s = polySize(a.pts);
       if (s < bs) {
         bs = s;
@@ -135,17 +164,23 @@ function pinArea(p) {
   return best;
 }
 const pinAreaName = (p) => pinArea(p)?.name || "";
-const areaPass = (flt, p) =>
-  !flt || (flt === "none" ? !pinArea(p) : pinArea(p)?.id === flt);
+function areaPass(flt, p) {
+  if (!flt) return true;
+  if (flt === "none") return !pinArea(p);
+  const a = P.areas.find((x) => x.id === flt);
+  if (!a) return true;
+  // a line holds everything inside its outline; a zone, the pins whose smallest zone it is
+  if (isLine(a))
+    return p.x != null && p.drawing === a.drawing && ptInPoly(p, a.pts);
+  return pinArea(p)?.id === flt;
+}
 const areaCell = (p) =>
   `<td>${esc(pinAreaName(p)) || '<span class="muted">-</span>'}</td>`;
-const areaFilterHTML = (v) =>
-  P.areas.length
-    ? `<label>Area<select data-f="area">${optsKV([["", "All"], ...P.areas.map((a) => [a.id, a.name]), ["none", "No area"]], v)}</select></label>`
-    : "";
 
 function areaStats(a, sh = S()) {
-  const items = areaItems(a, sh),
+  const items = isLine(a)
+      ? sh.objects.filter((o) => o.kind === "item" && scopeObj(o, a))
+      : areaItems(a, sh),
     inside = (p) =>
       p.x != null && p.drawing === a.drawing && ptInPoly(p, a.pts),
     mid = (m) => ({
@@ -189,8 +224,8 @@ function assignArea(v) {
     v === "-" || a ? v : "",
   );
   record(
-    "Area designated",
-    `${items.length} item(s): ${a ? a.name : v === "-" ? "no area" : "automatic"}`,
+    "Zone designated",
+    `${items.length} item(s): ${a ? a.name : v === "-" ? "no zone" : "automatic"}`,
   );
   renderAll();
 }
@@ -199,7 +234,7 @@ function areaSelectHTML(items) {
     list = areasOn(sh);
   if (!items.length) return "";
   if (!list.length)
-    return `<p class="small muted">Draw areas with the Area tool (Q) to designate items to them.</p>`;
+    return `<p class="small muted">Draw zones with the Zone tool (Q) to designate items to them.</p>`;
   const modes = items.map((o) =>
       areaMode(o, sh) === "set"
         ? o.area
@@ -210,28 +245,41 @@ function areaSelectHTML(items) {
     same = new Set(modes).size === 1 ? modes[0] : null,
     cur = items.length === 1 ? areaAt(items[0], sh) : null,
     out = items.length === 1 && outOfArea(sh).find((z) => z.o === items[0]);
-  return `<label class="f">Area${items.length > 1 ? " (" + items.length + " items)" : ""}<select data-item-area aria-label="Area">${same === null ? '<option value="" selected disabled>Mixed</option>' : ""}<option value=""${same === "" ? " selected" : ""}>Automatic${items.length === 1 ? (cur ? " (inside " + esc(cur.name) + ")" : " (not inside an area)") : " (where it sits)"}</option><option value="-"${same === "-" ? " selected" : ""}>No area</option>${list.map((a) => `<option value="${esc(a.id)}"${same === a.id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>${out ? `<div class="status warn"><b>Outside its area:</b> designated to ${esc(out.a.name)} but sitting outside it.<button data-a="areaBack">Move it back into ${esc(out.a.name)}</button></div>` : ""}`;
+  return `<label class="f">Zone${items.length > 1 ? " (" + items.length + " items)" : ""}<select data-item-area aria-label="Zone">${same === null ? '<option value="" selected disabled>Mixed</option>' : ""}<option value=""${same === "" ? " selected" : ""}>Automatic${items.length === 1 ? (cur ? " (inside " + esc(cur.name) + ")" : " (not inside a zone)") : " (where it sits)"}</option><option value="-"${same === "-" ? " selected" : ""}>No zone</option>${list.map((a) => `<option value="${esc(a.id)}"${same === a.id ? " selected" : ""}>${esc(a.name)}</option>`).join("")}</select></label>${out ? `<div class="status warn"><b>Outside its zone:</b> designated to ${esc(out.a.name)} but sitting outside it.<button data-a="areaBack">Move it back into ${esc(out.a.name)}</button></div>` : ""}`;
 }
 /* ---- drawing ---- */
 function areaSVG(sh, k, only) {
   let s = "";
-  for (const a of only ? [only] : areasOn(sh)) {
+  // a line scope draws the line and its zones; a zone scope draws just that zone
+  const all = P.areas.filter((a) => a.drawing === sh.drawing),
+    list = only
+      ? all.filter(
+          (a) => a.id === only.id || (isLine(only) && a.parent === only.id),
+        )
+      : all,
+    ordered = [...list.filter(isLine), ...list.filter((a) => !isLine(a))];
+  for (const a of ordered) {
     const ps = a.pts.map((p) => p.x + "," + p.y).join(" "),
-      n = areaItems(a, sh).length,
+      line = isLine(a),
+      n = line ? zonesOfLine(a).length : areaItems(a, sh).length,
       top = a.pts.reduce((b, p) => (p.y < b.y ? p : b), a.pts[0]),
-      fs = 12.5 * k;
+      xs0 = Math.min(...a.pts.map((p) => p.x)),
+      xs1 = Math.max(...a.pts.map((p) => p.x)),
+      fs = (line ? 14 : 12.5) * k;
     s +=
       `<g data-t="area" data-id="${esc(a.id)}"><title>${esc(areaCode(a) + " " + a.name)}</title>` +
-      `<polygon points="${ps}" fill="${a.color}" fill-opacity=".08" stroke="none" pointer-events="none"/>` +
-      `<polygon points="${ps}" fill="none" stroke="${a.color}" stroke-width="${2.4 * k}" stroke-dasharray="${9 * k} ${5 * k}" stroke-linejoin="round" pointer-events="none"/>` +
+      `<polygon points="${ps}" fill="${a.color}" fill-opacity="${line ? 0.04 : 0.08}" stroke="none" pointer-events="none"/>` +
+      `<polygon points="${ps}" fill="none" stroke="${a.color}" stroke-width="${(line ? 3.6 : 2.4) * k}"${line ? "" : ` stroke-dasharray="${9 * k} ${5 * k}"`} stroke-linejoin="round" pointer-events="none"/>` +
       `<polygon points="${ps}" fill="none" stroke="transparent" stroke-width="${10 * k * TOUCH}" stroke-linejoin="round" pointer-events="stroke"/>` +
       txt(
-        top.x + 8 * k,
-        top.y + 14 * k,
-        `${a.name}${n ? " · " + n : ""}`,
+        line ? (xs0 + xs1) / 2 : top.x + 8 * k,
+        top.y + (line ? 1 : 14) * k,
+        line
+          ? `${a.name.toUpperCase()}${n ? " · " + n + " zone" + (n > 1 ? "s" : "") : ""}`
+          : `${a.name}${n ? " · " + n : ""}`,
         fs,
         k,
-        { anchor: "start", fill: a.color, w: 700 },
+        { anchor: line ? "middle" : "start", fill: a.color, w: 700 },
       ) +
       "</g>";
   }
@@ -244,22 +292,29 @@ function outOfAreaSVG(list, k) {
   return s;
 }
 
-/* ---- the Area tool ---- */
+/* ---- the Zone tool ---- */
 function finishArea(d) {
-  const sh = S();
+  const sh = S(),
+    line = ui.areaLevel === "line",
+    word = line ? "line" : "zone";
   if (d.pts.length < 3) {
-    toast("An area needs at least three corners.");
+    toast(`A ${word} needs at least three corners.`);
     updateHint();
     draw();
     return;
   }
   checkpoint();
-  const no = ++P.counters.area,
+  const key = line ? "line" : "area",
+    no = ++P.counters[key],
     a = {
       id: uid(),
       no,
-      name: "Area " + no,
-      color: AREA_COLS[(no - 1) % AREA_COLS.length],
+      level: line ? "line" : "zone",
+      parent: "",
+      name: (line ? "Line " : "Zone ") + no,
+      color: (line ? LINE_COLS : AREA_COLS)[
+        (no - 1) % (line ? LINE_COLS : AREA_COLS).length
+      ],
       owner: "",
       note: "",
       drawing: sh.drawing,
@@ -267,13 +322,14 @@ function finishArea(d) {
       closed: true,
       created: today(),
     };
+  if (!line) a.parent = lineAt(areaCentre(a), sh)?.id || "";
   P.areas.push(a);
-  record("Area added", a.name);
+  record(line ? "Line added" : "Zone added", a.name);
   ui.sel = [a.id];
   ui.tab = "item";
   setTool("select");
   renderAll();
-  toast("Area drawn. Name it in the panel on the right.");
+  toast(`${line ? "Line" : "Zone"} drawn. Name it in the panel on the right.`);
 }
 
 /* ---- side panel ---- */
@@ -287,11 +343,27 @@ function paneArea(a) {
       col,
       list.map((x) => ({ ...f(x), x: f(x).x ?? x.x, y: f(x).y ?? x.y })),
     );
-  return `<h2>${esc(areaCode(a))}</h2>
+  const line = isLine(a),
+    word = line ? "line" : "zone",
+    inLine = line ? zonesOfLine(a) : [];
+  return `<h2>${line ? "Line" : "Zone"} ${esc(areaCode(a))}</h2>
 <label class="f">Name<input data-f="name" value="${esc(a.name)}"></label>
 <div class="row2"><label class="f">Owner<input data-f="owner" value="${esc(a.owner)}" placeholder="Who looks after it"></label><label class="f">Colour<input data-f="color" type="color" value="${esc(a.color)}"></label></div>
-<label class="f">What this area is for<textarea data-f="note" rows="2" placeholder="e.g. Staging for the next order. Nothing stays here over a shift.">${esc(a.note)}</textarea></label>
+${
+  line
+    ? ""
+    : `<label class="f">Line<select data-f="parent"><option value="">Not in a line</option>${linesOn(
+        sh,
+      )
+        .map(
+          (l) =>
+            `<option value="${esc(l.id)}"${a.parent === l.id ? " selected" : ""}>${esc(l.name)}</option>`,
+        )
+        .join("")}</select></label>`
+}
+<label class="f">What this ${word} is for<textarea data-f="note" rows="2" placeholder="${line ? "e.g. The packing line, from infeed to palletiser." : "e.g. Staging for the next order. Nothing stays here over a shift."}">${esc(a.note)}</textarea></label>
 ${kv([
+  ...(line ? [["Zones in it", inLine.length]] : []),
   ["Floor area", fmtM2(areaM2(a, sh))],
   [
     "Items",
@@ -302,9 +374,24 @@ ${kv([
   ["Open red tags", st.tags.length],
   ["Open actions", st.acts.length],
 ])}
-${out.length ? `<div class="status warn"><b>${out.length} item${out.length > 1 ? "s are" : " is"} outside this area</b> but designated to it.</div>` : ""}
+${out.length ? `<div class="status warn"><b>${out.length} item${out.length > 1 ? "s are" : " is"} outside this zone</b> but designated to it.</div>` : ""}
+${
+  line
+    ? rowsHTML(
+        "Zones in this line",
+        a.color,
+        inLine.map((z) => ({
+          l: areaCode(z) + " " + z.name,
+          v: "",
+          x: areaCentre(z).x,
+          y: areaCentre(z).y,
+          id: z.id,
+        })),
+      )
+    : ""
+}
 ${rowsHTML(
-  "Items in this area",
+  line ? "Items in this line" : "Items in this zone",
   a.color,
   st.items
     .slice()
@@ -320,39 +407,51 @@ ${rowsHTML(
 ${rowsFor("Documents here", "#0E7C86", st.docs, (d) => ({ l: docNo(d) + " " + d.title, v: d.type }))}
 ${rowsFor("Open red tags here", "#D3401D", st.tags, (t) => ({ l: tagNo(t) + " " + t.title, v: t.status }))}
 ${rowsFor("Open actions here", "#202C86", st.acts, (x) => ({ l: actNo(x) + " " + x.title, v: x.owner }))}
-<div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>
-<div class="btns"><button class="pri" data-a="areaScope" title="Show only this area on the layout, so it is not cluttered">Work on this area</button><button data-a="areaPrint">Print area sheet</button><button data-a="areaProblem">Raise a problem here</button><button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete area</button></div>
-<p class="small muted">Drag the white dots to reshape it. Drag its dashed edge to move it. Items belong to the area they sit in unless you designate them; a designated item that leaves its area is flagged in the Compare tab and on the daily checks.</p>`;
+${line ? "" : `<div class="btns"><button data-a="areaSelect">Select its items</button><button data-a="areaDesignate" title="Make every item sitting inside it belong to it, wherever it moves">Designate everything inside</button><button data-a="areaRelease">Release designations</button></div>`}
+<div class="btns"><button class="pri" data-a="areaScope" title="Show only this ${word} on the 5S pages, so they are not cluttered">Work on this ${word}</button><button data-a="areaPrint">Print ${word} sheet</button>${line ? "" : '<button data-a="areaProblem">Raise a problem here</button>'}<button data-a="dup">Duplicate</button><button data-a="del" class="danger">Delete ${word}</button></div>
+<p class="small muted">Drag the white dots to reshape it. Drag its edge to move it.${line ? " A zone drawn inside a line joins it automatically." : " Items belong to the zone they sit in unless you designate them; a designated item that leaves its zone is flagged in the Compare tab and on the daily checks."}</p>`;
 }
 function paneAreas() {
   const sh = S(),
     list = areasOn(sh),
+    lines = linesOn(sh),
     items = sh.objects.filter((o) => o.kind === "item"),
     none = items.filter((o) => !areaOf(o, sh) && areaMode(o, sh) !== "none"),
     out = outOfArea(sh);
-  let h = `<h2>Areas</h2><p class="small muted" style="margin-top:0">Name the zones of the line, then say which items belong where. Daily checks flag a designated item that has left its area.</p><div class="btns"><button class="pri" data-a="areaNew">Draw a new area</button></div>`;
-  if (!list.length)
+  let h = `<h2>Lines and zones</h2><p class="small muted" style="margin-top:0">Outline each production line, then the zones inside it. Say which items belong to which zone. Daily checks flag a designated item that has left its zone. Set them up on the Setup page.</p><div class="btns"><button class="pri" data-a="lineNew">Draw a line</button><button class="pri" data-a="areaNew">Draw a zone</button></div>`;
+  if (!list.length && !lines.length)
     return (
       h +
-      `<p class="empty">No areas on this drawing yet. Choose Draw a new area, then click the corners and click the first corner (or double-click) to close it.</p>`
+      `<p class="empty">No lines or zones on this drawing yet. Choose Draw a line or Draw a zone, then click the corners and click the first corner (or double-click) to close it.</p>`
     );
+  const row = (a, extra) =>
+    `<button class="irow" style="--c:${esc(a.color)}" data-a="areaOpen" data-id="${esc(a.id)}"><span>${esc(areaCode(a))} ${esc(a.name)}</span><span>${extra}</span></button>`;
+  for (const l of lines) {
+    h += row(
+      l,
+      `${zonesOfLine(l).length} zone${zonesOfLine(l).length === 1 ? "" : "s"}${l.owner ? ", " + esc(l.owner) : ""}`,
+    );
+  }
   h += list
     .map((a) => {
       const st = areaStats(a, sh);
-      return `<button class="irow" style="--c:${esc(a.color)}" data-a="areaOpen" data-id="${esc(a.id)}"><span>${esc(areaCode(a))} ${esc(a.name)}</span><span>${st.items.length} item${st.items.length === 1 ? "" : "s"}${a.owner ? ", " + esc(a.owner) : ""}</span></button>`;
+      return row(
+        a,
+        `${st.items.length} item${st.items.length === 1 ? "" : "s"}${a.owner ? ", " + esc(a.owner) : ""}`,
+      );
     })
     .join("");
   h += kv([
     [
-      "Items in an area",
+      "Items in a zone",
       items.length -
         none.length -
         items.filter((o) => areaMode(o, sh) === "none").length,
     ],
-    ["Items in no area", none.length],
+    ["Items in no zone", none.length],
   ]);
   h += rowsHTML(
-    "Outside their designated area",
+    "Outside their designated zone",
     COL.warn,
     out.map((z) => ({
       l: z.o.label,
@@ -363,11 +462,11 @@ function paneAreas() {
     })),
   );
   h += rowsHTML(
-    "Not in any area",
+    "Not in any zone",
     "#9AA1BC",
     none.map((o) => ({ l: o.label, v: "", x: o.x, y: o.y, id: o.id })),
   );
-  h += `<div class="btns" style="margin-top:12px"><button data-a="areaPrintAll">Print all areas</button><button data-a="areaCsv">Items by area (CSV)</button></div>`;
+  h += `<div class="btns" style="margin-top:12px"><button data-a="areaPrintAll">Print all zones</button><button data-a="areaCsv">Items by zone (CSV)</button></div>`;
   return h;
 }
 
@@ -378,6 +477,9 @@ function areaAct(a, el) {
   switch (a) {
     case "areaNew":
       setTool("area");
+      break;
+    case "lineNew":
+      setTool("area", "line");
       break;
     case "areaOpen": {
       const x = P.areas.find((z) => z.id === el?.dataset.id);
@@ -404,7 +506,7 @@ function areaAct(a, el) {
           (o) => o.kind === "item" && ptInPoly(o, ar.pts),
         );
       if (!mine.length) {
-        toast("No items sit inside this area yet.");
+        toast("No items sit inside this zone yet.");
         return;
       }
       checkpoint();
@@ -412,7 +514,7 @@ function areaAct(a, el) {
         mine.map((o) => o.ref),
         ar.id,
       );
-      record("Area designated", `${mine.length} item(s): ${ar.name}`);
+      record("Zone designated", `${mine.length} item(s): ${ar.name}`);
       toast(
         `${mine.length} item${mine.length > 1 ? "s" : ""} designated to ${ar.name}.`,
       );
@@ -423,7 +525,7 @@ function areaAct(a, el) {
       if (!ar) return;
       checkpoint();
       releaseArea(ar.id);
-      record("Area designations released", ar.name);
+      record("Zone designations released", ar.name);
       renderAll();
       break;
     }
@@ -435,7 +537,7 @@ function areaAct(a, el) {
       const c = areaCentre(z.a);
       o.x = c.x;
       o.y = c.y;
-      record("Moved into area", `${o.label}: ${z.a.name}`);
+      record("Moved into zone", `${o.label}: ${z.a.name}`);
       renderAll();
       break;
     }
@@ -472,7 +574,7 @@ function csvAreas() {
   const sh = S();
   csv(
     [
-      ["Area", "Code", "Owner", "Item", "Category", "How it belongs", "Sheet"],
+      ["Zone", "Code", "Owner", "Item", "Category", "How it belongs", "Sheet"],
       ...areasOn(sh).flatMap((a) =>
         areaItems(a, sh).map((o) => [
           a.name,
@@ -492,7 +594,7 @@ function csvAreas() {
           "",
           o.label,
           P.itemCategories.find((c) => c.id === itemCategoryId(o))?.name || "",
-          areaMode(o, sh) === "none" ? "No area" : "Not in an area",
+          areaMode(o, sh) === "none" ? "No zone" : "Not in a zone",
           sh.name,
         ]),
     ],
@@ -619,14 +721,14 @@ ${
 function printAreas(list) {
   const sh = S();
   if (!list.length) {
-    toast("Draw an area first.");
+    toast("Draw a zone first.");
     return;
   }
   let html = "";
   if (list.length > 1) {
     const dm = DM(sh),
       plan = planCrop(sh, { x0: 0, y0: 0, x1: dm.w, y1: dm.h }, 2.2);
-    html += `<div class="pd"><h1>Areas</h1><p class="pdm">${esc(P.projectName || "Lean Studio project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}.</p><div class="pdplan">${plan}</div><table><tr><th>Area</th><th>Owner</th><th class="n">Items</th><th class="n">Floor area</th><th>Floor tape</th><th class="n">Documents</th></tr>${list
+    html += `<div class="pd"><h1>Zones</h1><p class="pdm">${esc(P.projectName || "Lean Studio project")}, ${esc(sh.name)}, printed ${esc(fmtD(today()))}.</p><div class="pdplan">${plan}</div><table><tr><th>Zone</th><th>Owner</th><th class="n">Items</th><th class="n">Floor area</th><th>Floor tape</th><th class="n">Documents</th></tr>${list
       .map((a) => {
         const st = areaStats(a, sh);
         return `<tr><td><span class="sw" style="background:${esc(a.color)}"></span>${esc(areaCode(a))} ${esc(a.name)}</td><td>${esc(a.owner)}</td><td class="n">${st.items.length}</td><td class="n">${esc(fmtM2(areaM2(a, sh)))}</td><td>${st.marks.length ? esc(fmtLen(st.tape)) : "-"}</td><td class="n">${st.docs.length}</td></tr>`;
@@ -654,7 +756,11 @@ const scopeMid = (m) => ({
   y: m.pts.reduce((t, q) => t + q.y, 0) / m.pts.length,
 });
 const scopeObj = (o, a = scopeArea()) =>
-  !a || ptInPoly(o, a.pts) || (o.kind === "item" && o.area === a.id);
+  !a ||
+  ptInPoly(o, a.pts) ||
+  (o.kind === "item" &&
+    (o.area === a.id ||
+      (isLine(a) && P.areas.find((z) => z.id === o.area)?.parent === a.id)));
 const scopeMark = (m, a = scopeArea()) =>
   !a || m.pts.some((p) => ptInPoly(p, a.pts)) || ptInPoly(scopeMid(m), a.pts);
 function scopeCmp(c, A) {
@@ -683,26 +789,31 @@ function scopeCmp(c, A) {
 /* a box round the area with a little room, in drawing units */
 function scopeBox(a) {
   const b = areaBox(a),
-    pad = Math.max(b.x1 - b.x0, b.y1 - b.y0) * 0.06 + 6;
+    pad = Math.max(b.x1 - b.x0, b.y1 - b.y0) * 0.28 + 6;
   return { x0: b.x0 - pad, y0: b.y0 - pad, x1: b.x1 + pad, y1: b.y1 + pad };
 }
 function setScope(id, fromHash = false) {
   const a = P.areas.find((x) => x.id === id && x.drawing === S().drawing);
   ui.scope = a ? a.id : "";
-  ui.reg.tags.area = ui.reg.acts.area = ui.scope;
   ui.sel = ui.sel.filter((i) => {
     const f = find(i);
     return !f || f.t !== "obj" || scopeObj(f.x);
   });
   ui.vb = null;
+  dm.vb = null;
   if (!fromHash) syncHash(false);
   renderAll();
 }
 function scopeBarHTML() {
-  const a = scopeArea();
-  return a
-    ? `<span class="swatch" style="background:${esc(a.color)}"></span>Working on <b>${esc(a.name)}</b><button id="scopeAll">Show the whole factory</button>`
-    : "";
+  const a = scopeArea(),
+    back = ui.fromSetup && ui.view === "layout";
+  if (!a && !back) return "";
+  return (
+    (a
+      ? `<span class="swatch" style="background:${esc(a.color)}"></span>Working on <b>${esc(a.name)}</b><button id="scopeAll">Show the whole factory</button>`
+      : "Drawing on the whole factory") +
+    (back ? `<button id="scopeBack" class="pri">← Back to Setup</button>` : "")
+  );
 }
 function updateScopeBar() {
   const el = $("#scopeBar");
@@ -716,4 +827,16 @@ function updateScopeBar() {
 }
 $("#canvas").addEventListener("click", (e) => {
   if (e.target.closest("#scopeAll")) setScope("");
+  else if (e.target.closest("#scopeBack")) setView(ui.fromSetup || "setup");
 });
+
+/* ---- the scope applied to registers and lists (pins carry a position; documents may not) ---- */
+const scopePass = (p, keepUnplaced = false) =>
+  !ui.scope || (keepUnplaced && p.x == null) || areaPass(ui.scope, p);
+/* a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line */
+function scopeProblem(p) {
+  const a = scopeArea();
+  if (!a) return true;
+  if (p.area === a.id) return true;
+  return isLine(a) && P.areas.find((z) => z.id === p.area)?.parent === a.id;
+}

@@ -7,25 +7,24 @@ Last updated after areas and problem solving (9 Oct 2026). Read this first when 
 | View | What it does |
 |---|---|
 | Layout | Scaled drawing, walls and fixed equipment, items with home marks, floor tape (schedule, setting-out, rolls), routes, layout checks, proposals compared with the standard, daily checks, pins for red tags / actions / documents |
-| SMED | Changeovers: steps stopped / before / after, plan per step, Gantt now vs plan, savings per changeover and per year, stopwatch, trials and history, A3 work sheet |
-| Areas (Layout tab and tool) | Named polygon zones; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
-| Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from SMED, a red tag or an area |
-| Boards | Shadow boards, cleaning stations, kanban racks: numbered slots, location codes (`SB-01-03`), fit check, labels for a label printer, 1:1 outlines, CSV |
+| Setup | Factory map (plan image, scale, walls), lines, zones: cards edited in place |
+| Lines and zones (Zones tab and Zone tool) | Named polygons: a line holds zones (`a.parent`); items belong to zones by position or designation; items belong by position or are designated; strays flagged on Compare, the map and daily checks; stats per area, A3 area sheets, Area column in registers |
+| Problems | Problem records with 5-Why, fishbone, countermeasures (actions with `prob`), review and close, Pareto, A3 report; raise one from a red tag or a zone |
 | Documents | Register of SOPs, OPLs, checklists, boards: owner, revision, review date, where kept; document map and tick list |
 | Red tags, Actions | Registers with pins, CSV and print |
 | Tracking | Daily checks over time: where items actually sit (drift map), suggested new homes, trend, movement-log CSV, print |
 
-Navigation (reworked again, Sam's idea): three sections. **5S** = Setup, Layout, Boards, Tracking, Red tags, 5S actions;
-**Document mapping** = Document list, Factory map, Document actions; **Improve** = Problem solving, SMED (kept,
-last; Sam thinks it is not great, so it is a candidate to cut). One list (`NAV` in `js/12-views.js`) drives the
-header buttons, the phone tab bar and the page bar under it. 5S pages are scoped from the **Setup** page (first page of 5S: a factory plan and a card for the whole
-factory and each area; a "Showing ... change" chip on the other 5S pages links back): whole factory, or
-one area, so a layout is not cluttered; the layout draws only that area, the registers filter to it, the address
-bar holds it (`#/layout/<areaId>`). Document pages are always the whole factory. Actions have a `stream`
-("5s", "doc", "improve"; problem-linked ones are "improve") and optionally a linked document `a.doc`; the 5S
-actions page and Document actions page filter on it. Project version 8. Not done: Tracking and Boards are not
-area-scoped, there is no whole-factory overview dashboard yet, nothing else added under Improve (ideas: an
-improvement log / kaizen list, one-point lessons, a factory overview).
+Navigation (reworked 11 Oct): four sections. **Setup** = 1 Factory map, 2 Lines, 3 Zones (done once);
+**5S** = Layout, Tracking, Red tags, 5S actions; **Documents** = Document list, Document map, Document
+actions; **Improve** = Problem solving. One list (`NAV` in `js/12-views.js`) drives the header buttons, the
+phone tab bar and the page bar under it. The **Showing picker** on the right of that bar chooses the
+whole factory, one line (with all its zones) or one zone, and it follows you between sections. A zone
+is drawn sharp with a faded margin of context (`scopeBox`, 28% round it); the document map zooms to it;
+lists, registers and problems filter to it. Tracking is always the whole factory. Lines and zones live in
+`P.areas` (`a.level`, `a.parent`); drawing them hands off to the layout with a Back to Setup button.
+Actions have a `stream` ("5s", "doc", "improve") and optionally a linked document `a.doc`. Project version 9.
+Boards and SMED were removed (11 Oct): their data is parked in the project file, the code is in git
+before `c0594d8`. Ideas for Improve (nothing built): improvement log, one-point lessons, factory overview.
 
 Layout editing (cleaned up 10 Oct, `js/37-layout-edit.js`): toolbar under the selection, smart guides,
 Shift-drag box select, align / space evenly, copy and paste across sheets, typed positions from the datum,
@@ -33,9 +32,7 @@ full names shown for small items on hover or selection, the item list hidden whi
 "Marked zone" / "Keep-clear zone" wording so zones are not confused with Areas. Not done yet: touch box
 select, group/ungroup, align for tape and routes.
 
-SMED and problem solving (reworked 10 Oct): SMED runs as four steps (Record, Separate, Improve,
-Standard work) with one-tap choices, a compact timeline sized to the screen and steps as cards on a
-phone. Problems open as one board like the team's whiteboard: fishbone, likely causes, causes and
+Problem solving (reworked 10 Oct): problems open as one board like the team's whiteboard: fishbone, likely causes, causes and
 actions sharing a number, hypothesis and confirmation, why chain, inline actions; the rest sits under
 "A3 details and close". Board prints on one A3 sheet.
 
