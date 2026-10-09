@@ -1,0 +1,604 @@
+/* dialog */
+dialog {
+  border: 0;
+  border-radius: 10px;
+  padding: 0;
+  width: min(460px, calc(100vw - 32px));
+  box-shadow: 0 20px 60px rgba(28, 34, 80, 0.35);
+  color: var(--ink);
+}
+dialog::backdrop {
+  background: rgba(28, 34, 80, 0.45);
+}
+dialog form {
+  padding: 20px 22px;
+}
+dialog h3 {
+  font: 600 18px var(--disp);
+  margin: 0 0 12px;
+}
+dialog .acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+dialog.wide {
+  width: min(900px, calc(100vw - 32px));
+}
+dialog img.big {
+  max-width: 100%;
+  max-height: 65vh;
+  display: block;
+  margin: 0 auto 10px;
+  border-radius: 6px;
+}
+#toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  z-index: 100;
+  font-size: 13px;
+  box-shadow: 0 6px 20px rgba(28, 34, 80, 0.3);
+  display: none;
+  max-width: 90vw;
+}
+@media (max-width: 1180px) {
+  .studio {
+    grid-template-columns: 208px minmax(0, 1fr) 300px;
+  }
+}
+@media (max-width: 880px) {
+  body {
+    overflow: auto;
+    height: auto;
+  }
+  .studio {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  /* the drawing gets a real height on small screens (it collapsed to 0 before) */
+  .stage {
+    order: 1;
+    height: 72vh;
+    min-height: 360px;
+  }
+  .side {
+    order: 2;
+    max-height: none;
+  }
+  .tools {
+    order: 3;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+  }
+  .side {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  /* touch: row buttons in the board and SMED tables at least 44 px */
+  .bdtbl .bact button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+@media print {
+  @page {
+    size: A3 landscape;
+    margin: 10mm;
+  }
+  body {
+    overflow: visible;
+    height: auto;
+    display: block;
+    background: #fff;
+  }
+  .top,
+  .tabbar,
+  .subnav,
+  .stripe,
+  .days,
+  .tools,
+  .side,
+  .zoom,
+  .hint,
+  .scale button,
+  details.menu,
+  .sheetbar select,
+  .sheetbar label {
+    display: none !important;
+  }
+  .studio {
+    display: block;
+  }
+  .stage {
+    display: block;
+  }
+  .sheetbar {
+    border: 0;
+    padding: 0 0 6px;
+  }
+  .sheetbar .name {
+    border: 0;
+  }
+  .canvas {
+    flex: none;
+    height: 255mm;
+    background: #fff;
+    border: 1px solid #999;
+  }
+  .scale {
+    bottom: 6px;
+    right: 6px;
+  }
+  #toast {
+    display: none !important;
+  }
+  #bEditDraw,
+  .editban {
+    display: none !important;
+  }
+  .pd .box {
+    display: inline-block;
+    width: 13pt;
+    height: 13pt;
+    border: 1px solid #333;
+    text-align: center;
+    line-height: 13pt;
+    margin-right: 3pt;
+    font-weight: 700;
+  }
+  body.printing-doc {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff;
+  }
+  body.printing-doc > *:not(#printDoc) {
+    display: none !important;
+  }
+  body.printing-doc #printDoc {
+    display: block;
+  }
+  .pd,
+  .pd * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .pd button,
+  .pd select {
+    display: none !important;
+  }
+  .pd .block {
+    break-inside: avoid;
+    padding: 8pt 10pt;
+  }
+  .pd {
+    color: #1c2250;
+    font:
+      10pt/1.4 "Segoe UI",
+      system-ui,
+      sans-serif;
+  }
+  .pd h1 {
+    font: 600 20pt var(--disp);
+    margin: 0 0 2pt;
+  }
+  .pd h2 {
+    font: 600 13pt var(--disp);
+    margin: 14pt 0 5pt;
+    break-after: avoid;
+  }
+  .pd .pdm {
+    margin: 0 0 8pt;
+    color: #5e6584;
+  }
+  .pd .pdplan {
+    border: 1px solid #999;
+  }
+  .pd .pdplan svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .pd .pdbreak {
+    break-after: page;
+  }
+  .pd table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 2pt 0 8pt;
+  }
+  .pd th,
+  .pd td {
+    border: 1px solid #b8bccb;
+    padding: 3pt 6pt;
+    text-align: left;
+    font-size: 9.5pt;
+  }
+  .pd th {
+    background: #eef0f6;
+  }
+  .pd table.fixed {
+    table-layout: fixed;
+  }
+  /* printed views: let sections run across pages, but keep each chart whole */
+  .pd.pdview .block {
+    break-inside: auto;
+  }
+  .pd.pdview svg {
+    break-inside: avoid;
+  }
+  .pd td.n,
+  .pd th.n {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .pd .run {
+    break-inside: avoid;
+    margin-bottom: 10pt;
+  }
+  .pd .run h3 {
+    margin: 0 0 3pt;
+    font: 600 11pt var(--disp);
+    display: block;
+  }
+  .pd .sw {
+    display: inline-block;
+    width: 22pt;
+    height: 7pt;
+    border: 1px solid #666;
+    vertical-align: middle;
+    margin-right: 5pt;
+  }
+}
+#printDoc {
+  display: none;
+}
+button:focus-visible {
+  outline: 3px solid #f79622;
+  outline-offset: 2px;
+}
+.item-categories {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+.item-category {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin: 8px 0;
+  background: #fff;
+  overflow: hidden;
+}
+.item-category > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  background: var(--soft);
+}
+.item-category > summary::before {
+  content: "▸";
+  font-size: 13px;
+}
+.item-category[open] > summary::before {
+  content: "▾";
+}
+.item-category > summary .count {
+  margin-left: auto;
+}
+.item-category .irow {
+  margin: 0;
+  border-radius: 0;
+  padding: 8px 10px;
+  border-top: 1px solid var(--soft);
+}
+.category-tools {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+.category-tools label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+.category-tools input[type="color"] {
+  width: 36px;
+  height: 28px;
+  cursor: pointer;
+}
+.category-tools button {
+  font-size: 11px;
+  padding: 5px 7px;
+}
+.category-edit {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto 42px auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+}
+.category-edit .f {
+  margin: 0;
+}
+.category-edit .chk {
+  margin: 0;
+}
+.category-edit input[type="color"] {
+  width: 42px;
+}
+@media (max-width: 600px) {
+  .category-edit {
+    grid-template-columns: 1fr 42px;
+  }
+  .category-edit .chk {
+    grid-row: 2;
+  }
+  .category-edit button {
+    grid-row: 2;
+  }
+}
+.ux-selected {
+  background: #fff3ba;
+  outline: 2px solid #202c86;
+}
+.ux-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px;
+  font-size: 11px;
+}
+.ux-legend span {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.ux-legend i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #666;
+  border-radius: 3px;
+}
+#projectIdentity {
+  font-size: 11px;
+  max-width: 100%;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #202c86;
+  outline-offset: 3px;
+}
+
+/* tracking charts and red tag photos */
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.fu {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 12px;
+}
+.fu .irow {
+  margin: 0;
+}
+.tph {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin: 6px 0;
+}
+.tph div {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.tph img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.tph button {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  padding: 0 6px;
+  font-size: 13px;
+  line-height: 18px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+/* boards and labels */
+dialog.xwide {
+  width: min(1180px, calc(100vw - 32px));
+}
+.bdtbl {
+  overflow-x: auto;
+  max-height: 46vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.bdtbl table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.bdtbl td,
+.bdtbl th {
+  padding: 3px 4px;
+  font-size: 12px;
+  text-align: left;
+}
+.bdtbl td input,
+.bdtbl td select {
+  width: 100%;
+  min-width: 52px;
+  padding: 5px 6px;
+}
+.bdtbl td:nth-child(2) input {
+  min-width: 190px;
+}
+.bdtbl .bact {
+  white-space: nowrap;
+}
+.bdtbl .bact button {
+  padding: 4px 8px;
+  min-width: 34px;
+  min-height: 34px;
+}
+.lbl {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: #000;
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  flex: none;
+  box-shadow: 0 0 0 1px #9aa1bc;
+}
+.lbl .lc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  border-right: 0.35mm solid #000;
+  padding-right: 1mm;
+  font-weight: 800;
+  line-height: 1;
+  flex: none;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lbl .lc.kb {
+  border-right: 0;
+  border-left: 0.35mm solid #000;
+  padding: 0 0 0 1mm;
+  order: 2;
+}
+.lbl .lc .l2 {
+  margin-top: 0.3mm;
+}
+.lbl .lc .mm {
+  font-weight: 700;
+  margin-top: 0.4mm;
+}
+.lbl .lr {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  min-width: 0;
+  overflow: hidden;
+}
+.lbl .ln {
+  font-weight: 800;
+  line-height: 1.08;
+  white-space: nowrap;
+}
+.lbl .lx {
+  margin-top: 0.5mm;
+  font-weight: 500;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.ol {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  box-sizing: border-box;
+  border: 0.5mm dashed #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font:
+    10pt/1.2 "Segoe UI",
+    Arial,
+    sans-serif;
+  background: #fff;
+}
+.ol b {
+  font-size: 14pt;
+}
+.ol.big {
+  border-color: #c3361a;
+}
+.ol i {
+  color: #c3361a;
+  font-size: 8pt;
+}
+.bpage svg {
+  max-height: 150mm;
+}
+@media print {
+  #printDoc.labels {
+    display: block;
+  }
+  body.printing-doc #printDoc.labels .lbl {
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    margin: 0;
+  }
+  body.printing-doc #printDoc.labels .lbl:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  body.printing-doc #printDoc.labels,
+  body.printing-doc #printDoc.labels * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* SMED */
+.probhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.timer {
+  text-align: center;
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 14px 8px 10px;
+  margin: 8px 0;
+}

@@ -22,7 +22,7 @@ are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT 
 - New big features (problem solving) are **modules** with their own namespace in the project data.
 
 ## Code layout
-`index.html` loads `js/*.js` as classic scripts **in filename order**, sharing one global scope
+`index.html` loads `js/*.js` as classic scripts **in filename order** (files that share a number, such as the `34-*` and `39-*` ones, load alphabetically, and none of them may rely on another with the same number at top level), sharing one global scope
 (each file starts with `"use strict"`). It is not ES modules, so a file may only *call* functions from
 later files at runtime (after load), never at top level. `40-main.js` calls `init()` last.
 
@@ -56,12 +56,13 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup; registers the service worker |
+| css/*.css | the stylesheet in numbered files (`00-base` to `90-tasks-present`), loaded in order by `index.html`, so keep the order when adding one. Add a link in `index.html`; `sw.js` and the deploy pick it up |
 | sw.js, manifest.webmanifest, icons/ | offline and install: `sw.js` caches every file `index.html` names (so a new script or stylesheet needs nothing extra), the deploy stamps `__BUILD__` and the css/js links with the commit id; anything outside `css/` and `js/` that the page needs must be added to the file list in `sw.js`. `tools/make-icons.cjs` redraws the PNG icons from `icons/icon.svg` |
 
 Removed features (formal audits, audit lines, TV, Boards and SMED) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
 checks, the drift map and areas were removed and restored; `validate()` parks `boards`, `smed` and `labels` untouched (git history at `c0594d8^` has the code); it brings parked tags back and
-turns old audit areas into plain areas. Project version is 9 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`; 11 added `a.locked` on lines and zones).
+turns old audit areas into plain areas. Project version is 11 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`; 11 added `a.locked` on lines and zones).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a

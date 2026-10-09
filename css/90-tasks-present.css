@@ -1,0 +1,234 @@
+/* operator tasks */
+.tbl tr.tgrp td {
+  background: var(--soft);
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.itpick {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #fff;
+}
+.itpick .itrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: 0;
+}
+.itpick .itrow[hidden] {
+  display: none;
+}
+.itpick .itrow small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+@media (pointer: coarse) {
+  .itpick .itrow {
+    min-height: 44px;
+  }
+  .sfields input,
+  .sfields select {
+    min-height: 44px;
+  }
+}
+@media (pointer: coarse) {
+  .regtbl button,
+  .hint button,
+  .scopebar button {
+    min-height: 44px;
+  }
+}
+.scopebar {
+  flex-wrap: wrap;
+  max-width: calc(100% - 20px);
+}
+.chk input[type="radio"],
+.chk input[type="checkbox"] {
+  width: auto;
+  flex: none;
+}
+
+/* presentation mode */
+#present {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: #0f1330;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  cursor: none;
+}
+#present.active {
+  cursor: default;
+}
+.prhead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 28px;
+  font-size: clamp(16px, 2.2vw, 30px);
+}
+.prhead #prSub {
+  opacity: 0.65;
+}
+#prStep small {
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6em;
+}
+#prStep span {
+  opacity: 0.65;
+  font-size: 0.7em;
+  margin-left: 8px;
+}
+.prstage {
+  flex: 1;
+  min-height: 0;
+  margin: 0 28px 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.prstage svg {
+  display: block;
+}
+.prctl {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  background: rgba(15, 19, 48, 0.92);
+  padding: 10px 12px;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+#present.active .prctl {
+  opacity: 1;
+  pointer-events: auto;
+}
+.prctl button {
+  min-height: 48px;
+  padding: 0 18px;
+  font-size: 16px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+}
+.prctl button.pri {
+  background: var(--tape);
+  color: #1c2250;
+  border-color: var(--tape);
+  font-weight: 700;
+}
+.prctl button:disabled {
+  opacity: 0.35;
+}
+body.presenting {
+  overflow: hidden;
+}
+@media print {
+  #present {
+    display: none !important;
+  }
+}
+.prstage {
+  touch-action: none;
+}
+.prstage.zoomed {
+  cursor: grab;
+}
+.prstage.zoomed:active {
+  cursor: grabbing;
+}
+
+/* a second tab has the same project open */
+.tabwarn {
+  background: var(--tape);
+  color: #1c2250;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.tabwarn[hidden] {
+  display: none;
+}
+
+/* the drawing on its own */
+body.drawfocus .top,
+body.drawfocus .stripe,
+body.drawfocus .subnav,
+body.drawfocus .days,
+body.drawfocus .sheetbar,
+body.drawfocus .tabbar,
+body.drawfocus #tabWarn {
+  display: none;
+}
+#zFull {
+  min-width: 36px;
+}
+/* phones: the sheet bar shows the name and one Options button; the rest opens from it */
+#sbMore {
+  display: none;
+}
+@media (max-width: 760px) {
+  #sbMore {
+    display: inline-block;
+    min-height: 44px;
+  }
+  .sheetbar .name {
+    flex: 1 1 0;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+  .sheetbar:not(.open) > :not(.kind):not(.name):not(#sbMore) {
+    display: none;
+  }
+}
+body.drawfocus .tools,
+body.drawfocus .side {
+  display: none;
+}
+body.drawfocus .stage {
+  height: 100vh;
+  height: 100dvh;
+}
+/* a table wider than the screen shows a soft edge where more is hidden */
+.regtbl {
+  background:
+    linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)) 0 0 / 40px 100%
+      no-repeat local,
+    linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0)) 100% 0 / 40px
+      100% no-repeat local,
+    radial-gradient(
+        farthest-side at 0 50%,
+        rgba(28, 34, 80, 0.22),
+        rgba(28, 34, 80, 0)
+      )
+      0 0 / 12px 100% no-repeat scroll,
+    radial-gradient(
+        farthest-side at 100% 50%,
+        rgba(28, 34, 80, 0.22),
+        rgba(28, 34, 80, 0)
+      )
+      100% 0 / 12px 100% no-repeat scroll,
+    #fff;
+}

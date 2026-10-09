@@ -1,0 +1,111 @@
+/* layout editing */
+.canvas[data-tool="area"] #svg,
+.canvas[data-tool="tag"] #svg {
+  cursor: crosshair;
+}
+.selbar {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 22px rgba(28, 34, 80, 0.2);
+  padding: 4px;
+  white-space: nowrap;
+  flex-wrap: wrap;
+  max-width: calc(100% - 16px);
+}
+.selbar > button,
+.selbar summary {
+  border: 0;
+  background: none;
+  padding: 6px 9px;
+  font-size: 12.5px;
+  border-radius: 6px;
+  min-height: 32px;
+}
+.selbar > button:hover,
+.selbar summary:hover {
+  background: var(--soft);
+}
+.selbar .danger {
+  color: var(--bad);
+}
+.selbar .sbn {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 0 6px;
+  color: var(--navy);
+}
+.selbar .sbread {
+  font: 600 13px var(--disp);
+  color: var(--navy);
+  padding: 6px 10px;
+  font-variant-numeric: tabular-nums;
+}
+.selbar details.menu summary {
+  border: 0;
+}
+.sbmenu .pop {
+  top: auto;
+  bottom: calc(100% + 6px);
+  right: auto;
+  left: 0;
+  min-width: 190px;
+}
+@media (pointer: coarse) {
+  .selbar > button,
+  .selbar summary {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+.selback,
+.linkbtn {
+  border: 0;
+  background: none;
+  color: var(--navy);
+  padding: 4px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.selback {
+  margin: -4px 0 6px;
+  min-height: 36px;
+}
+.aligngrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.aligngrid button {
+  font-size: 12px;
+  padding: 6px 4px;
+  min-height: 36px;
+}
+.aligngrid button:nth-child(7),
+.aligngrid button:nth-child(8) {
+  grid-column: span 1;
+}
+table.keys th {
+  width: 26%;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+table.keys td {
+  line-height: 1.6;
+}
+@media (max-width: 760px) {
+  .selbar .sbn {
+    display: none;
+  }
+}

@@ -30,10 +30,17 @@ Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 
 **Removed (parked in the project file, code in git at `2ddb593`)**: formal 5S audits and dashboards, TV mode, audit lines. Areas are back as design zones (items designated to them, area sheets). The rest returns only if needed (see section 7).
 
-**Gaps for the new direction**
+**Gaps for the new direction** (checked 9 Oct 2026)
 
 | # | Gap | Effect |
 |---|---|---|
+| D2 | Items have no "home contents" (the tools on a shadow board, quantities, labels). Shadow boards were removed in version 9, so this is open again. | Can't print shadow-board outlines or location labels. |
+| D3 | The tape plan exists but the **printed output** for the person laying tape needs review against real use. | The point of the tool is a plan someone can take onto the floor. |
+| D4 | ~~No problem-solving tools~~ Built (section 5). SMED was built and removed (section 4). | Still to try on a real problem. |
+| D5 | Two people share one project by passing a file or a team folder. The app now warns when a second tab has the project open, and keeps same-name team files from different computers apart. Copies still do not merge. | Overwrite risk is lower, not gone. |
+| D6 | Item labels on the layout are hard to read at whole-factory scale. | Next piece of work: see HANDOVER. |
+
+---|---|---|
 | D2 | **Items have no "home contents".** A shadow board is one rectangle; the tools on it, quantities and labels aren't recorded. | Can't print shadow-board outlines or location labels. |
 | D3 | The tape plan exists but the **printed output** for the person laying tape needs review against real use. | The point of the tool is a plan someone can take onto the floor. |
 | D4 | **No SMED or problem-solving tools** at all. | The two main later uses. |
@@ -44,7 +51,7 @@ Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 
 ## 2. Phase 0: foundation (done)
 
-Split into `index.html`, `css/styles.css` and ordered `js/` files, verified identical to v7. Smoke test, cross-file lint, CI, Pages workflow, README, `CLAUDE.md`. Original kept in `archive/`. Then pruned to a design tool (section 1).
+Split into `index.html`, `css/*.css` and ordered `js/` files, verified identical to v7. Smoke test, cross-file lint, CI, Pages workflow, README, `CLAUDE.md`. Original kept in `archive/`. Then pruned to a design tool (section 1).
 
 ---
 
@@ -59,10 +66,10 @@ Goal: Josh and Sam can sit down, design the model line area, and print what the 
 | 1.3 **Documents in the area** ✅ | A document register: title, type (SOP, OPL, checklist, changeover sheet, risk assessment, KPI), owner, revision, review date, format/size, quantity, holder. Place each as a pin on the drawing linked to its holder (document stand, board, noticeboard). Printable "document map" and list; warn when review date has passed. Next: a shared-template field and a "last checked on the floor" date | M |
 | 1.4 **Items and shadow boards** ✅ (removed in version 9, data parked) | Boards view: numbered slots with type, part no., qty, min/max and size; location codes (`SB-01-03`); auto-packed layout with a "does it fit" check; labels for a label printer (one label per page, Brother TZe / Dymo / Zebra / custom), CSV for label software, scaled layout print, 1:1 outlines on A4 or A3. Next: QR / barcode on kanban labels, board photos, and a drag-to-arrange editor | M |
 | 1.5 **Design variants side by side** | Proposals exist; add a side-by-side view of two proposals with differences listed (distance walked, floor area, tape needed) so a design decision can be argued from numbers | M |
-| 1.6 **Floor plan import** | Place a photo/PDF/PNG of the real floor as the drawing background with scale calibration, so tape and items are designed on the true space | M |
+| 1.6 **Floor plan import** ✅ (Setup > Factory map) | Place a photo/PDF/PNG of the real floor as the drawing background with scale calibration, so tape and items are designed on the true space | M |
 | 1.7 **Working as two people** | `docs/WORKFLOW.md`: one master file in a shared folder; "Save as" with date and initials; a change note on each save (the app already has a journal); a warning when opening a file older than the one in the browser. A real merge feature is not needed for two users | S |
 | 1.8 **Module registry** | A small `registerModule({ id, name, nav, render, migrate })` so SMED and problem solving plug in as modules with their own data namespace, without editing 5S code. The existing 5S code becomes the first module | S |
-| 1.9 **Split the big files** | `25-five-view.js` (1,262 lines) and `07-canvas.js` (1,194) into smaller files, verified by the snapshot test | M |
+| 1.9 **Split the big files** | The stylesheet is now split into numbered files in `css/` (9 Oct 2026). `07-canvas.js` (about 1,300 lines) is still one file | M |
 
 **Done when:** the model line can be designed from a blank page and printed as a pack (layout, tape plan, document map, shadow-board labels) without reading instructions.
 
@@ -115,7 +122,7 @@ A module; every output ends in the existing actions register (one list of what's
 
 Resume these once IT and existing systems are known.
 
-- **Phone auditing**: audit-first mobile mode, one question per screen, camera, quick red tag, areas from a list, installable offline app (PWA). The current phone layout uses about 20% of the screen on the header and cuts off the daily-check bar.
+- **Phone auditing**: audit-first mobile mode, one question per screen, camera, quick red tag, areas from a list, installable offline app (PWA). The app installs and works offline (see `docs/DOMAIN.md`). On a phone the sheet bar collapses to the name and an Options button, and the drawing has a full-screen button.
 - **Factory TV dashboard**: a separate read-only `tv.html` for 1080p/4K from a mini PC in Chrome/Edge kiosk mode (plain JS so the TV's own browser can be a fallback), rotating screens, "last updated" and stale-data warning, wake lock.
 - **Shared data across devices**: a storage adapter (`load/save/subscribe`) with records merged by id. Options: shared file on a company drive, small hosted backend (Supabase/Firebase), or an on-site server. Pick after IT input; all can be swapped in behind the adapter. Needs your IT or data-protection sign-off before real data goes online.
 - **Integration** with existing systems (maintenance, quality, MES, PLC data).
@@ -132,6 +139,7 @@ Earlier answers that still apply when these resume: TV is a mini PC or the TV's 
 - **Sharing:** each person points the studio at a shared team folder (OneDrive, Teams or a network drive);
   the open project is published there as a file, and teammates' projects open as copies in your own list.
   No server, no IT approval needed for the studio itself.
+- **Data stays in one browser.** The app asks the browser to keep its storage, but clearing site data still deletes it. A backup file (File > Save project) is the real safety net; the header shows a chip when no backup has been downloaded for a week.
 - **Not covered:** two people editing the same project at once (copies do not merge), or protecting files in
   the team folder (anyone who can open the folder can read them). A real shared backend is deferred; see
   section 7.

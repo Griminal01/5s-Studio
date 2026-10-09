@@ -108,7 +108,7 @@ outside that browser.
 
 ```
 index.html          page markup; loads css/ and js/ in order
-css/styles.css      all styles (screen and print)
+css/*.css           styles in numbered files (screen and print), loaded in order
 js/NN-name.js       app code, loaded in numeric order (see CLAUDE.md)
 tests/smoke.cjs     boots the app, visits every view, loads the example, prints documents
 tools/lint.cjs      cross-file lint (undefined names, unused code)

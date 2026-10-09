@@ -1,6 +1,6 @@
 {
   "name": "lean-studio",
-  "version": "7.0.0",
+  "version": "11.0.0",
   "private": true,
   "description": "Lean Studio: 5S layout and floor tape design, lines and zones, operator tasks, documents and problem solving boards for a production area",
   "scripts": {

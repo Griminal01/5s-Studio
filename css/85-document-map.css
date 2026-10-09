@@ -1,0 +1,107 @@
+/* document map: documents on their own map */
+.dmap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 14px;
+  align-items: start;
+}
+.dmcv {
+  position: relative;
+  height: calc(100vh - 290px);
+  min-height: 440px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.dmcv svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+.dmcv.placing svg {
+  cursor: crosshair;
+}
+.dmcv [data-t="pin"] {
+  cursor: pointer;
+}
+.dmcv .hint {
+  display: flex;
+}
+.dmlist {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  max-height: calc(100vh - 290px);
+  min-height: 440px;
+  overflow: auto;
+}
+.dmlist h3 {
+  font-size: 12.5px;
+  margin: 12px 0 4px;
+}
+.dmrow {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  margin-bottom: 4px;
+}
+.dmgo {
+  flex: 1;
+  text-align: left;
+  border: 0;
+  border-left: 4px solid #0e7c86;
+  background: var(--soft);
+  padding: 7px 9px;
+  font-size: 12.5px;
+  min-height: 44px;
+}
+.dmgo small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.dmrow.on .dmgo {
+  background: #fff3ba;
+}
+.dmrow.late .dmgo {
+  border-left-color: var(--bad);
+}
+@media (max-width: 900px) {
+  .dmap {
+    grid-template-columns: 1fr;
+  }
+  .dmcv {
+    height: 60vh;
+    min-height: 320px;
+  }
+  .dmlist {
+    max-height: none;
+    min-height: 0;
+  }
+}
+
+.pcause textarea {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: 600 13px/1.3 var(--disp);
+  color: #202c86;
+  padding: 7px 2px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  resize: none;
+  overflow: hidden;
+  min-height: 30px;
+}
+.pcause.likely textarea {
+  color: #c3361a;
+}
+.pboardprint .pcause {
+  align-items: flex-start;
+}

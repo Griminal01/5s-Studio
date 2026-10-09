@@ -1,6 +1,6 @@
 # Handover: state of Lean Studio (formerly 5S Studio)
 
-Last updated after the code audit (11 Oct 2026). Read this first when picking the work back up.
+Last updated after the review fixes (9 Oct 2026; the dates below from the audit are as written in the project history). Read this first when picking the work back up.
 
 ## What is built
 
@@ -60,9 +60,14 @@ the scale was set; Compare with the sheet itself showed nothing; delete or "refr
 before the replacement was known good; images could be dropped after a failed database write; record ids are
 now unique after validate. Dead CSS from Boards and SMED removed.
 
-Known and not fixed: two browser tabs open on one account can overwrite each other (no lock); two people on
-different computers with the same username write the same team file name; "Show" on a task and several
-dialogs lose unsaved edits if you leave through a button inside the dialog (Settings Scale/Logo).
+Review fixes (after a full pass of the app): the browser is asked to keep storage (`keepStorage()`); a second tab
+on the same project shows a warning banner, and the tab that is now out of date asks for a reload (`BroadcastChannel`
+in `js/05-storage.js`; a warning, not a lock); two people with the same username on different computers no longer
+write the same team file (the second gets the project name plus a short device id); the sheet bar on a phone
+collapses to the name and an Options button; the drawing has a full-screen button (Esc returns); wide tables show a soft
+edge; the empty layout points to Setup; the stylesheet is split into `css/*.css`. Known and not fixed: "Show" on a
+task and several dialogs lose unsaved edits if you leave through a button inside the dialog (Settings Scale/Logo).
+Item labels on the layout are hard to read at whole-factory scale: this is the next piece of work.
 
 ## Review done (two passes, all fixed and pushed)
 
@@ -85,7 +90,7 @@ projects always become new projects. Not security: the site is public and nothin
 
 ## Known limits (not bugs)
 
-- Two tabs open on the same account and project overwrite each other: last save wins.
+- Two tabs open on the same project: the app warns, but if both are edited the last save wins.
 - Team copies do not merge back; refresh a copy by opening the teammate's project again.
 
 - Nothing has been tried on a real label printer or real printer yet. Print one test label first.
