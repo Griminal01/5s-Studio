@@ -287,6 +287,7 @@ function addCause(p, cat, text) {
 /* ---------- the view ---------- */
 function renderProblems(push = false) {
   drawProblems();
+  if (typeof growCauses === "function") growCauses();
   if (ui.view === "problems") syncHash(push);
 }
 const updateProbBadge = updateNavBadges;

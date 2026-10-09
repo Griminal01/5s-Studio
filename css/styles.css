@@ -3050,24 +3050,23 @@ table.keys td {
 }
 /* the bone: a slanted line that meets the spine */
 .fcol::after {
+  /* the bone: a fixed-width slanted strip, so a branch with many causes never sweeps it across the buttons */
   content: "";
   position: absolute;
-  right: 30px;
-  width: 3px;
+  right: 14px;
+  width: 46px;
   background: #1c2250;
   pointer-events: none;
 }
 .fcol.up::after {
   top: 26px;
   bottom: -13px;
-  transform: skewX(14deg);
-  transform-origin: bottom;
+  clip-path: polygon(0 0, 4px 0, 100% 100%, calc(100% - 4px) 100%);
 }
 .fcol.down::after {
   top: -13px;
   bottom: 26px;
-  transform: skewX(-14deg);
-  transform-origin: top;
+  clip-path: polygon(100% 0, calc(100% - 4px) 0, 0 100%, 4px 100%);
 }
 .fcol h4 {
   margin: 0 0 6px;
@@ -3157,14 +3156,31 @@ table.keys td {
 .pcause.likely .star {
   color: #c3361a;
 }
+.pcause {
+  position: relative;
+}
+/* Act / Why / remove sit over the right end of the row on hover or focus, so long causes keep their room */
 .cbtns {
-  display: inline-flex;
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   gap: 1px;
-  opacity: 0.55;
+  background: #fff;
+  box-shadow: -8px 0 8px #fff;
 }
 .pcause:hover .cbtns,
 .pcause:focus-within .cbtns {
-  opacity: 1;
+  display: inline-flex;
+}
+@media (pointer: coarse) {
+  .cbtns {
+    display: inline-flex;
+    position: static;
+    transform: none;
+    box-shadow: none;
+  }
 }
 .cbtns button {
   border: 0;
@@ -3704,4 +3720,25 @@ table.keys td {
     max-height: none;
     min-height: 0;
   }
+}
+
+.pcause textarea {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: 600 13px/1.3 var(--disp);
+  color: #202c86;
+  padding: 7px 2px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  resize: none;
+  overflow: hidden;
+  min-height: 30px;
+}
+.pcause.likely textarea {
+  color: #c3361a;
+}
+.pboardprint .pcause {
+  align-items: flex-start;
 }

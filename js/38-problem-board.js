@@ -39,7 +39,7 @@ function boardHTML(p) {
   const nums = causeNumbers(p),
     fishName = (k) => FISH.find((f) => f[0] === k);
   const cause = (k, c) =>
-    `<div class="pcause${c.likely ? " likely" : ""}"><button type="button" class="star" data-pb="likely" data-a1="${k}" data-a2="${esc(c.id)}" aria-pressed="${c.likely}" title="${c.likely ? "Likely cause: click to unmark" : "Mark as a likely cause"}">★</button><input data-fc="${k}:${esc(c.id)}" value="${esc(c.text)}" aria-label="Cause">${nums.has(c.id) ? cnum(nums.get(c.id)) : ""}<span class="cbtns"><button type="button" data-pb="cause-act" data-a2="${esc(c.id)}" title="Raise an action against this cause">Act</button><button type="button" data-pa="fish-why" data-a1="${k}" data-a2="${esc(c.id)}" title="Start the why chain from this cause">Why</button><button type="button" data-pa="fish-del" data-a1="${k}" data-a2="${esc(c.id)}" aria-label="Remove this cause">×</button></span></div>`;
+    `<div class="pcause${c.likely ? " likely" : ""}"><button type="button" class="star" data-pb="likely" data-a1="${k}" data-a2="${esc(c.id)}" aria-pressed="${c.likely}" title="${c.likely ? "Likely cause: click to unmark" : "Mark as a likely cause"}">★</button><textarea rows="1" data-fc="${k}:${esc(c.id)}" aria-label="Cause">${esc(c.text)}</textarea>${nums.has(c.id) ? cnum(nums.get(c.id)) : ""}<span class="cbtns"><button type="button" data-pb="cause-act" data-a2="${esc(c.id)}" title="Raise an action against this cause">Act</button><button type="button" data-pa="fish-why" data-a1="${k}" data-a2="${esc(c.id)}" title="Start the why chain from this cause">Why</button><button type="button" data-pa="fish-del" data-a1="${k}" data-a2="${esc(c.id)}" aria-label="Remove this cause">×</button></span></div>`;
   const col = (k, pos) => {
     const [, name, hint] = fishName(k);
     return `<div class="fcol ${pos}"><h4 title="${esc(hint)}">${name}</h4><div class="fcauses">${p.fish[k].map((c) => cause(k, c)).join("")}<div class="pcause add"><input data-fadd="${k}" placeholder="Add a cause" title="${esc(hint)}" aria-label="Add a cause under ${name}"></div></div></div>`;
@@ -224,3 +224,20 @@ function printBoard(p) {
     "size: A3 landscape; margin: 8mm",
   );
 }
+
+/* causes are one-line boxes that grow to fit what is typed, so long causes are never cut off */
+function growCauses(root = $("#problemView")) {
+  root.querySelectorAll(".pcause textarea").forEach((t) => {
+    t.style.height = "auto";
+    t.style.height = t.scrollHeight + "px";
+  });
+}
+psView.addEventListener("input", (e) => {
+  if (e.target.matches(".pcause textarea")) growCauses(e.target.parentElement);
+});
+psView.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.matches(".pcause textarea")) {
+    e.preventDefault();
+    e.target.blur();
+  }
+});
