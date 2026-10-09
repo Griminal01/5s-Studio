@@ -315,7 +315,7 @@ function selectAll() {
 }
 function zoomToSel() {
   const sel = selected();
-  if (!sel.length) return;
+  if (!sel.length || (!ui.vb && (fitView(), !ui.vb))) return;
   const b = unionBox(sel.map(bboxOf)),
     r = svg.getBoundingClientRect(),
     w = Math.max(

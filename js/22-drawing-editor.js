@@ -84,8 +84,9 @@ function addFixed(def) {
     u = upm(sh),
     id = uid();
   dm.fixed = dm.fixed || [];
-  let x = snapV(ui.vb.x + ui.vb.w / 2, sh),
-    y = snapV(ui.vb.y + vbH() / 2, sh);
+  const c = viewCentre();
+  let x = snapV(c.x, sh),
+    y = snapV(c.y, sh);
   const step = Math.max(def.w, def.h, 1) * u * 0.7;
   for (
     let n = 0;

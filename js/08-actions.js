@@ -1,11 +1,13 @@
 "use strict";
-/* ============ actions ============ */
+/* ============ actions ============
+   What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's
+   data-a="..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item. */
 function addItem(def, at) {
   const sh = S(),
     u = upm(sh),
     id = uid();
   let auto = !at;
-  if (!at) at = { x: ui.vb.x + ui.vb.w / 2, y: ui.vb.y + vbH() / 2 };
+  if (!at) at = viewCentre();
   let x = snapV(at.x, sh),
     y = snapV(at.y, sh);
   const step = Math.max(def.w, def.h) * u * 0.7;

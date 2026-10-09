@@ -89,7 +89,7 @@ function labelsSVG(sh, k, o) {
         bb: { x0: bb.x0 / k, x1: bb.x1 / k, y0: bb.y0 / k, y1: bb.y1 / k },
       });
     }
-  if (L.fixed)
+  if (L.fixed && !(ui.editDrawing && !o.export && !ui.printing))
     for (const f of dm.fixed || []) {
       if (f.t !== "block" || !f.label) continue;
       const bb = boxOf(corners(f));

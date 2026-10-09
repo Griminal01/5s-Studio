@@ -125,7 +125,7 @@ async function teamList() {
     const m = name.match(TEAM_FILE);
     if (!m) continue;
     // my own files are hidden; a file under my name with another computer's id is someone else's
-    const other = /\(([a-z0-9]{1,6})\)$/.exec(m[2]);
+    const other = /\(([a-z0-9]{6})\)$/.exec(m[2]); // deviceId() is 6 characters
     if (
       nameKey(m[1]) === nameKey(CUR.name) &&
       !(other && other[1] !== deviceId())

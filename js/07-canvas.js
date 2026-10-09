@@ -1,5 +1,8 @@
 "use strict";
-/* ============ canvas: build SVG ============ */
+/* ============ canvas: build SVG ============
+   The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the
+   document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the
+   viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch). */
 const svg = $("#svg");
 const COL = {
   walk: "#202C86",
@@ -388,7 +391,8 @@ function buildSVG(sh, o) {
     if (!A || ptInPoly(pn.o, A.pts)) s += pinSVG(pn, k);
   {
     const editing = ui.editDrawing && !o.export && !ui.printing,
-      fx = fixedSVG(sh, k, editing, "fxh", true);
+      // while the drawing is edited the fixed objects keep their own names, at full strength
+      fx = fixedSVG(sh, k, editing, "fxh", !editing);
     s = editing
       ? s.slice(0, midPos) +
         '<g opacity=".35" pointer-events="none">' +
@@ -488,6 +492,15 @@ function buildSVG(sh, o) {
 function vbH() {
   const r = svg.getBoundingClientRect();
   return ui.vb.w * (r.height / Math.max(1, r.width));
+}
+// the middle of what is on screen; the middle of the drawing before the layout has been shown
+function viewCentre() {
+  if (!ui.vb) fitView();
+  if (!ui.vb) {
+    const dm = DM();
+    return { x: dm.w / 2, y: dm.h / 2 };
+  }
+  return { x: ui.vb.x + ui.vb.w / 2, y: ui.vb.y + vbH() / 2 };
 }
 function kNow() {
   const r = svg.getBoundingClientRect();

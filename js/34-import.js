@@ -164,9 +164,7 @@ function bringItems(sp, chosen, o) {
     cx = chosen.reduce((s, i) => s + i.x, 0) / chosen.length;
     cy = chosen.reduce((s, i) => s + i.y, 0) / chosen.length;
     const A = scopeArea(),
-      c = A
-        ? areaCentre(A)
-        : { x: ui.vb.x + ui.vb.w / 2, y: ui.vb.y + vbH() / 2 };
+      c = A ? areaCentre(A) : viewCentre();
     tx = c.x;
     ty = c.y;
   }
