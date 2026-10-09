@@ -1,5 +1,8 @@
 "use strict";
-/* ============ state ============ */
+/* ============ state ============
+   Global state: the open project P and the UI state ui (view, selection ui.sel, viewbox ui.vb, layers,
+   scope). Sheet shortcuts S() current sheet, STD() standard, DM(sh) its drawing, stdFor(daily). Units:
+   mpu/upm, toUser/fromUser, fmtLen. newProject(), record() journal, undo: checkpoint() / restore(), find(id). */
 let P = null,
   D = {},
   PH = {};

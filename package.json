@@ -6,7 +6,8 @@
   "scripts": {
     "serve": "npx http-server -p 8080 -c-1 .",
     "test": "node tests/smoke.cjs && node tests/offline.cjs",
-    "check": "for f in js/*.js; do node --check \"$f\" || exit 1; done",
+    "check": "for f in js/*.js; do node --check \"$f\" || exit 1; done && node tools/codemap.cjs --check",
+    "map": "node tools/codemap.cjs",
     "lint": "node tools/lint.cjs",
     "format": "npx prettier --write index.html css js tests"
   },

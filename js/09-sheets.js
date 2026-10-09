@@ -1,5 +1,7 @@
 "use strict";
-/* ============ sheets ============ */
+/* ============ sheets ============
+   Sheets: the standard, proposals and daily checks. openSheet(), newDaily(), newProposal(),
+   makeStandard(), deleteSheet(). */
 const dailies = () =>
   P.sheets
     .filter((s) => s.kind === "daily")

@@ -1,5 +1,9 @@
 "use strict";
-/* ============ storage ============ */
+/* ============ storage ============
+   Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(), autosave
+   save() / flushSave() / runSave() with a localStorage fallback, validate(p) migrates every older project
+   shape (bump the version here), migrateLegacy() for v6 files, keepStorage(), the second-tab warning
+   (tabTell / tabWarn over BroadcastChannel) and deviceId(). */
 // One transaction keeps project metadata and media consistent after interruption.
 const idb = {
   db: null,

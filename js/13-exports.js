@@ -1,5 +1,6 @@
 "use strict";
-/* ============ exports ============ */
+/* ============ exports ============
+   Layout exports: deviations and routes CSV, exportPNG() (the sheet as an image), printSheet(). */
 function csvDeviations() {
   const c = cmpCache,
     sh = S();

@@ -1,5 +1,6 @@
 "use strict";
-/* ============ red tag form ============ */
+/* ============ red tag form ============
+   Forms in dialogs: red tag (tagModal, with photos) and action (actionModal), linesToActions(). */
 function renderTagPhotos() {
   const d = ui.tagDraft,
     el = $("#tagPh");

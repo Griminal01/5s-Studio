@@ -21,6 +21,13 @@ are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT 
 - **Print is a first-class output** (A3 and A4): new features need a print layout.
 - New big features (problem solving) are **modules** with their own namespace in the project data.
 
+## Finding code
+Read `docs/CODEMAP.md` before searching: every top-level function, constant and handler with its line and
+comment, each file's purpose, and a "where things are wired" table. Then read only the lines you need.
+After changing code run `npm run map` (`npm run check` fails while the map is out of date). Keep the
+`/* ==== name ==== */` banner at the top of each file saying what is in it, and a one-line `//` comment
+above functions whose name does not say enough: both become the map.
+
 ## Code layout
 `index.html` loads `js/*.js` as classic scripts **in filename order** (files that share a number, such as the `34-*` and `39-*` ones, load alphabetically, and none of them may rely on another with the same number at top level), sharing one global scope
 (each file starts with `"use strict"`). It is not ES modules, so a file may only *call* functions from
@@ -79,6 +86,7 @@ Read `docs/HANDOVER.md` first: what is built, what the review fixed, known limit
 ```bash
 npm run check && npm run lint && npm test
 ```
+`npm run check` is a syntax check of every file plus the code map freshness check.
 `npm test` runs the smoke test and `tests/offline.cjs` (installs the service worker over http, switches the network off, reloads).
 The smoke test also opens `tests/fixtures/v7-backup.json` (made with the original file): old backups must keep opening.
 For UI changes, also load the page in Chromium (Playwright is preinstalled; do not run

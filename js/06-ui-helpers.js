@@ -1,5 +1,7 @@
 "use strict";
-/* ============ small UI helpers ============ */
+/* ============ small UI helpers ============
+   Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(),
+   printWithPage() which every print goes through, printView(). */
 function toast(t, ms = 3200) {
   const el = $("#toast");
   el.textContent = t;

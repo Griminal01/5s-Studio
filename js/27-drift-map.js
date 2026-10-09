@@ -1,5 +1,7 @@
 "use strict";
-/* ============ drift map ============ */
+/* ============ drift map ============
+   Tracking's drift map: where each item was found across daily checks (driftCalc), the map
+   (driftSVG, renderDrift), moving an item's home (moveHome) or adding a found item to the standard. */
 const median = (a) => {
   const s = a.slice().sort((x, y) => x - y),
     m = s.length >> 1;

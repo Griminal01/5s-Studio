@@ -1,5 +1,7 @@
 "use strict";
-/* ============ shared helpers ============ */
+/* ============ shared helpers ============
+   Helpers shared by the forms: owner lists, <option> builders opts() / optsKV(), blank and new red
+   tags and actions (newTag, newAction), sheetLabel(). */
 const owners = () =>
   [
     ...new Set(

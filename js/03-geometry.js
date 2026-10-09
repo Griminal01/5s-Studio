@@ -1,5 +1,7 @@
 "use strict";
-/* ============ geometry ============ */
+/* ============ geometry ============
+   Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon
+   length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles. */
 function corners(o, pad = 0) {
   const r = (o.a * Math.PI) / 180,
     c = Math.cos(r),

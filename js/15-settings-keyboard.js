@@ -1,5 +1,7 @@
 "use strict";
-/* ============ settings ============ */
+/* ============ settings ============
+   Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-screen drawing
+   (setDrawFocus), the phone sheet-bar Options button, undo / redo buttons, print hooks. */
 $("#bSettings").onclick = async () => {
   const s = P.settings,
     m = mpu();

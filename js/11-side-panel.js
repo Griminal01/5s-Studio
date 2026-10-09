@@ -1,5 +1,7 @@
 "use strict";
-/* ============ side panel ============ */
+/* ============ side panel ============
+   The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), renderSide() picks the
+   pane; paneItem() is the selected item's form, sheetStats() the summary when nothing is selected. */
 $("#tabs").addEventListener("click", (e) => {
   const b = e.target.closest("[data-tab]");
   if (b) {

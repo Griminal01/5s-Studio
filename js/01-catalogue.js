@@ -1,5 +1,8 @@
 "use strict";
-/* ============ catalogue ============ */
+/* ============ catalogue ============
+   Fixed lists and their helpers: floor tape types (DEFAULT_TYPES, TAPE, tapeOf, applyMarking), the
+   equipment library LIB, 5S steps S5, red tag / action / task / document constants and numbering (tagNo,
+   actNo, docNo), item categories (normalizeItemCategories, itemCategoryId, manageItemCategories dialog). */
 /* floor marking standard: types are editable, TAPE is rebuilt from P.marking on every render */
 const DEFAULT_TYPES = [
   {

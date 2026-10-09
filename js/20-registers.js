@@ -1,5 +1,7 @@
 "use strict";
-/* ============ action register ============ */
+/* ============ action register ============
+   Red tag and action registers: tables with filters (tagsHTML, actionsHTML), wiring, CSV, the
+   follow-up list. */
 function renderRegister() {
   const el = $("#regView");
   el.innerHTML = ui.view === "tags" ? tagsHTML() : actionsHTML();

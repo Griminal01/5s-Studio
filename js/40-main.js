@@ -1,4 +1,6 @@
 "use strict";
+/* ============ main ============
+   Startup: calls init() (last file to load) and registers the service worker for offline use. */
 init().catch((error) => {
   console.error(error);
   $("#saved").textContent = "Could not start";

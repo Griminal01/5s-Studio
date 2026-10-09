@@ -1,5 +1,7 @@
 "use strict";
-/* ============ project files ============ */
+/* ============ project files ============
+   Project files: projectBundle() (the whole project as one JSON, also what the team folder gets),
+   saveProject() backup download and the backup chip, opening files, adding the drawing image, photos, logo. */
 /* everything in the open project as one file (also what is published to a team folder) */
 function projectBundle() {
   const ph = {};

@@ -1,5 +1,7 @@
 "use strict";
-/* ============ checks ============ */
+/* ============ checks ============
+   Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everything the Compare tab and
+   the red outlines show), compare(a, b) between sheets with a score, walking totals, 5S score, safeImage(). */
 function keepClears(sh) {
   const ref = sh.kind === "daily" ? stdFor(sh) : null;
   const own = sh.objects.filter((o) => o.kind === "keepclear");

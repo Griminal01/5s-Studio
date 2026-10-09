@@ -1,5 +1,7 @@
 "use strict";
-/* ============ render all & start ============ */
+/* ============ render all & start ============
+   renderAll() redraws whatever view is open; init() starts the app (open storage, sign in, load the
+   project, keep anything unreadable instead of overwriting it). */
 function renderAll() {
   applyMarking();
   updateProjectIdentity();

@@ -1,5 +1,7 @@
 "use strict";
-/* ============ basics ============ */
+/* ============ basics ============
+   Tiny helpers used everywhere: $ / $$ (querySelector), uid, clone, clamp, esc (HTML-escape every
+   user string put into markup), today / fmtDate (local dates, never UTC), angDiff, clipText. */
 const TOUCH = matchMedia("(pointer:coarse)").matches ? 1.7 : 1;
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
