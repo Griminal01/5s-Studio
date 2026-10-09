@@ -21,15 +21,19 @@ Everything runs in the browser. There is no server and no build step. Data is st
   the area it sits in, or you designate it to one; a designated item that strays is flagged in Compare,
   on the map and on daily checks. Each area shows its items, tape, documents, boards, red tags and
   actions, and prints as an A3 area sheet. Registers have an Area column and filter.
-- **Problems**: raise a problem (from scratch, or from a changeover, a red tag or an area), define it
-  (background, current state, target, containment), find the root cause with a **5-Why** and a
-  **fishbone**, then fix it with **countermeasures** that are normal actions in the action log. Review
-  and close with an effectiveness check, reopen if it comes back. A **Pareto** chart (minutes lost,
-  occurrences or number of problems) shows what to attack first, and everything prints as one **A3
-  report** with the fishbone.
-- **SMED**: record a changeover (stopwatch or typed in), mark each step as done with the machine
-  **stopped** or **while it runs**, and plan an improvement for each step (move to external, shorten, do
-  in parallel, eliminate). Gantt timelines of now and the plan, stopped time saved per changeover and per
+- **Problems**: each problem is a **board** laid out like the whiteboard version: problem statement,
+  a fishbone (machine, method, material, environment, people, measurement) with likely causes starred,
+  a hypothesis and how it was confirmed, the why chain to the root cause, and the action list. An
+  action raised from a cause gets the same number as the cause. Actions are normal actions in the
+  action log. The A3 details tab holds background, target, containment, links, photos and the
+  effectiveness check before closing. Print the board on one A3 sheet or print an A3 report; a
+  **Pareto** chart shows what to attack first. Raise a problem from scratch, a changeover, a red tag
+  or an area.
+- **SMED**: works through the four SMED steps. **Record** the changeover (stopwatch, or type the steps
+  in), **Separate** each step into machine stopped / before the stop / after the restart with one tap,
+  **Improve** each stopped step (make external, shorten, in parallel, eliminate), and print the
+  **Standard work** with where each part or tool comes from. Trials of the same changeover sit side
+  by side, and a click on a bar in the timeline finds its step. Gantt timelines of now and the plan, stopped time saved per changeover and per
   year, a target line, a "look here first" list, walking distance from layout routes, a history across
   trials, and a printable standard-work checklist.
 - **Boards**: shadow boards, cleaning stations and kanban racks. List what lives on each board in

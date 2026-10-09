@@ -308,9 +308,8 @@ function smedResult(co) {
 }
 
 /* ----- the timeline chart ----- */
-function smedGantt(co, mode, axis, lanes) {
+function smedGantt(co, mode, axis, lanes, W = 980) {
   const sc = smedSchedule(co, mode),
-    W = 980,
     L = 120,
     R = 14,
     rowH = 30,
@@ -336,7 +335,7 @@ function smedGantt(co, mode, axis, lanes) {
       w = Math.max(2, x(b.end) - x(b.start)),
       ext = b.s.type !== "internal";
     const n = co.steps.findIndex((q) => q.id === b.s.id) + 1;
-    s += `<g><title>${n}. ${esc(b.s.name)}: ${fmtMS(b.s.dur)} (${esc(SMED_TYPES.find((t) => t[0] === b.s.type)[1])})</title><rect x="${x(b.start)}" y="${y}" width="${w}" height="${rowH - 8}" rx="3" fill="${ext ? `url(#${pid})` : "#202c86"}" stroke="${b.s.changed && mode === "after" ? "#e07b00" : ext ? "#1f8a55" : "#18216a"}" stroke-width="${b.s.changed && mode === "after" ? 2.4 : 1}"/>${w > 18 ? `<text x="${x(b.start) + w / 2}" y="${y + (rowH - 8) / 2}" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="${ext ? "#0d4d2d" : "#fff"}">${n}</text>` : ""}</g>`;
+    s += `<g data-si="${n - 1}" style="cursor:pointer"><title>${n}. ${esc(b.s.name)}: ${fmtMS(b.s.dur)} (${esc(SMED_TYPES.find((t) => t[0] === b.s.type)[1])})</title><rect x="${x(b.start)}" y="${y}" width="${w}" height="${rowH - 8}" rx="3" fill="${ext ? `url(#${pid})` : "#202c86"}" stroke="${b.s.changed && mode === "after" ? "#e07b00" : ext ? "#1f8a55" : "#18216a"}" stroke-width="${b.s.changed && mode === "after" ? 2.4 : 1}"/>${w > 18 ? `<text x="${x(b.start) + w / 2}" y="${y + (rowH - 8) / 2}" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="${ext ? "#0d4d2d" : "#fff"}">${n}</text>` : ""}</g>`;
   }
   s += `<line x1="${x(0)}" x2="${x(0)}" y1="${top - 8}" y2="${top + lanes.length * rowH}" stroke="#c3361a" stroke-width="2"/><text x="${x(0)}" y="${top - 12}" font-size="11" font-weight="700" text-anchor="middle" fill="#c3361a">Stops</text>`;
   s += `<line x1="${x(sc.downtime)}" x2="${x(sc.downtime)}" y1="${top - 8}" y2="${top + lanes.length * rowH}" stroke="#c3361a" stroke-width="2" stroke-dasharray="5 3"/><text x="${x(sc.downtime)}" y="${top - 12}" font-size="11" font-weight="700" text-anchor="${x(sc.downtime) > W - 80 ? "end" : "middle"}" fill="#c3361a">Running ${fmtMS(sc.downtime)}</text>`;
@@ -361,11 +360,52 @@ const curCO = () =>
 const coCode = (c) => "CO-" + String(c.no).padStart(3, "0");
 const seriesOf = (c) => c.series || c.name;
 
+/* the four SMED steps: what you look at and what you change at each one */
+const SMED_STAGES = [
+  [
+    "record",
+    "1 Record",
+    "List every step in the order it happens, who does it and how long it takes. Time one at the line with Time one now, or type it in from a video.",
+  ],
+  [
+    "separate",
+    "2 Separate",
+    "For each step ask: does the machine really have to be stopped for this? Mark what can be done before the stop or after the restart.",
+  ],
+  [
+    "improve",
+    "3 Improve",
+    "Cut the stopped time: move work outside the stop, shorten it, share it out or remove it. The plan chart updates as you choose.",
+  ],
+  [
+    "standard",
+    "4 Standard work",
+    "The new way of working, in order, with where each part or tool comes from. Print it as the work sheet for the next trial.",
+  ],
+];
+const smedStage = () =>
+  SMED_STAGES.some((x) => x[0] === ui.smed.stage) ? ui.smed.stage : "record";
+const ganttW = () =>
+  Math.round(clamp(($("#smedView")?.clientWidth || 1100) - 90, 340, 1500));
+
 function smedVizHTML(co) {
   const r = smedResult(co),
     lanes = smedLanes(co),
-    axis = smedAxis(co);
-  const walk = smedWalk(co);
+    axis = smedAxis(co),
+    stage = smedStage(),
+    W = ganttW();
+  let h = `<div class="kpis smedk"><div><b>${fmtMS(r.now.downtime)}</b><span>Stopped now</span></div><div><b class="${r.onTarget ? "c-ok" : ""}">${fmtMS(r.after.downtime)}</b><span>Stopped with the plan</span></div><div><b>${fmtMS(r.saved)}</b><span>Saved per changeover</span></div><div><b>${co.target ? fmtMS(co.target) : "–"}</b><span>Target</span></div><div><b>${r.hoursYear >= 10 ? Math.round(r.hoursYear) : r.hoursYear.toFixed(1)} h</b><span>Saved per year (${co.perWeek}/wk)</span></div>${co.valuePerMin ? `<div><b>£${Math.round(r.moneyYear).toLocaleString("en-GB")}</b><span>Value per year</span></div>` : ""}</div>`;
+  if (!co.steps.length)
+    return (
+      h +
+      `<p class="empty">Add the steps of the changeover, in the order they happen, to see the timeline.</p>`
+    );
+  const now = `<div class="gwrap"><div class="glabel"><b>Now, as observed</b> · stopped ${fmtMS(r.now.downtime)}</div>${smedGantt(co, "now", axis, lanes, W)}</div>`,
+    plan = `<div class="gwrap"><div class="glabel"><b>With the plan</b> · stopped ${fmtMS(r.after.downtime)}${r.saved ? `, ${fmtMS(r.saved)} less` : ""}${co.target ? (r.onTarget ? " · <b class='c-ok'>on target</b>" : ` · ${fmtMS(r.after.downtime - co.target)} over target`) : ""}</div>${smedGantt(co, "after", axis, lanes, W)}</div>`;
+  h += `<section class="block wide gantts">${stage === "improve" ? now + plan : stage === "standard" ? plan : now}<p class="small muted glegend"><span class="lg int"></span>Machine stopped <span class="lg ext"></span>Done while it runs <span class="lg chg"></span>Changed in the plan · Click a bar to find its step.</p></section>`;
+  return h;
+}
+function smedLookFirst(co) {
   const big = co.steps
     .map((s, i) => ({ s, i }))
     .filter(
@@ -373,18 +413,7 @@ function smedVizHTML(co) {
     )
     .sort((a, b) => b.s.dur - a.s.dur)
     .slice(0, 3);
-  let h = `<div class="kpis smedk"><div><b>${fmtMS(r.now.downtime)}</b><span>Stopped now</span></div><div><b class="${r.onTarget ? "c-ok" : ""}">${fmtMS(r.after.downtime)}</b><span>Stopped with the plan</span></div><div><b>${fmtMS(r.saved)}</b><span>Saved per changeover</span></div><div><b>${co.target ? fmtMS(co.target) : "–"}</b><span>Target</span></div><div><b>${r.hoursYear >= 10 ? Math.round(r.hoursYear) : r.hoursYear.toFixed(1)} h</b><span>Saved per year (${co.perWeek}/wk)</span></div>${co.valuePerMin ? `<div><b>£${Math.round(r.moneyYear).toLocaleString("en-GB")}</b><span>Value per year</span></div>` : ""}</div>`;
-  if (!co.steps.length)
-    return (
-      h +
-      `<p class="empty">Add the steps of the changeover, in the order they happen, to see the timeline.</p>`
-    );
-  h += `<section class="block wide"><h3>Now: ${esc(co.name)}, as observed</h3><p>Navy bars stop the machine (internal). Green hatched bars are done while it runs (external). The red band is the time the line is stopped, ${fmtMS(r.now.downtime)}.</p>${smedGantt(co, "now", axis, lanes)}</section>`;
-  h += `<section class="block wide"><h3>With the plan</h3><p>${r.saved ? `${fmtMS(r.saved)} less stopped time. ${r.external ? `${fmtMS(r.external)} of work moved outside the stop. ` : ""}${r.eliminated ? `${fmtMS(r.eliminated)} eliminated. ` : ""}` : "No improvements chosen yet. Pick one for a step in the table below."} Orange outlines show the steps you changed.${co.target ? (r.onTarget ? " <b class='c-ok'>On target.</b>" : ` ${fmtMS(r.after.downtime - co.target)} over the ${fmtMS(co.target)} target.`) : ""}</p>${smedGantt(co, "after", axis, lanes)}</section>`;
-  h += `<div class="tgrid">`;
-  h += `<section class="block"><h3>Look here first</h3>${big.length ? `<p>The longest steps that stop the machine and have no improvement yet. Ask: can it be done before the stop or after the restart? Can it be quicker, with two people, or not needed?</p>${big.map((x) => `<div class="irow" style="--c:#202c86"><span>${x.i + 1}. ${esc(x.s.name)}</span><span>${fmtMS(x.s.dur)}</span></div>`).join("")}` : '<p class="empty" style="margin:0">Every long stopped step has an improvement planned.</p>'}</section>`;
-  h += `<section class="block"><h3>Walking in this changeover</h3>${walk}</section></div>`;
-  return h;
+  return `<section class="block"><h3>Look here first</h3>${big.length ? `<p>The longest steps that stop the machine with no improvement yet. Can it be done before the stop or after the restart? Quicker? With two people? Not needed?</p>${big.map((x) => `<button class="irow" style="--c:#202c86" data-si="${x.i}"><span>${x.i + 1}. ${esc(x.s.name)}</span><span>${fmtMS(x.s.dur)}</span></button>`).join("")}` : '<p class="empty" style="margin:0">Every long stopped step has an improvement planned.</p>'}</section>`;
 }
 /* walking distance for the routes linked to the changeover, on every sheet that has them */
 function smedWalk(co) {
@@ -402,28 +431,73 @@ function smedWalk(co) {
   return `<p class="small muted">Per changeover, trips included.</p><table class="rt"><tr><th>Sheet</th><th class="n">Distance</th>${m ? '<th class="n">Walking time</th>' : ""}</tr>${rows.map((r) => `<tr><td>${esc(r.sh.name)}</td><td class="n">${esc(fmtLen(r.len, r.sh))}</td>${m ? `<td class="n">${esc(fmtTime((r.len * (mpu(r.sh) || m)) / P.settings.walk))}</td>` : ""}</tr>`).join("")}</table><div class="btns"><button data-sm="routes">Choose routes</button></div>`;
 }
 
+/* one button group per choice, so a step is set with one tap */
+const seg = (k, cur, list, cls = "") =>
+  `<div class="sseg ${cls}" role="group">${list.map(([v, l]) => `<button type="button" data-seg="${k}" data-v="${v}" class="${cur === v ? "on " : ""}v-${v}" aria-pressed="${cur === v}">${l}</button>`).join("")}</div>`;
+const TYPE_SHORT = [
+  ["before", "Before the stop"],
+  ["internal", "Machine stopped"],
+  ["after", "After the restart"],
+];
+const PLAN_SHORT = [
+  ["keep", "Keep"],
+  ["external", "Make external"],
+  ["shorten", "Shorten"],
+  ["parallel", "In parallel"],
+  ["eliminate", "Eliminate"],
+];
 function stepRow(co, s, i) {
-  const earlier = co.steps
-      .slice(0, i)
-      .map((q, j) => [q.id, j + 1 + ". " + clipText(q.name || "step", 26)]),
+  const stage = smedStage(),
     lanes = smedLanes(co),
-    kits = P.boards.flatMap((b) =>
-      b.slots.map((sl, k) => [slotCode(b, k), sl.name]),
-    );
-  const newCell =
-    s.plan === "shorten"
-      ? `<input data-k="newDur" value="${s.newDur == null ? "" : fmtMS(s.newDur)}" placeholder="new m:ss" aria-label="New time">`
-      : s.plan === "parallel"
-        ? `<input data-k="newWho" list="smedLanes" value="${esc(s.newWho)}" placeholder="who instead" aria-label="Who instead">`
-        : s.plan === "external"
-          ? `<select data-k="extWhere" aria-label="Where"><option value="before"${s.extWhere !== "after" ? " selected" : ""}>Before the stop</option><option value="after"${s.extWhere === "after" ? " selected" : ""}>After the restart</option></select>`
-          : "";
-  return `<tr data-i="${i}" class="${s.plan !== "keep" ? "chg" : ""}"><td class="n"><b>${i + 1}</b></td><td><input data-k="name" value="${esc(s.name)}" placeholder="What is done" aria-label="Step"></td><td><input data-k="who" list="smedLanes" value="${esc(s.who)}" aria-label="Who"></td><td><input data-k="dur" value="${fmtMS(s.dur)}" aria-label="Time m:ss" class="tm"></td><td><select data-k="type" aria-label="Type">${SMED_TYPES.map((t) => `<option value="${t[0]}"${s.type === t[0] ? " selected" : ""}>${esc(t[1])}</option>`).join("")}</select></td><td><select data-k="after" aria-label="Waits for"><option value="">-</option>${optsKV(earlier, s.after)}</select></td><td><select data-k="plan" aria-label="Improvement">${SMED_PLANS.map((t) => `<option value="${t[0]}"${s.plan === t[0] ? " selected" : ""}>${esc(t[1])}</option>`).join("")}</select></td><td>${newCell}</td><td><input data-k="idea" value="${esc(s.idea)}" placeholder="Idea or why" aria-label="Idea"></td><td><input data-k="kit" list="smedKits" value="${esc(kitShow(s.kit))}" placeholder="SB-01-07" aria-label="Kit location" class="kit"></td><td class="bact"><button type="button" data-mv="-1" aria-label="Move up">↑</button><button type="button" data-mv="1" aria-label="Move down">↓</button><button type="button" data-rm="1" class="danger" aria-label="Remove">✕</button></td></tr>${i === co.steps.length - 1 ? `<datalist id="smedLanes">${[...new Set([...lanes, ...Array.from({ length: Math.max(co.crew, 2) }, (_, k) => "Operator " + (k + 1))])].map((l) => `<option value="${esc(l)}">`).join("")}</datalist><datalist id="smedKits">${kits.map(([c, n]) => `<option value="${esc(c)}">${esc(n)}</option>`).join("")}</datalist>` : ""}`;
+    nm = `<td><input data-k="name" value="${esc(s.name)}" placeholder="What is done" aria-label="Step"></td>`,
+    who = `<td><input data-k="who" list="smedLanes" value="${esc(s.who)}" aria-label="Who"></td>`,
+    dur = `<td><input data-k="dur" value="${fmtMS(s.dur)}" aria-label="Time m:ss" class="tm"></td>`,
+    typeBadge = `<span class="tbadge v-${s.type}">${esc(TYPE_SHORT.find((t) => t[0] === s.type)[1])}</span>`;
+  let cells = "";
+  if (stage === "record") {
+    const earlier = co.steps
+      .slice(0, i)
+      .map((q, j) => [q.id, j + 1 + ". " + clipText(q.name || "step", 26)]);
+    cells = `${nm}${who}${dur}<td><select data-k="after" aria-label="Waits for"><option value="">-</option>${optsKV(earlier, s.after)}</select></td><td class="bact"><button type="button" data-mv="-1" aria-label="Move up">↑</button><button type="button" data-mv="1" aria-label="Move down">↓</button><button type="button" data-rm="1" class="danger" aria-label="Remove">✕</button></td>`;
+  } else if (stage === "separate")
+    cells = `${nm}${who}${dur}<td>${seg("type", s.type, TYPE_SHORT, "types")}</td>`;
+  else if (stage === "improve") {
+    const newCell =
+      s.plan === "shorten"
+        ? `<input data-k="newDur" value="${s.newDur == null ? "" : fmtMS(s.newDur)}" placeholder="new m:ss" aria-label="New time" class="tm">`
+        : s.plan === "parallel"
+          ? `<input data-k="newWho" list="smedLanes" value="${esc(s.newWho)}" placeholder="who instead" aria-label="Who instead">`
+          : s.plan === "external"
+            ? `<select data-k="extWhere" aria-label="Where"><option value="before"${s.extWhere !== "after" ? " selected" : ""}>Before the stop</option><option value="after"${s.extWhere === "after" ? " selected" : ""}>After the restart</option></select>`
+            : "";
+    cells = `${nm}<td class="n">${fmtMS(s.dur)}</td><td>${typeBadge}</td><td>${seg("plan", s.plan, s.type === "internal" ? PLAN_SHORT : PLAN_SHORT.filter((x) => x[0] !== "external"), "plans")}</td><td>${newCell}</td><td><input data-k="idea" value="${esc(s.idea)}" placeholder="Idea or why" aria-label="Idea"></td>`;
+  } else {
+    const e = smedEff(s, "after");
+    cells = `<td class="${e.gone ? "gone" : ""}">${esc(s.name)}${e.gone ? " <small>(eliminated)</small>" : ""}${s.idea ? `<small class="sub">${esc(s.idea)}</small>` : ""}</td><td>${esc(e.who)}</td><td class="n">${e.gone ? "-" : fmtMS(e.dur)}</td><td>${e.gone ? "" : `<span class="tbadge v-${e.type}">${esc(TYPE_SHORT.find((t) => t[0] === e.type)[1])}</span>`}</td><td><input data-k="kit" list="smedKits" value="${esc(kitShow(s.kit))}" placeholder="SB-01-07" aria-label="Kit location" class="kit">${kitSlot(s.kit) ? `<small class="sub">${esc(kitSlot(s.kit).s.name)}</small>` : ""}</td>`;
+  }
+  const lists =
+    i === co.steps.length - 1
+      ? `<datalist id="smedLanes">${[...new Set([...lanes, ...Array.from({ length: Math.max(co.crew, 2) }, (_, k) => "Operator " + (k + 1))])].map((l) => `<option value="${esc(l)}">`).join("")}</datalist><datalist id="smedKits">${P.boards.flatMap((b) => b.slots.map((sl, k) => `<option value="${esc(slotCode(b, k))}">${esc(sl.name)}</option>`)).join("")}</datalist>`
+      : "";
+  return `<tr data-i="${i}" class="${s.plan !== "keep" && stage !== "record" ? "chg" : ""}"><td class="n"><b>${i + 1}</b></td>${cells}</tr>${lists}`;
 }
 function smedStepsHTML(co) {
-  const tot = smedResult(co);
-  return `<div class="bdtbl smedtbl"><table class="tbl"><thead><tr><th class="n">#</th><th>Step</th><th>Who</th><th>Time</th><th>Type</th><th>Waits for</th><th>Improvement</th><th>New</th><th>Idea / why</th><th>Kit from</th><th></th></tr></thead><tbody>${co.steps.map((s, i) => stepRow(co, s, i)).join("")}</tbody><tfoot><tr><td></td><td><b>${co.steps.length} steps</b></td><td></td><td><b id="smLabour">${fmtMS(tot.now.labour)}</b></td><td colspan="7" class="small muted">Total work by everyone. Stopped time is on the chart above.</td></tr></tfoot></table></div>
-    <div class="btns"><button id="smAdd" class="pri">Add step</button><button id="smAdd5">Add 5 steps</button></div>`;
+  const stage = smedStage(),
+    tot = smedResult(co),
+    head = {
+      record:
+        "<th>Step</th><th>Who</th><th>Time</th><th>Waits for</th><th></th>",
+      separate:
+        "<th>Step</th><th>Who</th><th>Time</th><th>When is it done?</th>",
+      improve:
+        "<th>Step</th><th>Time</th><th>Done</th><th>Improvement</th><th>New</th><th>Idea or why</th>",
+      standard:
+        "<th>Step</th><th>Who</th><th>Time</th><th>Done</th><th>Parts and tools from</th>",
+    }[stage];
+  const stopped = co.steps.filter((s) => s.type === "internal");
+  return `<div class="bdtbl smedtbl st-${stage}"><table class="tbl"><thead><tr><th class="n">#</th>${head}</tr></thead><tbody>${co.steps.map((s, i) => stepRow(co, s, i)).join("")}
+  ${stage === "record" ? `<tr class="qadd"><td class="n">+</td><td><input id="smQName" placeholder="Next step, press Enter" aria-label="New step"></td><td><input id="smQWho" list="smedLanes" value="${esc(co.steps.at(-1)?.who || "Operator 1")}" aria-label="Who"></td><td><input id="smQDur" placeholder="m:ss" class="tm" aria-label="Time"></td><td></td><td><button type="button" class="pri" id="smQAdd">Add</button></td></tr>` : ""}
+  </tbody><tfoot><tr><td></td><td colspan="9" class="small muted">${co.steps.length} steps, <span id="smLabour">${fmtMS(tot.now.labour)}</span> of work by everyone, ${stopped.length} of them with the machine stopped.</td></tr></tfoot></table></div>`;
 }
 
 function renderSmed() {
@@ -431,21 +505,42 @@ function renderSmed() {
     all = P.smed.changeovers,
     co = curCO();
   if (co) ui.smed.sel = co.id;
-  let h = `<header><div><h2>SMED: shorter changeovers</h2><p class="muted" style="margin:4px 0 0">Time a changeover, split each step into <b>stopped</b> and <b>done while running</b>, then plan how to cut the stopped time. Target: under ${fmtMS(SMED_TARGET_DEFAULT)}.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pri" id="smNew">New changeover</button><button id="smTimer">Time one now</button><button id="smHist"${all.length ? "" : " disabled"}>${ui.smed.tab === "history" ? "Back to the changeover" : "History"}</button></div></header>`;
+  let h = `<header><div><h2>SMED: shorter changeovers</h2><p class="muted" style="margin:4px 0 0">Record a changeover, separate what needs the machine stopped, improve it, then print the new standard work. Target: under ${fmtMS(SMED_TARGET_DEFAULT)}.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pri" id="smTimer">Time one now</button><button id="smNew">Type one in</button><button id="smHist"${all.length ? "" : " disabled"}>${ui.smed.tab === "history" ? "Back to the changeover" : "History"}</button></div></header>`;
   if (!all.length)
     return void (el.innerHTML =
       h +
       `<div class="emptybox"><b>No changeovers yet</b>Start with a stopwatch: press <b>Time one now</b> at the next changeover and tap as each step finishes. Or type the steps in from memory or a video. Open the example model line to see a worked changeover with three trials.<div style="margin-top:14px"><button class="pri" id="smTimer2">Time one now</button> <button id="smNew2">Type one in</button> <button id="smExample">Open the example model line</button></div></div>`);
-  h += `<div class="chips smchips">${all
+  // one row per changeover, its trials side by side so the trend shows at a glance
+  const series = new Map();
+  for (const c of all) {
+    const k = seriesOf(c);
+    if (!series.has(k)) series.set(k, []);
+    series.get(k).push(c);
+  }
+  h += `<div class="smseries">${[...series]
     .map(
-      (c) =>
-        `<button class="chip${co && c.id === co.id && ui.smed.tab !== "history" ? " on" : ""}" data-co="${esc(c.id)}"><b>${esc(coCode(c))} ${esc(c.name)}</b><small>${esc(fmtDate(c.date))}${c.trial > 1 ? ", trial " + c.trial : ""}</small><span class="sc">${fmtMS(smedSchedule(c, "now").downtime)}</span></button>`,
+      ([name, list]) =>
+        `<div class="smsrow"><span class="smsname">${esc(name)}</span>${list
+          .sort((a, b) => a.trial - b.trial || a.no - b.no)
+          .map(
+            (c) =>
+              `<button class="chip${co && c.id === co.id && ui.smed.tab !== "history" ? " on" : ""}" data-co="${esc(c.id)}" title="${esc(coCode(c) + ", " + fmtDate(c.date))}"><b>Trial ${c.trial}</b><small>${esc(fmtDate(c.date))}</small><span class="sc">${fmtMS(smedSchedule(c, "now").downtime)}</span></button>`,
+          )
+          .join("")}</div>`,
     )
     .join("")}</div>`;
   if (ui.smed.tab === "history") h += smedHistoryHTML();
   else if (co) {
-    h += `<div class="smedhead"><div><div class="smtitle">${esc(coCode(co))} · ${esc(co.name)}${co.trial > 1 ? ` <span class="count">trial ${co.trial}</span>` : ""}</div><p class="small muted" style="margin:2px 0 0">${[co.line, co.from && co.to ? co.from + " to " + co.to : "", fmtDate(co.date), co.crew + " people"].filter(Boolean).map(esc).join(" · ")}${co.notes ? " · " + esc(co.notes) : ""}</p></div><div class="btns" style="margin:0"><button id="smEdit">Details</button><button id="smProblem" title="Start a problem record linked to this changeover">Raise a problem</button><button id="smPrint" class="pri">Print work sheet</button><button id="smNext">Next trial from the plan</button><button id="smCsv">Export CSV</button><button id="smDel" class="danger">Delete</button></div></div>`;
-    h += `<div id="smViz">${smedVizHTML(co)}</div><h3 style="margin:18px 0 6px">Steps</h3><div id="smSteps">${smedStepsHTML(co)}</div>`;
+    const stage = smedStage();
+    h += `<div class="smedhead"><div><div class="smtitle">${esc(coCode(co))} · ${esc(co.name)}${co.trial > 1 ? ` <span class="count">trial ${co.trial}</span>` : ""}</div><p class="small muted" style="margin:2px 0 0">${[co.line, co.from && co.to ? co.from + " to " + co.to : "", fmtDate(co.date), co.crew + " people"].filter(Boolean).map(esc).join(" · ")}${co.notes ? " · " + esc(co.notes) : ""}</p></div>
+    <div class="btns" style="margin:0"><button id="smPrint" class="pri">Print work sheet</button><button id="smNext" title="A new trial built from this plan">Next trial</button><details class="menu"><summary>More</summary><div class="pop"><button id="smEdit">Details and target</button><button id="smProblem">Raise a problem</button><button data-sm="routes">Walking routes</button><button id="smCsv">Export CSV</button><hr><button id="smDel" class="danger">Delete this changeover</button></div></details></div></div>`;
+    h += `<div id="smViz">${smedVizHTML(co)}</div>`;
+    h += `<div class="psteps smstages">${SMED_STAGES.map(([k, l]) => `<button data-stage="${k}" class="${stage === k ? "on" : ""}">${l}</button>`).join("")}</div><p class="small smhint">${esc(SMED_STAGES.find((x) => x[0] === stage)[2])}</p>`;
+    h += `<div id="smSteps">${smedStepsHTML(co)}</div>`;
+    if (stage === "improve")
+      h += `<div class="tgrid">${smedLookFirst(co)}</div>`;
+    if (stage === "standard")
+      h += `<div class="tgrid"><section class="block"><h3>Walking in this changeover</h3>${smedWalk(co)}</section></div>`;
   }
   el.innerHTML = h;
 }
@@ -456,7 +551,7 @@ function refreshSmedViz() {
     const f = $("#smLabour");
     if (f) f.textContent = fmtMS(smedResult(co).now.labour);
   }
-  const chip = $(".smchips .chip.on .sc");
+  const chip = $(".smseries .chip.on .sc");
   if (chip && co) chip.textContent = fmtMS(smedSchedule(co, "now").downtime);
 }
 
@@ -521,6 +616,21 @@ $("#smedView").addEventListener("click", (e) => {
     return void renderSmed();
   }
   if (!co) return;
+  t.closest("details.menu")?.removeAttribute("open");
+  const stg = t.closest("[data-stage]");
+  if (stg) {
+    ui.smed.stage = stg.dataset.stage;
+    return void renderSmed();
+  }
+  const si = t.closest("[data-si]");
+  if (si) return void findStepRow(+si.dataset.si);
+  const sg = t.closest("[data-seg]");
+  if (sg) {
+    const row = sg.closest("tr[data-i]");
+    if (row) setStep(co, +row.dataset.i, sg.dataset.seg, sg.dataset.v, row);
+    return;
+  }
+  if (t.closest("#smQAdd")) return void quickAddStep(co);
   if (t.closest("#smEdit")) return void changeoverModal(co);
   if (t.closest("#smProblem")) return void problemFromChangeover(co);
   if (t.closest("#smPrint")) return void printSmedSheet(co);
@@ -530,15 +640,7 @@ $("#smedView").addEventListener("click", (e) => {
   if (t.closest("[data-sm=routes]")) return void chooseRoutes(co);
   const tr = t.closest("tr[data-i]"),
     i = tr ? +tr.dataset.i : -1;
-  if (t.closest("#smAdd,#smAdd5")) {
-    const n = t.closest("#smAdd5") ? 5 : 1;
-    checkpoint();
-    for (let k = 0; k < n; k++)
-      co.steps.push(blankStep({ who: co.steps.at(-1)?.who || "Operator 1" }));
-    record("SMED steps added", coCode(co));
-    renderAll();
-    $("#smSteps tbody tr:last-child [data-k=name]")?.focus();
-  } else if (t.closest("[data-rm]") && i >= 0) {
+  if (t.closest("[data-rm]") && i >= 0) {
     checkpoint();
     const gone = co.steps.splice(i, 1)[0];
     for (const s of co.steps) if (s.after === gone.id) s.after = "";
@@ -563,38 +665,77 @@ $("#smedView").addEventListener("change", (e) => {
     tr = e.target.closest("tr[data-i]"),
     k = e.target.dataset.k;
   if (!co || !tr || !k) return;
-  const s = co.steps[+tr.dataset.i];
+  setStep(co, +tr.dataset.i, k, e.target.value, tr, e.target);
+});
+$("#smedView").addEventListener("keydown", (e) => {
+  if (
+    e.key === "Enter" &&
+    (e.target.id === "smQName" || e.target.id === "smQDur")
+  ) {
+    e.preventDefault();
+    const co = curCO();
+    if (co) quickAddStep(co);
+  }
+});
+/* one place that changes a step, from a typed field or a button group */
+function setStep(co, i, k, v, tr, input) {
+  const s = co.steps[i];
+  if (!s) return;
   checkpoint();
-  const v = e.target.value;
   if (k === "dur") {
     const d = parseDur(v);
     if (d != null) s.dur = d;
-    e.target.value = fmtMS(s.dur);
+    if (input) input.value = fmtMS(s.dur);
   } else if (k === "newDur") {
     const d = parseDur(v);
     s.newDur = d;
-    e.target.value = d == null ? "" : fmtMS(d);
+    if (input) input.value = d == null ? "" : fmtMS(d);
   } else if (k === "kit") {
     s.kit = kitStoreIn(P.boards, v);
-    e.target.value = kitShow(s.kit);
+    if (input) input.value = kitShow(s.kit);
   } else s[k] = v;
-  if (k === "who" && !String(v).trim()) s.who = e.target.value = "Operator 1";
+  if (k === "who" && !String(v).trim()) s.who = "Operator 1";
   if (k === "plan" && v === "shorten" && s.newDur == null)
     s.newDur = Math.round(s.dur / 2);
   if (k === "plan" && v === "parallel" && !s.newWho)
     s.newWho = smedLanes(co).find((l) => l !== s.who) || "Operator 2";
+  // a step that already runs outside the stop cannot be moved outside it
+  if (k === "type" && v !== "internal" && s.plan === "external")
+    s.plan = "keep";
   record("SMED step changed", s.name + ": " + k);
   save();
-  // only the "New" cell depends on the choice of improvement, so only that row is
-  // redrawn; nothing else in the table is replaced, so the next click still lands
-  if (k === "plan") {
-    const i = +tr.dataset.i,
-      tmp = document.createElement("tbody");
+  // only this row can change shape, so only it is redrawn and the next click still lands
+  if (tr && (k === "plan" || k === "type" || k === "kit")) {
+    const tmp = document.createElement("tbody");
     tmp.innerHTML = stepRow(co, s, i);
     tr.replaceWith(...tmp.childNodes);
   }
   refreshSmedViz();
-});
+}
+function quickAddStep(co) {
+  const n = $("#smQName"),
+    name = n?.value.trim();
+  if (!name) return n?.focus();
+  checkpoint();
+  co.steps.push(
+    blankStep({
+      name,
+      who: $("#smQWho").value.trim() || "Operator 1",
+      dur: parseDur($("#smQDur").value) ?? 60,
+    }),
+  );
+  record("SMED step added", coCode(co) + ": " + name);
+  renderAll();
+  $("#smQName")?.focus();
+}
+function findStepRow(i) {
+  const tr = $(`#smSteps tr[data-i="${i}"]`);
+  if (!tr) return;
+  tr.scrollIntoView({ block: "center", behavior: "smooth" });
+  tr.classList.remove("flash");
+  void tr.offsetWidth;
+  tr.classList.add("flash");
+}
 
 /* ----- creating and editing ----- */
 async function changeoverModal(co, isNew) {

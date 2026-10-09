@@ -23,6 +23,12 @@ full names shown for small items on hover or selection, the item list hidden whi
 "Marked zone" / "Keep-clear zone" wording so zones are not confused with Areas. Not done yet: touch box
 select, group/ungroup, align for tape and routes.
 
+SMED and problem solving (reworked 10 Oct): SMED runs as four steps (Record, Separate, Improve,
+Standard work) with one-tap choices, a compact timeline sized to the screen and steps as cards on a
+phone. Problems open as one board like the team's whiteboard: fishbone, likely causes, causes and
+actions sharing a number, hypothesis and confirmation, why chain, inline actions; the rest sits under
+"A3 details and close". Board prints on one A3 sheet.
+
 The example model line (Settings, or the empty layout) fills every view.
 
 ## Review done (two passes, all fixed and pushed)

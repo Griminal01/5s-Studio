@@ -42,10 +42,11 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 25-tracking, 27-drift-map | Tracking view: checks over time, charts, "where things actually sit" |
 | 26-project-ui | project name, duplicate, item list controls |
 | 28-boards, 29-labels | boards (shadow boards, kanban racks) and slots; label printer output, board layout and 1:1 outline printing |
-| 30-smed, 31-smed-tools | SMED module (`P.smed`): changeover steps, schedule maths, Gantt charts, history; stopwatch capture, work sheet printing |
+| 30-smed, 31-smed-tools | SMED module (`P.smed`): changeover steps, schedule maths, Gantt charts, history, the four steps (Record, Separate, Improve, Standard work: `ui.smed.stage`, `setStep()`); stopwatch capture, work sheet printing |
 | 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
 | 34-areas | areas (`P.areas`): polygons on a drawing, item designation (`o.area`), layout check `outOfArea`, area pane and tab, A3 area sheets |
 | 35-problems, 36-problem-tools | problem solving module (`P.problems`, actions link by `a.prob`): list and detail tabs, 5-Why, fishbone SVG, countermeasures, review, Pareto, A3 print, CSV |
+| 38-problem-board | the problem solving board (one screen, like the whiteboard): statement, fishbone with likely causes, causes numbered with their actions (`a.cause`), hypothesis and confirmation, why chain and root cause, inline action list, board print on A3 |
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
 | 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
 | 40-main | startup |
@@ -53,7 +54,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 Removed features (formal audits, audit lines, TV) are preserved untouched in `project.parked` by
 `validate()` so old backups lose nothing. Git history at `2ddb593` has the code. Red tags, daily
 checks, the drift map and areas were removed and restored; `validate()` brings parked tags back and
-turns old audit areas into plain areas. Project version is 6 (areas, problems).
+turns old audit areas into plain areas. Project version is 7 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`).
 
 ## Accounts and projects
 Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a
