@@ -80,7 +80,7 @@ Fixed lists and their helpers: floor tape types (DEFAULT_TYPES, TAPE, tapeOf, ap
 - 416 `categoryGroupsHTML(sh)`
 - 489 `async manageItemCategories()`
 
-## js/02-state.js (339 lines)
+## js/02-state.js (340 lines)
 Global state: the open project P and the UI state ui (view, selection ui.sel, viewbox ui.vb, layers, scope). Sheet shortcuts S() current sheet, STD() standard, DM(sh) its drawing, stdFor(daily). Units: mpu/upm, toUser/fromUser, fmtLen. newProject(), record() journal, undo: checkpoint() / restore(),…
 
 - 6 `P`
@@ -107,12 +107,12 @@ Global state: the open project P and the UI state ui (view, selection ui.sel, vi
 - 192 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
 - 207 `newProject()`
 - 265 `record(action, detail)`
-- 275 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
-- 282 `trimHistory(stack)`
-- 295 `checkpoint()`
-- 300 `restore(from, to)`
-- 320 `find(id, sh = S()` find element by id in active sheet
-- 338 `selected() =>`
+- 276 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
+- 283 `trimHistory(stack)`
+- 296 `checkpoint()`
+- 301 `restore(from, to)`
+- 321 `find(id, sh = S()` find element by id in active sheet
+- 339 `selected() =>`
 
 ## js/03-geometry.js (295 lines)
 Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles, viewInDrawing (keeps a zone's view on the drawing).
@@ -179,20 +179,25 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 807 `tabWarn(text, reload = false)`
 - 843 `deviceId()`
 
-## js/06-ui-helpers.js (117 lines)
-Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
+## js/06-ui-helpers.js (175 lines)
+Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete: offerUndo()), flashRow() (a saved row lights up), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
 
-- 5 `toast(t, ms = 3200)`
-- 12 `modal(title, html, ok = "OK", opts = {})`
-- 44 `download(blob, name)`
-- 53 `csv(rows, name)`
-- 66 `fileSafe(s) =>`
-- 72 `printWithPage(html, cls, pageCss)` every printed document goes through here: one page size per print, cleaned up afterwards
-- 88 `printView(el, pageCss = "size: A4 landscape; margin: 10mm")` print what a view shows (registers, Tracking) without its buttons and filters
-- 102 `on #dlgForm keydown` Enter in a text field would submit the dialog form with its first button, which is Cancel, and throw away wha…
-- 113 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
+- 7 `toast(t, ms = 3200, action)` action: { label, run } adds a button to the message (Undo after a delete)
+- 26 `hideToast()`
+- 30 `UNDO_AFTER` after a delete: say what went and offer Undo, while nothing else has changed since
+- 32 `offerUndo(action, detail)`
+- 52 `flashRow(id)` light up a register row that was just saved, so the eye finds it
+- 66 `modal(title, html, ok = "OK", opts = {})`
+- 99 `download(blob, name)`
+- 108 `csv(rows, name)`
+- 121 `fileSafe(s) =>`
+- 127 `printWithPage(html, cls, pageCss)` every printed document goes through here: one page size per print, cleaned up afterwards
+- 143 `printView(el, pageCss = "size: A4 landscape; margin: 10mm")` print what a view shows (registers, Tracking) without its buttons and filters
+- 157 `on #dlgForm keydown` Enter in a text field would submit the dialog form with its first button, which is Cancel, and throw away wha…
+- 167 `on #dlgX onclick` the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
+- 171 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1336 lines)
+## js/07-canvas.js (1350 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -221,19 +226,20 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 576 `rafP`
 - 577 `draw()`
 - 584 `cmpCache`
-- 585 `drawNow()`
-- 624 `drawScale(k)`
-- 638 `snapV(v, sh)`
-- 641 `snapPoint(p, e, last)`
-- 682 `ptrs`
-- 807 `startPan(e, clickClears)`
-- 967 `endDrag(e)`
-- 1055 `setTool(t, level)`
-- 1075 `placeOrDraw(e, p)`
-- 1081 `addDraftPoint(e, p)`
-- 1125 `async finishDraft()`
-- 1297 `cancelDraft()`
-- 1303 `updateHint()`
+- 586 `updateEmptyCanvas()` a new, empty standard with no plan: a start card in the middle of the canvas
+- 598 `drawNow()`
+- 638 `drawScale(k)`
+- 652 `snapV(v, sh)`
+- 655 `snapPoint(p, e, last)`
+- 696 `ptrs`
+- 821 `startPan(e, clickClears)`
+- 981 `endDrag(e)`
+- 1069 `setTool(t, level)`
+- 1089 `placeOrDraw(e, p)`
+- 1095 `addDraftPoint(e, p)`
+- 1139 `async finishDraft()`
+- 1311 `cancelDraft()`
+- 1317 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -253,7 +259,7 @@ Sheets: the standard, proposals and daily checks. openSheet(), newDaily(), newPr
 - 98 `async makeStandard()`
 - 115 `async deleteSheet()`
 
-## js/10-render.js (254 lines)
+## js/10-render.js (268 lines)
 render: strip, sheet bar, tools
 
 - 3 `renderDays()`
@@ -266,15 +272,15 @@ render: strip, sheet bar, tools
 - 104 `on #layersPop change`
 - 111 `on #sheetPop click`
 - 126 `on document pointerdown`
-- 131 `renderTools()`
-- 177 `on #toolSeg click`
-- 181 `on #toolOpts click`
-- 199 `on #toolOpts change`
-- 209 `renderLib()`
-- 223 `on #libSearch oninput`
-- 224 `on #lib click`
-- 228 `on #lib dragstart`
-- 235 `on #bCustom onclick`
+- 145 `renderTools()`
+- 191 `on #toolSeg click`
+- 195 `on #toolOpts click`
+- 213 `on #toolOpts change`
+- 223 `renderLib()`
+- 237 `on #libSearch oninput`
+- 238 `on #lib click`
+- 242 `on #lib dragstart`
+- 249 `on #bCustom onclick`
 
 ## js/11-side-panel.js (538 lines)
 The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), renderSide() picks the pane; paneItem() is the selected item's form, sheetStats() the summary when nothing is selected.
@@ -291,7 +297,7 @@ The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), re
 - 410 `paneS5()`
 - 436 `pane`
 
-## js/12-views.js (275 lines)
+## js/12-views.js (295 lines)
 Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has its pages in a bar under the header, and the Showing picker at its right chooses the whole factory, one line or one zone (setScope in 34-areas.js). The address bar follows the page (#/layout…
 
 - 8 `NAV` Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has …
@@ -307,12 +313,13 @@ Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are th
 - 109 `renderSubnav(force)` the pages of the current section, and the Showing picker
 - 136 `updateNavBadges()` counts on the page buttons (open things, red when something is late) and on the sections (late things)
 - 173 `setView(v, fromHash = false)`
-- 214 `on document change` navigation events
-- 217 `on document click`
-- 230 `hashFor()` the address bar follows the page
-- 240 `syncHash(push)`
-- 248 `applyHash()`
-- 271 `on window popstate`
+- 214 `viewIn()` the page just opened eases in (a short fade and lift; none when motion is turned off)
+- 234 `on document change` navigation events
+- 237 `on document click`
+- 250 `hashFor()` the address bar follows the page
+- 260 `syncHash(push)`
+- 268 `applyHash()`
+- 291 `on window popstate`
 
 ## js/13-exports.js (192 lines)
 Layout exports: deviations and routes CSV, exportPNG() (the sheet as an image), printSheet().
@@ -342,7 +349,7 @@ Project files: projectBundle() (the whole project as one JSON, also what the tea
 - 161 `async viewPhoto(id)`
 - 188 `on #fLogo onchange`
 
-## js/15-settings-keyboard.js (297 lines)
+## js/15-settings-keyboard.js (299 lines)
 Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-screen drawing (setDrawFocus), the phone sheet-bar Options button, undo / redo buttons, print hooks.
 
 - 5 `on #bSettings onclick`
@@ -351,19 +358,21 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 222 `on window blur`
 - 231 `on #zIn onclick`
 - 232 `on #zOut onclick`
-- 233 `on #zFit onclick`
-- 238 `setDrawFocus(on)` the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
-- 252 `PHONE_HINT` phones: say once, kindly, that drawing the layout is a computer job
-- 254 `updatePhoneHint()`
-- 261 `on #phoneHintOk onclick`
-- 269 `on #sbMore onclick`
-- 276 `on #zFull onclick`
-- 278 `on document keydown`
-- 282 `on #bUndo onclick`
-- 283 `on #bRedo onclick`
-- 284 `on window resize`
-- 285 `on window beforeprint`
-- 290 `on window afterprint`
+- 233 `on #emptySetup onclick`
+- 234 `on #emptyExample onclick`
+- 235 `on #zFit onclick`
+- 240 `setDrawFocus(on)` the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
+- 254 `PHONE_HINT` phones: say once, kindly, that drawing the layout is a computer job
+- 256 `updatePhoneHint()`
+- 263 `on #phoneHintOk onclick`
+- 271 `on #sbMore onclick`
+- 278 `on #zFull onclick`
+- 280 `on document keydown`
+- 284 `on #bUndo onclick`
+- 285 `on #bRedo onclick`
+- 286 `on window resize`
+- 287 `on window beforeprint`
+- 292 `on window afterprint`
 
 ## js/16-app.js (198 lines)
 renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the project, keep anything unreadable instead of overwriting it).
@@ -403,13 +412,13 @@ Helpers shared by the forms: owner lists, <option> builders opts() / optsKV(), b
 - 91 `newAction(i) =>`
 - 96 `sheetLabel(id) =>`
 
-## js/19-forms.js (261 lines)
+## js/19-forms.js (263 lines)
 Forms in dialogs: red tag (tagModal, with photos) and action (actionModal), linesToActions().
 
 - 4 `renderTagPhotos()`
 - 24 `async tagModal(t, isNew)`
-- 142 `async actionModal(a, isNew)`
-- 235 `async linesToActions()`
+- 143 `async actionModal(a, isNew)`
+- 237 `async linesToActions()`
 
 ## js/20-registers.js (383 lines)
 Red tag and action registers: tables with filters (tagsHTML, actionsHTML), wiring, CSV, the follow-up list.
@@ -430,7 +439,7 @@ Red tag and action registers: tables with filters (tagsHTML, actionsHTML), wirin
 - 356 `followUpHTML()`
 - 372 `wireFollowUp(el)`
 
-## js/21-documents.js (453 lines)
+## js/21-documents.js (454 lines)
 A register of the documents that live in an area (SOPs, one-point lessons, checklists, changeover sheets...), where each one is kept, who owns it and when it is next reviewed. Documents can be pinned on the drawing.
 
 - 7 `blankDoc(i) =>`
@@ -441,16 +450,16 @@ A register of the documents that live in an area (SOPs, one-point lessons, check
 - 45 `addMonths(n) =>`
 - 50 `dueSoon(d) =>`
 - 56 `async docModal(d, isNew)`
-- 150 `docsFiltered()` the register view
-- 191 `docRows(rows)`
-- 201 `documentsHTML()`
-- 238 `renderDocuments()`
-- 277 `csvDocuments()` exports and print
-- 324 `docKeyRows(rows, grouped, extra = "")`
-- 332 `DOC_COLS`
-- 334 `DOC_HEAD(last = "Kept at") =>`
-- 336 `printDocumentList()`
-- 368 `printDocumentMap()`
+- 151 `docsFiltered()` the register view
+- 192 `docRows(rows)`
+- 202 `documentsHTML()`
+- 239 `renderDocuments()`
+- 278 `csvDocuments()` exports and print
+- 325 `docKeyRows(rows, grouped, extra = "")`
+- 333 `DOC_COLS`
+- 335 `DOC_HEAD(last = "Kept at") =>`
+- 337 `printDocumentList()`
+- 369 `printDocumentMap()`
 
 ## js/22-drawing-editor.js (316 lines)
 drawing editor: walls, fixed objects, cover-ups, labels
@@ -698,7 +707,7 @@ Three pages in the Setup section. 1 Factory map: the plan image, its scale, wall
 - 241 `on #setupView change`
 - 265 `async setupDelete(id)`
 
-## js/34-tasks.js (426 lines)
+## js/34-tasks.js (427 lines)
 P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item refs], doc, how, note }. Items are linked by ref, so a task follows its items across the standard, proposals and daily checks. The page follows the Showing picker (see scopePass in 34-areas.js).
 
 - 7 `blankTask(i = {}) =>`
@@ -716,19 +725,19 @@ P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item ref
 - 134 `renderTasks()`
 - 141 `taskItemPickHTML(zone, chosen)` the form
 - 160 `async taskModal(t, isNew)`
-- 282 `newTask(i) =>`
-- 289 `taskRowsPanel(list, empty)` side panel blocks (zone and item)
-- 299 `zoneTasksHTML(a) =>`
-- 303 `itemTasksHTML(o) =>`
-- 309 `csvTasks()` output
-- 351 `taskSheetHTML(rows, extra = "")`
-- 363 `printTasks()`
-- 382 `showTaskItems(t)` events
-- 396 `on #taskView click`
-- 414 `on #taskView change`
-- 420 `on #taskView input`
+- 283 `newTask(i) =>`
+- 290 `taskRowsPanel(list, empty)` side panel blocks (zone and item)
+- 300 `zoneTasksHTML(a) =>`
+- 304 `itemTasksHTML(o) =>`
+- 310 `csvTasks()` output
+- 352 `taskSheetHTML(rows, extra = "")`
+- 364 `printTasks()`
+- 383 `showTaskItems(t)` events
+- 397 `on #taskView click`
+- 415 `on #taskView change`
+- 421 `on #taskView input`
 
-## js/35-ideas.js (502 lines)
+## js/35-ideas.js (503 lines)
 Ideas anyone can raise (P.ideas), taken from New to Done: who raised it, the zone, what it would improve, benefit and effort (which place it on the quick-win chart), an owner, and links to a layout proposal to try it, a problem it helps or a red tag it came from. The work it needs is ordinary actio…
 
 - 9 `IDEA_ST` { id, no, title, by, raised, zone, what, benefit, gain 0-3, effort 0-3, status, owner, sheet, prob, tag, note…
@@ -751,13 +760,13 @@ Ideas anyone can raise (P.ideas), taken from New to Done: who raised it, the zon
 - 182 `ideasHTML()`
 - 222 `renderIdeas()`
 - 228 `async ideaModal(x, isNew)` the form
-- 333 `async deleteIdea(x)`
-- 351 `ideaFromTag(t)` a red tag often points at a better way: the idea starts with the tag's zone and words
-- 366 `zoneIdeasHTML(a) =>` the zone side panel: its open ideas and a button to raise one
-- 383 `newIdea(i) =>`
-- 390 `csvIdeas()` output
-- 446 `printIdeas()`
-- 470 `imView` events
+- 334 `async deleteIdea(x)`
+- 352 `ideaFromTag(t)` a red tag often points at a better way: the idea starts with the tag's zone and words
+- 367 `zoneIdeasHTML(a) =>` the zone side panel: its open ideas and a button to raise one
+- 384 `newIdea(i) =>`
+- 391 `csvIdeas()` output
+- 447 `printIdeas()`
+- 471 `imView` events
 
 ## js/35-problems.js (731 lines)
 A problem is a record (P.problems) with its own analysis. Everything it decides to do is a normal action in the Actions register (a.prob the problem's id), so there is still one list of what is owed. Fishbone, Pareto and the A3 report are in 36-problem-tools.js.
@@ -938,9 +947,10 @@ Startup: calls init() (last file to load) and registers the service worker for o
 
 - **css/00-base.css** (120 lines): 116 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables
 - **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
-- **css/20-layout.css** (802 lines): 1 sheet strip · 84 studio · 531 side · 778 phones: a one-time note that drawing is easiest on a computer
-- **css/30-registers.css** (392 lines): 1 trends · 103 registers, drift · 319 phones: name and use get full rows, the small fields share one · 353 5S view
-- **css/40-dialogs.css** (605 lines): 1 dialog · 398 tracking charts and red tag photos · 441 boards and labels · 589 SMED
+- **css/20-layout.css** (829 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 558 side · 805 phones: a one-time note that drawing is easiest on a computer
+- **css/30-registers.css** (396 lines): 1 trends · 90 the row under the pointer gets a navy edge, so it is clear which one a click op… · 107 registers, drift · 323 phones: name and use get full rows, the small fields share one · 357 5S view
+- **css/40-dialogs.css** (654 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 447 tracking charts and red tag photos · 490 boards and labels · 638 SMED
+- **css/45-motion.css** (103 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 45 messages slide up and fade · 53 a page fades and lifts in as it opens · 64 a row that was just saved lights up in tape yellow, then settles · 75 buttons answer the press · 80 the empty layout card eases in (it is centred with a transform, so it keeps tha…
 - **css/50-accounts.css** (113 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (341 lines): 1 problem solving · 227 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 327 phones: the improvement log is number and idea; who, when and status sit under …
 - **css/70-layout-edit.css** (112 lines): 1 layout editing

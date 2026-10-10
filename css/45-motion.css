@@ -1,0 +1,102 @@
+/* ============ motion ============
+   Small, quick movement so the app answers what you do: dialogs, menus and the selection toolbar
+   ease in, messages slide up, a page fades in as it opens, a saved row lights up. One set of
+   timings here; all of it is turned off for people who ask their computer for less motion. */
+:root {
+  --t-fast: 0.14s;
+  --t-mid: 0.2s;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* dialogs: the backdrop fades, the dialog lifts into place */
+dialog[open] {
+  animation: dlgIn var(--t-mid) var(--ease-out);
+}
+dialog[open]::backdrop {
+  animation: fadeIn var(--t-mid) ease-out;
+}
+@keyframes dlgIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* menus (File, Layers, Sheet) and the toolbar under a selection */
+details.menu[open] > .pop {
+  animation: popIn var(--t-fast) var(--ease-out);
+  transform-origin: top right;
+}
+.selbar:not([hidden]) {
+  animation: popIn var(--t-fast) var(--ease-out);
+}
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+/* messages slide up and fade */
+#toast {
+  transition:
+    opacity var(--t-mid) ease,
+    transform var(--t-mid) var(--ease-out),
+    visibility var(--t-mid);
+}
+
+/* a page fades and lifts in as it opens */
+.viewin {
+  animation: viewIn var(--t-mid) var(--ease-out);
+}
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* a row that was just saved lights up in tape yellow, then settles */
+.tbl tr.flash td {
+  animation: rowFlash 1.6s ease-out;
+}
+@keyframes rowFlash {
+  0%,
+  25% {
+    background: #fff3c4;
+  }
+}
+
+/* buttons answer the press */
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* the empty layout card eases in (it is centred with a transform, so it keeps that) */
+.emptycv:not([hidden]) {
+  animation: cardIn 0.3s var(--ease-out);
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media print {
+  .viewin {
+    animation: none;
+  }
+}

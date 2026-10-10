@@ -207,7 +207,27 @@ function setView(v, fromHash = false) {
     if (was !== "layout") ui.vb = null;
     draw();
   }
+  if (was !== v) viewIn();
   window.scrollTo(0, 0);
+}
+// the page just opened eases in (a short fade and lift; none when motion is turned off)
+function viewIn() {
+  const el = [
+    "#layoutView",
+    "#regView",
+    "#docView",
+    "#setupView",
+    "#taskView",
+    "#trackView",
+    "#ideaView",
+    "#problemView",
+  ]
+    .map((s) => $(s))
+    .find((x) => x && !x.hidden);
+  if (!el) return;
+  el.classList.remove("viewin");
+  void el.offsetWidth; // restart the animation
+  el.classList.add("viewin");
 }
 
 /* ---- navigation events ---- */
