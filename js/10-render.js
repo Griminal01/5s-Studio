@@ -48,6 +48,7 @@ const LAYERS = [
   ["areas", "Lines and zones"],
   ["objects", "Items and marked areas"],
   ["labels", "Names on the drawing"],
+  ["allNames", "All names, even far from their item (busy areas get crowded)"],
   ["routes", "Routes"],
   ["dims", "Tape dimensions and datum"],
   ["runs", "Run numbers on tape"],

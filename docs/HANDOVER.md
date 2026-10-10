@@ -56,6 +56,12 @@ Review fixes (10 Oct): record numbers and dates stay on one line in registers; a
 its dashed edge does not cross it out; the Showing picker zooms in close on a zone and the view stays on the
 drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Present leave the control bar hidden.
 
+Names on a crowded layout (10 Oct): with a real zone of 70+ small items the name tags filled the area and their
+leader lines crossed it. Tags now only go on empty floor close to their item, never over another item, bigger items
+first, and a name used on many items (bins, stools) only where it fits right beside one. The rest show when you
+zoom in, point at or select an item; a note by the zoom buttons says how many are not shown. Layers > "All names"
+brings back the old behaviour. Not done: a printed sheet leaves the same names off (a numbered key would fix that).
+
 Task walks and spaghetti diagrams (10 Oct, `js/34-walks.js`): a task can be placed where it is done (task form,
 "Place on the layout", then click the drawing). Its walk goes from there to the items it uses and back, round
 walls, machines and other items and through doors: one round in the shortest order, or there and back for each.

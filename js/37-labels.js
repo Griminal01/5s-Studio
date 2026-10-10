@@ -7,11 +7,16 @@
    For each item, in this order:
    1. Inside it: the whole name, wrapped onto up to three lines and turned along the long side,
       at the largest size that fits (never smaller than 8 px).
-   2. Otherwise a callout: a small tag in the nearest free floor space with a leader line back to
-      the item, in the item's colour. Tags never overlap each other or another name.
+   2. Otherwise a callout: a small tag in free floor space close by, with a short leader line back to
+      the item, in the item's colour. Tags never overlap each other or another name. A crowded area
+      does not get tags strung across it: a tag only goes on empty floor within reach of its item
+      (bigger items first), never over another item, and a name repeated on many items (bins,
+      stools) only where it fits right beside one.
+      The rest show when you zoom in, point at an item or select it; LABEL.hidden counts them and
+      the note by the zoom buttons says so. Layers > "All names" places every tag, however far.
    Line and zone names pick a clear spot along their edge. Nothing is cut short with "...".
    The Layers menu has a "Names on the drawing" switch. */
-const LABEL = { shown: new Set() }; // ids whose full name is on the drawing right now
+const LABEL = { shown: new Set(), hidden: 0 }; // ids whose full name is on the drawing right now
 const LAB_MIN = 8, // smallest text inside an item, px
   LAB_CALL = 11; // text size of a callout, px
 const labW = (s, fs, bold = false) => s.length * fs * (bold ? 0.62 : 0.58);
@@ -63,6 +68,7 @@ const labAngle = (a) => {
 
 function labelsSVG(sh, k, o) {
   LABEL.shown.clear();
+  LABEL.hidden = 0;
   const L = ui.layers;
   if (L.labels === false) return "";
   const dm = DM(sh),
@@ -244,8 +250,15 @@ function labelsSVG(sh, k, o) {
     if (!e.fixed) callouts.push(e);
   }
 
-  /* pass 2: callouts, in reading order, into the nearest free floor space */
-  callouts.sort((p, q) => p.bb.y0 - q.bb.y0 || p.bb.x0 - q.bb.x0);
+  /* pass 2: callouts into the nearest free floor space: bigger items first, then reading order */
+  const all = !!L.allNames,
+    area = (e) => (e.bb.x1 - e.bb.x0) * (e.bb.y1 - e.bb.y0),
+    seen = new Map();
+  for (const e of callouts) seen.set(e.text, (seen.get(e.text) || 0) + 1);
+  callouts.sort(
+    (p, q) =>
+      (all ? 0 : area(q) - area(p)) || p.bb.y0 - q.bb.y0 || p.bb.x0 - q.bb.x0,
+  );
   const DIRS = [
     [0, -1],
     [1, 0],
@@ -259,7 +272,11 @@ function labelsSVG(sh, k, o) {
   let tags = "",
     leaders = "";
   // tags would bury a drawing that is only a few hundred pixels wide: zoom in, or tap an item
-  for (const e of W < 650 && !ui.textBoost ? [] : callouts) {
+  const held = W < 650 && !ui.textBoost;
+  if (held) LABEL.hidden = callouts.length;
+  for (const e of held ? [] : callouts) {
+    // how far a tag may sit from its item: right beside it for a name on many items, near otherwise
+    const reach = all ? 130 : seen.get(e.text) >= 4 ? 4 : 36;
     const fs = base,
       w = labW(e.text, fs) + 10,
       h = fs * 1.5 + 2,
@@ -267,7 +284,7 @@ function labelsSVG(sh, k, o) {
       cx = (b.x0 + b.x1) / 2,
       cy = (b.y0 + b.y1) / 2;
     let best = null;
-    for (const d of [4, 18, 36, 60, 90, 130]) {
+    for (const d of [4, 18, 36, 60, 90, 130].filter((d) => d <= reach)) {
       for (let di = 0; di < DIRS.length; di++) {
         const [dx, dy] = DIRS[di],
           px = dx === 0 ? cx : dx > 0 ? b.x1 + d + w / 2 : b.x0 - d - w / 2,
@@ -276,13 +293,18 @@ function labelsSVG(sh, k, o) {
         if (box.x0 < 2 || box.x1 > W - 2 || box.y0 < 2 || box.y1 > H - 2)
           continue;
         if (hitsPlaced(box)) continue;
+        // a tag sits on empty floor, never over another item (it would hide what the layout is about)
+        if (!all && hitsBody(box, b) > 0) continue;
         const cost = d * 1.2 + di * 3 + hitsBody(box, b) * 0.05;
         if (!best || cost < best.cost) best = { cost, box, px, py, d };
       }
       // the nearest ring with a clean spot wins; only look further out if it is crowded
       if (best && best.cost < d * 1.2 + 24) break;
     }
-    if (!best) continue;
+    if (!best) {
+      LABEL.hidden++;
+      continue;
+    }
     placed.push(best.box);
     const col = e.col || "#202C86",
       bx = best.box;
