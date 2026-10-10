@@ -52,6 +52,10 @@ images and fonts, and blocks network connections (`connect-src 'none'`), inline 
 stops a damaged or tampered project file from running code, and makes the offline rule something the browser
 enforces. Checked from `file://` and http; the tests fail on any CSP error.
 
+Review fixes (10 Oct): record numbers and dates stay on one line in registers; a line's name has a white backing so
+its dashed edge does not cross it out; the Showing picker zooms in close on a zone and the view stays on the
+drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Present leave the control bar hidden.
+
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
 ## Outside review (10 Oct)
@@ -152,7 +156,10 @@ projects always become new projects. Not security: the site is public and nothin
 - Nothing has been tried on a real label printer or real printer yet. Print one test label first.
 - The example data is invented. Real line dimensions, tape colours, documents, board contents and
   changeover steps are still needed from Josh and Sam.
-- The layout editor is desktop-first. On a phone it works but is cramped.
+- Desktop first: phones and tablets are not a priority (10 Oct). Checked on an iPad size: landscape gets the
+  desktop layout and works, but controls are small for touch; portrait puts the drawing tools below the side
+  panel, crowds the header and makes register rows tall. The project folder cannot work on an iPad (Safari has
+  no File System Access API). Left as is until tablets become a priority.
 - Data lives in one browser; share by Save project / Open (see `docs/ROADMAP.md` section 8).
 - SMED steps timed with the stopwatch keep their recorded start times; editing a time does not move
   later steps. Waits seen in the timing are kept in the plan until an improvement is chosen.

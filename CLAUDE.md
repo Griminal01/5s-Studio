@@ -25,7 +25,8 @@ already have. A later step, only with IT, is Microsoft 365 sign-in with SharePoi
 - **Never lose user data.** Storage lives in `js/05-storage.js` (`validate()` migrates old shapes,
   `migrateLegacy()` reads v6 files). Any change to the project shape must: bump a version, migrate old
   projects in `validate()`, and keep opening old backup files working.
-- Keep it **accessible on touch**: targets >= 44px on mobile, no hover-only features.
+- **Desktop first; phones and tablets are not a priority (decided 10 Oct).** Build and check for a computer and the TV.
+  Do not spend work on phone or iPad layouts; just do not break what is there (no hover-only features).
 - **Print is a first-class output** (A3 and A4): new features need a print layout.
 - New big features (problem solving) are **modules** with their own namespace in the project data.
 
@@ -106,7 +107,7 @@ and `tests/folder.cjs` (the project folder, with the browser's private file syst
 so it serves the site itself). Tests that wait for saving should wait for `!savePending && !saveRunning`, not a fixed time.
 The smoke test also opens `tests/fixtures/v7-backup.json` (made with the original file): old backups must keep opening.
 For UI changes, also load the page in Chromium (Playwright is preinstalled; do not run
-`playwright install`) and take screenshots at desktop (1600x900), phone (390x844) and TV (1920x1080).
+`playwright install`) and take screenshots at desktop (1600x900) and TV (1920x1080).
 
 ## Git
 Develop on the branch you were given. Do not open PRs unless asked. Commit small, one change each.
