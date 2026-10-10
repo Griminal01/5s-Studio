@@ -271,7 +271,7 @@ h3 {
 .sheetbar .name {
   font: 600 16px var(--disp);
   border-color: transparent;
-  flex: 1 1 120px;
+  flex: 1 1 220px;
   padding: 5px 6px;
 }
 .sheetbar .name:hover,
@@ -829,4 +829,150 @@ details.menu[open] summary {
 .phonehint button {
   min-height: 44px;
   flex: none;
+}
+
+/* the sheet picker: the sheet's kind badge opens a list of every sheet (the standard, proposals, daily checks) */
+.sheetpick > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 2px;
+  border-radius: 20px;
+}
+.sheetpick > summary::after {
+  content: "▾";
+  font-size: 11px;
+  color: var(--muted);
+}
+.sheetlist {
+  left: 0;
+  right: auto;
+  width: 340px;
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  gap: 10px;
+  padding: 10px;
+}
+.sheetlist .grp > span {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sheetlist .chips {
+  flex-direction: column;
+  gap: 4px;
+}
+.sheetlist .chip {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.sheetlist .chip b,
+.sheetlist .chip small {
+  max-width: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sheetlist .add {
+  justify-content: center;
+  border-style: dashed;
+}
+
+/* drawing, layers and sheet: a small icon group at the top right of the drawing */
+.cvtools {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  z-index: 7;
+  display: flex;
+  gap: 2px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(28, 34, 80, 0.08);
+}
+.cvtools > button,
+.cvtools > details > summary {
+  font-size: 0;
+  gap: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+.cvtools > button:hover,
+.cvtools > details > summary:hover,
+.cvtools > details[open] > summary {
+  background: var(--soft);
+}
+.cvtools > button.pri {
+  background: var(--navy);
+  color: #fff;
+}
+.cvtools .ic {
+  width: 18px;
+  height: 18px;
+}
+.cvtools .pop {
+  max-height: min(60vh, 520px);
+  overflow: auto;
+}
+.popdate {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 2px 4px 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.poplist {
+  display: grid;
+  gap: 2px;
+}
+
+/* the tab on the right edge of the drawing that hides or shows the details panel */
+.sidetoggle {
+  position: absolute;
+  right: 0;
+  top: calc(
+    50% - 32px
+  ); /* not a transform: the press effect on buttons would move it */
+  z-index: 7;
+  width: 20px;
+  height: 64px;
+  padding: 0;
+  border-radius: 8px 0 0 8px;
+  border-right: 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+.studio.sidehidden {
+  grid-template-columns: 236px minmax(0, 1fr);
+}
+.studio.sidehidden > .side {
+  display: none;
+}
+
+/* tips for the Select tool, folded away until wanted */
+.tips {
+  margin-top: 10px;
+  font-size: 12px;
+}
+.tips summary {
+  cursor: pointer;
+  color: var(--navy);
+  font-weight: 600;
+}
+.tips p {
+  margin: 6px 0 2px;
 }

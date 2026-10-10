@@ -74,8 +74,13 @@ Right-click menus on the drawing and register rows (`js/37-context-menu.js`). Ic
 note on the left, the page's buttons on the right, its numbers as compact chips underneath: CSS grid on
 `.trends > header`, so templates keep header > title div, .kpis, buttons); view switches (Tasks | Spaghetti,
 Ideas | Quick-win chart, Problems | Pareto, Board | A3 details) are one small segmented control on the filter
-row; pages grow to `--page-max` (1800 px) instead of 1400. Next agreed: the Layout page itself (fold the sheet
-strip into a picker, one-row toolbar, tools help behind ?, collapsible side panel) once the user has seen this.
+row; pages grow to `--page-max` (1800 px) instead of 1400. The Layout page (10 Oct): the strip of sheets is folded into a picker on the sheet's kind badge (standard,
+proposals, daily checks with scores, New proposal, Start today's check); the sheet bar is one row; Edit drawing,
+Layers and Sheet (the sheet's date moved into Sheet) are icons at the top right of the drawing; the Select tool's
+tips fold away; the details panel hides with a tab on the drawing's right edge (remembered on this computer; a
+fitted view fits the new room, a zoomed one keeps its zoom). At 1366 x 768 the drawing went from 794 x 485 to
+794 x 605 (1130 x 605 with the panel hidden). Setup's button has a tick once the drawing has a scale and a zone;
+the Showing picker is lighter.
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 

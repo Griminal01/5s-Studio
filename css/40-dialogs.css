@@ -101,6 +101,9 @@ dialog h3 {
   .studio {
     grid-template-columns: 208px minmax(0, 1fr) 300px;
   }
+  .studio.sidehidden {
+    grid-template-columns: 208px minmax(0, 1fr);
+  }
 }
 @media (max-width: 880px) {
   body {
@@ -194,8 +197,15 @@ dialog h3 {
     display: none !important;
   }
   #bEditDraw,
-  .editban {
+  .editban,
+  .cvtools,
+  .sidetoggle,
+  .sheetpick .pop,
+  .sheetpick > summary::after {
     display: none !important;
+  }
+  details.menu.sheetpick {
+    display: inline-block !important;
   }
   .pd .box {
     display: inline-block;

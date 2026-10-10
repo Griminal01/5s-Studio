@@ -80,9 +80,17 @@
   background: rgba(0, 0, 0, 0.18);
 }
 .top .gnav .sec[data-section="setup"] {
-  border-style: dashed;
   margin-right: 12px;
   position: relative;
+}
+/* Setup done (a scale and a zone): a tick before its name */
+.top .gnav .sec[data-section="setup"].done::before {
+  content: "✓";
+  color: var(--tape);
+  font-weight: 700;
+}
+.top .gnav .sec[data-section="setup"].done.on::before {
+  color: var(--ok);
 }
 .top .gnav .sec[data-section="setup"]::after {
   content: "";
@@ -217,12 +225,12 @@
   width: auto;
   min-width: 190px;
   max-width: 280px;
-  min-height: 38px;
-  font-weight: 700;
+  min-height: 34px;
+  font-weight: 600;
   font-size: 14px;
   color: var(--navy);
-  border: 2px solid var(--navy);
-  border-radius: 999px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   padding: 4px 12px;
   background: #fff;
 }

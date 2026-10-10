@@ -179,14 +179,14 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 820 `tabWarn(text, reload = false)`
 - 856 `deviceId()`
 
-## js/06-icons.js (128 lines)
+## js/06-icons.js (130 lines)
 A small set of line icons (24 px grid, drawn in the text colour) and the one place that puts them on buttons: ICON_RULES matches a button's label ("Print", "Export CSV", "Delete this tag") to an icon, and every button that appears on the page gets its icon as it is added (a MutationObserver), so te…
 
 - 9 `ICONS`
-- 52 `icon(name) =>`
-- 58 `ICON_RULES` a button's label (its text, spaces tidied) to its icon; the first match wins
-- 92 `ICON_SKIP` where buttons keep their own look: tools, zoom, Present, dialog answers, tabs and toggles
-- 94 `iconize(root)`
+- 53 `icon(name) =>`
+- 59 `ICON_RULES` a button's label (its text, spaces tidied) to its icon; the first match wins
+- 94 `ICON_SKIP` where buttons keep their own look: tools, zoom, Present, dialog answers, tabs and toggles
+- 96 `iconize(root)`
 
 ## js/06-ui-helpers.js (175 lines)
 Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete: offerUndo()), flashRow() (a saved row lights up), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
@@ -268,28 +268,28 @@ Sheets: the standard, proposals and daily checks. openSheet(), newDaily(), newPr
 - 98 `async makeStandard()`
 - 115 `async deleteSheet()`
 
-## js/10-render.js (268 lines)
-render: strip, sheet bar, tools
+## js/10-render.js (271 lines)
+the sheet picker (#days, the list under the sheet's kind badge): the standard, proposals, daily checks
 
-- 3 `renderDays()`
-- 29 `on #days click`
-- 39 `LAYERS`
-- 56 `renderSheetBar()`
-- 88 `on #sName onchange`
-- 94 `on #sDate onchange`
-- 100 `on #cmpSel onchange`
-- 104 `on #layersPop change`
-- 111 `on #sheetPop click`
-- 126 `on document pointerdown`
-- 145 `renderTools()`
-- 191 `on #toolSeg click`
-- 195 `on #toolOpts click`
-- 213 `on #toolOpts change`
-- 223 `renderLib()`
-- 237 `on #libSearch oninput`
-- 238 `on #lib click`
-- 242 `on #lib dragstart`
-- 249 `on #bCustom onclick`
+- 4 `renderDays()` the sheet picker (#days, the list under the sheet's kind badge): the standard, proposals, daily checks
+- 31 `on #days click`
+- 42 `LAYERS`
+- 59 `renderSheetBar()`
+- 91 `on #sName onchange`
+- 97 `on #sDate onchange`
+- 103 `on #cmpSel onchange`
+- 107 `on #layersPop change`
+- 114 `on #sheetPop click`
+- 129 `on document pointerdown`
+- 148 `renderTools()`
+- 194 `on #toolSeg click`
+- 198 `on #toolOpts click`
+- 216 `on #toolOpts change`
+- 226 `renderLib()`
+- 240 `on #libSearch oninput`
+- 241 `on #lib click`
+- 245 `on #lib dragstart`
+- 252 `on #bCustom onclick`
 
 ## js/11-side-panel.js (538 lines)
 The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), renderSide() picks the pane; paneItem() is the selected item's form, sheetStats() the summary when nothing is selected.
@@ -306,7 +306,7 @@ The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), re
 - 410 `paneS5()`
 - 436 `pane`
 
-## js/12-views.js (295 lines)
+## js/12-views.js (302 lines)
 Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has its pages in a bar under the header, and the Showing picker at its right chooses the whole factory, one line or one zone (setScope in 34-areas.js). The address bar follows the page (#/layout…
 
 - 8 `NAV` Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are the working sections. Each has …
@@ -321,14 +321,14 @@ Setup (factory map, lines, zones) is done once; 5S, Documents and Improve are th
 - 89 `scopeOptionsHTML()` the options of the Showing picker: the whole factory, then each line with its zones
 - 109 `renderSubnav(force)` the pages of the current section, and the Showing picker
 - 136 `updateNavBadges()` counts on the page buttons (open things, red when something is late) and on the sections (late things)
-- 173 `setView(v, fromHash = false)`
-- 214 `viewIn()` the page just opened eases in (a short fade and lift; none when motion is turned off)
-- 234 `on document change` navigation events
-- 237 `on document click`
-- 250 `hashFor()` the address bar follows the page
-- 260 `syncHash(push)`
-- 268 `applyHash()`
-- 291 `on window popstate`
+- 181 `setView(v, fromHash = false)`
+- 221 `viewIn()` the page just opened eases in (a short fade and lift; none when motion is turned off)
+- 241 `on document change` navigation events
+- 244 `on document click`
+- 257 `hashFor()` the address bar follows the page
+- 267 `syncHash(push)`
+- 275 `applyHash()`
+- 298 `on window popstate`
 
 ## js/13-exports.js (192 lines)
 Layout exports: deviations and routes CSV, exportPNG() (the sheet as an image), printSheet().
@@ -358,7 +358,7 @@ Project files: projectBundle() (the whole project as one JSON, also what the tea
 - 161 `async viewPhoto(id)`
 - 188 `on #fLogo onchange`
 
-## js/15-settings-keyboard.js (299 lines)
+## js/15-settings-keyboard.js (347 lines)
 Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-screen drawing (setDrawFocus), the phone sheet-bar Options button, undo / redo buttons, print hooks.
 
 - 5 `on #bSettings onclick`
@@ -367,21 +367,23 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 222 `on window blur`
 - 231 `on #zIn onclick`
 - 232 `on #zOut onclick`
-- 233 `on #emptySetup onclick`
-- 234 `on #emptyExample onclick`
-- 235 `on #zFit onclick`
-- 240 `setDrawFocus(on)` the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
-- 254 `PHONE_HINT` phones: say once, kindly, that drawing the layout is a computer job
-- 256 `updatePhoneHint()`
-- 263 `on #phoneHintOk onclick`
-- 271 `on #sbMore onclick`
-- 278 `on #zFull onclick`
-- 280 `on document keydown`
-- 284 `on #bUndo onclick`
-- 285 `on #bRedo onclick`
-- 286 `on window resize`
-- 287 `on window beforeprint`
-- 292 `on window afterprint`
+- 234 `applySide(redraw = true)` the details panel on the right of the layout can be hidden for a bigger drawing (remembered here)
+- 267 `on #sideToggle onclick`
+- 281 `on #emptySetup onclick`
+- 282 `on #emptyExample onclick`
+- 283 `on #zFit onclick`
+- 288 `setDrawFocus(on)` the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
+- 302 `PHONE_HINT` phones: say once, kindly, that drawing the layout is a computer job
+- 304 `updatePhoneHint()`
+- 311 `on #phoneHintOk onclick`
+- 319 `on #sbMore onclick`
+- 326 `on #zFull onclick`
+- 328 `on document keydown`
+- 332 `on #bUndo onclick`
+- 333 `on #bRedo onclick`
+- 334 `on window resize`
+- 335 `on window beforeprint`
+- 340 `on window afterprint`
 
 ## js/16-app.js (198 lines)
 renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the project, keep anything unreadable instead of overwriting it).
@@ -1006,10 +1008,10 @@ Startup: calls init() (last file to load) and registers the service worker for o
 ## css (sections: line, title)
 
 - **css/00-base.css** (149 lines): 118 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables · 123 an icon before a button's words (js/06-icons.js)
-- **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
-- **css/20-layout.css** (833 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer
+- **css/10-header.css** (523 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 86 Setup done (a scale and a zone): a tick before its name · 174 the pages of the current section
+- **css/20-layout.css** (979 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer · 834 the sheet picker: the sheet's kind badge opens a list of every sheet (the stand… · 884 drawing, layers and sheet: a small icon group at the top right of the drawing · 943 the tab on the right edge of the drawing that hides or shows the details panel · 966 tips for the Select tool, folded away until wanted
 - **css/30-registers.css** (451 lines): 1 trends · 28 the line about the page stays one line; it is cut short with … when the window … · 64 a view switch (Tasks / Spaghetti diagram) sits on the same row as the filters t… · 145 the row under the pointer gets a navy edge, so it is clear which one a click op… · 162 registers, drift · 378 phones: name and use get full rows, the small fields share one · 412 5S view
-- **css/40-dialogs.css** (654 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 447 tracking charts and red tag photos · 490 boards and labels · 638 SMED
+- **css/40-dialogs.css** (664 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 457 tracking charts and red tag photos · 500 boards and labels · 648 SMED
 - **css/45-motion.css** (104 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 46 messages slide up and fade · 54 a page fades and lifts in as it opens · 65 a row that was just saved lights up in tape yellow, then settles · 76 buttons answer the press · 81 the empty layout card eases in (it is centred with a transform, so it keeps tha…
 - **css/50-accounts.css** (113 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (356 lines): 1 problem solving · 2 view switches (Problems / Pareto, Board / A3 details, Tasks / Spaghetti diagram… · 242 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 342 phones: the improvement log is number and idea; who, when and status sit under …

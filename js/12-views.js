@@ -155,6 +155,14 @@ function updateNavBadges() {
       docs: late(["documents", "docactions"]),
       improve: late(["ideas", "problems"]),
     };
+  // Setup is done once the drawing has a scale and a zone: its button gets a tick
+  const setupDone = !!mpu(STD()) && areasOn(STD()).some((a) => !isLine(a));
+  $$('[data-section="setup"]').forEach((b) => {
+    b.classList.toggle("done", setupDone);
+    b.title = setupDone
+      ? "Setup is done: the factory map, its scale and the zones"
+      : "Start here: the factory map, its scale, lines and zones";
+  });
   $$("[data-badge]").forEach((el) => {
     const [n, l] = pages[el.dataset.badge] || [0, 0];
     el.hidden = !n;
@@ -193,7 +201,6 @@ function setView(v, fromHash = false) {
   $("#trackView").hidden = v !== "tracking";
   $("#ideaView").hidden = v !== "ideas";
   $("#problemView").hidden = v !== "problems";
-  $("#days").hidden = v !== "layout";
   document.body.dataset.section = v;
   if (reg) renderRegister();
   else if (SETUP_VIEWS.includes(v)) renderSetup();

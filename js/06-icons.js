@@ -47,6 +47,7 @@ const ICONS = {
   open: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
   doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  check: '<path d="M5 12l5 5 9-10"/>',
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
 };
 const icon = (name) =>
@@ -73,6 +74,7 @@ const ICON_RULES = [
   [/^Pin\b|^Pin it/, "pin"],
   [/^Present$/, "screen"],
   [/^Edit drawing|^Edit walls/, "pencil"],
+  [/^Done editing$/, "check"],
   [/^Layers$/, "layers"],
   [/^Sheet$/, "sheet"],
   [/^Rotate$/, "rotate"],

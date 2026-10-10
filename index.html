@@ -146,7 +146,6 @@
     </header>
     <div class="stripe"></div>
     <nav class="subnav" id="subnav" aria-label="Pages"></nav>
-    <section class="days" id="days" aria-label="Sheets"></section>
 
     <main class="studio" id="layoutView">
       <aside class="tools" aria-label="Tools">
@@ -252,10 +251,16 @@
 
       <section class="stage">
         <div class="sheetbar">
-          <span class="kind" id="kind"></span>
+          <details class="menu sheetpick" id="sheetPick">
+            <summary
+              title="Choose a sheet: the standard, a proposal or a daily check"
+            >
+              <span class="kind" id="kind"></span>
+            </summary>
+            <div class="pop sheetlist" id="days" aria-label="Sheets"></div>
+          </details>
           <input class="name" id="sName" aria-label="Sheet name" />
           <button id="sbMore" aria-expanded="false">Options</button>
-          <input type="date" id="sDate" aria-label="Sheet date" />
           <label
             >Compare with
             <select id="cmpSel"></select
@@ -267,22 +272,43 @@
           >
             Present
           </button>
-          <button
-            id="bEditDraw"
-            title="Add walls, columns and other fixed things to the drawing"
-          >
-            Edit drawing
-          </button>
-          <details class="menu" id="layersMenu">
-            <summary title="Choose what shows on the drawing">Layers</summary>
-            <div class="pop" id="layersPop"></div>
-          </details>
-          <details class="menu" id="sheetMenu">
-            <summary>Sheet</summary>
-            <div class="pop" id="sheetPop"></div>
-          </details>
         </div>
         <div class="canvas" id="canvas" data-tool="select">
+          <!-- drawing, layers and sheet tools: icons at the top right of the drawing -->
+          <div class="cvtools" id="cvTools">
+            <button
+              id="bEditDraw"
+              title="Edit the drawing: walls, columns and other fixed things"
+            >
+              Edit drawing
+            </button>
+            <details class="menu" id="layersMenu">
+              <summary title="Layers: choose what shows on the drawing">
+                Layers
+              </summary>
+              <div class="pop" id="layersPop"></div>
+            </details>
+            <details class="menu" id="sheetMenu">
+              <summary title="Sheet: date, new proposal, print, export, delete">
+                Sheet
+              </summary>
+              <div class="pop">
+                <label class="popdate"
+                  >Date of this sheet
+                  <input type="date" id="sDate" aria-label="Sheet date"
+                /></label>
+                <div class="poplist" id="sheetPop"></div>
+              </div>
+            </details>
+          </div>
+          <button
+            class="sidetoggle"
+            id="sideToggle"
+            title="Hide the details panel"
+            aria-label="Hide the details panel"
+          >
+            ›
+          </button>
           <svg
             id="svg"
             xmlns="http://www.w3.org/2000/svg"

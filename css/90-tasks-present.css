@@ -199,7 +199,7 @@ body.drawfocus #tabWarn {
     min-width: 0;
     text-overflow: ellipsis;
   }
-  .sheetbar:not(.open) > :not(.kind):not(.name):not(#sbMore) {
+  .sheetbar:not(.open) > :not(.kind):not(.sheetpick):not(.name):not(#sbMore) {
     display: none;
   }
 }

@@ -230,6 +230,54 @@ window.addEventListener("blur", () => {
 });
 $("#zIn").onclick = () => zoomAt(1.3);
 $("#zOut").onclick = () => zoomAt(1 / 1.3);
+// the details panel on the right of the layout can be hidden for a bigger drawing (remembered here)
+function applySide(redraw = true) {
+  const off = !!ui.sideHidden,
+    b = $("#sideToggle"),
+    w0 = svg.getBoundingClientRect().width;
+  // was the view fitted (Fit, or as it opened)? then it fits the new room again
+  let fitted = false;
+  if (redraw && ui.vb) {
+    const was = { ...ui.vb };
+    fitView();
+    fitted = Math.abs(ui.vb.w / was.w - 1) < 0.02;
+    ui.vb = was;
+  }
+  $("#layoutView").classList.toggle("sidehidden", off);
+  // otherwise keep the zoom as it was on screen and the same middle: the drawing just gets more room
+  const w1 = svg.getBoundingClientRect().width;
+  if (fitted) fitView();
+  else if (redraw && ui.vb && w0 && w1) {
+    const h0 = vbH(),
+      cx = ui.vb.x + ui.vb.w / 2,
+      cy = ui.vb.y + h0 / 2;
+    ui.vb.w *= w1 / w0;
+    ui.vb.x = cx - ui.vb.w / 2;
+    ui.vb.y = cy - vbH() / 2;
+  }
+  b.textContent = off ? "‹" : "›";
+  b.title = off ? "Show the details panel" : "Hide the details panel";
+  b.setAttribute("aria-label", b.title);
+  if (redraw) draw();
+}
+try {
+  ui.sideHidden = localStorage.getItem("studio5s-sidehidden") === "1";
+} catch {}
+applySide(false); // before the project loads, so nothing is drawn yet
+$("#sideToggle").onclick = () => {
+  ui.sideHidden = !ui.sideHidden;
+  try {
+    localStorage.setItem("studio5s-sidehidden", ui.sideHidden ? "1" : "0");
+  } catch {}
+  applySide();
+};
+document.addEventListener(
+  "toggle",
+  (e) => {
+    if (e.target.id === "toolTips") ui.tipsOpen = e.target.open;
+  },
+  true,
+);
 $("#emptySetup").onclick = () => act("goSetup");
 $("#emptyExample").onclick = () => act("loadExample");
 $("#zFit").onclick = () => {

@@ -1,5 +1,6 @@
 "use strict";
-/* ============ render: strip, sheet bar, tools ============ */
+/* ============ render: sheet picker, sheet bar, tools ============ */
+// the sheet picker (#days, the list under the sheet's kind badge): the standard, proposals, daily checks
 function renderDays() {
   const std = STD(),
     props = P.sheets.filter((s) => s.kind === "proposal"),
@@ -7,9 +8,10 @@ function renderDays() {
   const chip = (s, cls, b, sm, sc, bar) =>
     `<button class="chip ${cls}${s.id === P.active ? " on" : ""}" data-sheet="${esc(s.id)}"${bar ? ` style="--bar:${bar}"` : ""} title="${esc(s.name)}"><b>${esc(b)}</b><small>${esc(sm)}</small>${sc != null ? `<span class="sc c-${scoreCls(sc)}">${sc}%</span>` : ""}</button>`;
   let h = `<div class="grp"><span>Standard</span><div class="chips">${chip(std, "std", std.name, "The agreed design")}</div></div>`;
-  h += `<div class="grp"><span>Proposals and trials</span><div class="chips">${props.map((s) => chip(s, "prop", s.name, fmtDate(s.date))).join("")}<button class="add pri" data-add="proposal">New proposal</button></div></div>`;
+  h += `<div class="grp"><span>Proposals and trials</span><div class="chips">${props.map((s) => chip(s, "prop", s.name, fmtDate(s.date))).join("")}<button class="add" data-add="proposal">New proposal</button></div></div>`;
   h += `<div class="grp"><span>Daily checks: what it actually looks like${days.length > 14 ? ` (latest 14 of ${days.length}, all in Tracking)` : ""}</span><div class="chips">${days
     .slice(-14)
+    .reverse()
     .map((d) => {
       const c = compare(d, stdFor(d));
       return chip(
@@ -23,12 +25,13 @@ function renderDays() {
     })
     .join(
       "",
-    )}<button class="add pri" data-add="daily">Start today's check</button></div></div>`;
+    )}<button class="add" data-add="daily">Start today's check</button></div></div>`;
   $("#days").innerHTML = h;
 }
 $("#days").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
+  $("#sheetPick").open = false;
   if (b.dataset.sheet) {
     if (ui.view !== "layout") setView("layout");
     openSheet(b.dataset.sheet);
@@ -147,7 +150,7 @@ function renderTools() {
     t = ui.tool;
   let h = "";
   if (t === "select")
-    h = `<p class="small muted" style="margin:10px 0 0">Drag empty floor to pan, scroll to zoom. Shift-click or Shift-drag a box to select several. Items snap to each other and to walls; hold Alt to place freely.</p><button class="linkbtn" data-shortcuts style="margin-top:4px">All shortcuts (press ?)</button>`;
+    h = `<details class="tips" id="toolTips"${ui.tipsOpen ? " open" : ""}><summary>Tips for moving round the drawing</summary><p class="small muted">Drag empty floor to pan, scroll to zoom. Shift-click or Shift-drag a box to select several. Items snap to each other and to walls; hold Alt to place freely. Right-click for a menu.</p><button class="linkbtn" data-shortcuts>All shortcuts (press ?)</button></details>`;
   if (t === "tape")
     h = `<div class="toolopts"><div class="seg4">${[
       ["line", "Line"],

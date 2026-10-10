@@ -161,6 +161,7 @@ const VIEWS = [
   await go("layout");
 
   // daily check and red tag through the real forms
+  await page.click("#sheetPick summary");
   await page.click('[data-add="daily"]');
   await page.fill('#dlgForm [name="checker"]', "Tester");
   await page.click("#dlgOk");
