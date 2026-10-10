@@ -59,7 +59,8 @@ drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Pr
 Names on the layout (10 Oct): only inside their item. Detached name tags with leader lines were removed: on a real
 zone of 70+ small items they covered the CAD drawing and were hard to match to their item. A name that does not fit
 inside shows when the item is pointed at or selected, and zooming in lets more names fit. Line and zone names stay
-on their edge. Not done: a printed sheet only has the names that fit (a numbered key would add the rest).
+on their edge. On paper (the layout print and the zone A3 sheets) an item whose name does not fit carries a number,
+the same number for every item of that name, with a key under the plan (number, name, how many).
 
 Task walks and spaghetti diagrams (10 Oct, `js/34-walks.js`): a task can be placed where it is done (task form,
 "Place on the layout", then click the drawing). Its walk goes from there to the items it uses and back, round

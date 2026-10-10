@@ -1102,6 +1102,22 @@ const VIEWS = [
       ui.hover = null;
       return shown;
     })(),
+    // on paper: items whose names do not fit get numbers, one per name, and a key lists them
+    key: (() => {
+      ui.printing = true;
+      drawNow();
+      const r = {
+        entries: LABEL.key.length,
+        numbers: document.querySelectorAll("#svg .names circle").length,
+        keyRows: document.querySelectorAll("#printKey .pkey span").length,
+      };
+      ui.printing = false;
+      drawNow();
+      r.cleared =
+        !$("#printKey").innerHTML &&
+        !document.querySelector("#svg .names circle");
+      return r;
+    })(),
   }));
   await page.evaluate(() => {
     ui.layers.labels = false;
@@ -1120,6 +1136,10 @@ const VIEWS = [
       nm.cut === 0 &&
       nm.leaders === 0 &&
       nm.hover !== false &&
+      (nm.key.entries === 0 ||
+        (nm.key.numbers >= nm.key.entries &&
+          nm.key.keyRows === nm.key.entries)) &&
+      nm.key.cleared &&
       nm.off === 0,
     "names on the drawing are wrong: " + JSON.stringify(nm),
   );

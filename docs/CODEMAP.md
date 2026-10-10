@@ -206,7 +206,7 @@ Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete:
 - 167 `on #dlgX onclick` the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
 - 171 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1348 lines)
+## js/07-canvas.js (1350 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -237,18 +237,18 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 584 `cmpCache`
 - 586 `updateEmptyCanvas()` a new, empty standard with no plan: a start card in the middle of the canvas
 - 598 `drawNow()`
-- 638 `drawScale(k)`
-- 652 `snapV(v, sh)`
-- 655 `snapPoint(p, e, last)`
-- 696 `ptrs`
-- 821 `startPan(e, clickClears)`
-- 981 `endDrag(e)`
-- 1064 `setTool(t, level)`
-- 1084 `placeOrDraw(e, p)`
-- 1091 `addDraftPoint(e, p)`
-- 1135 `async finishDraft()`
-- 1307 `cancelDraft()`
-- 1313 `updateHint()`
+- 640 `drawScale(k)`
+- 654 `snapV(v, sh)`
+- 657 `snapPoint(p, e, last)`
+- 698 `ptrs`
+- 823 `startPan(e, clickClears)`
+- 983 `endDrag(e)`
+- 1066 `setTool(t, level)`
+- 1086 `placeOrDraw(e, p)`
+- 1093 `addDraftPoint(e, p)`
+- 1137 `async finishDraft()`
+- 1309 `cancelDraft()`
+- 1315 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -631,7 +631,7 @@ The studio is a static page with no server. Each person picks a folder once (a O
 - 478 `async openTeammateBundle(j, user, proj)`
 - 505 `on #fTeam onchange`
 
-## js/34-areas.js (912 lines)
+## js/34-areas.js (913 lines)
 areas: named zones on the drawing, with items designated to them
 
 - 7 `AREA_COLS`
@@ -672,24 +672,24 @@ areas: named zones on the drawing, with items designated to them
 - 486 `areaAct(a, el)` actions from buttons
 - 603 `csvAreas()` output
 - 635 `planCrop(sh, box, asp)` a plan of the sheet cropped to a box, with every layer that helps people find their way
-- 667 `areaSheetHTML(a, sh)`
-- 752 `printAreas(list)`
-- 780 `scopeArea() =>` scope: the whole factory, or one area at a time Layout work happens one area at a time so it is not cluttered…
-- 785 `scopeMid(m) =>`
-- 789 `scopeObj`
-- 795 `scopeMark`
-- 798 `scopeIssues(c, A)` the layout checks (blocked, walls, aisles...) kept to what touches the scope
-- 816 `scopeCmp(c, A)`
-- 831 `scopeBox(a)` a box round the area with a little room, in drawing units
-- 837 `selectableInScope(i)` a selected thing that the scope hides must not stay selected: it could not be seen but could be deleted
-- 847 `setScope(id, fromHash = false)`
-- 856 `scopeBarHTML()`
-- 867 `updateScopeBar()`
-- 877 `on #canvas click`
-- 883 `scopePass(p, keepUnplaced = false) =>` the scope applied to registers and lists (pins carry a position; documents may not)
-- 886 `scopeProblem(p)` a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line
-- 895 `ensureVisible(x, y)` about to look at a point: widen the view to the whole factory if it is outside what is being shown
-- 902 `widenIfOutside(ids)` things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are n…
+- 668 `areaSheetHTML(a, sh)`
+- 753 `printAreas(list)`
+- 781 `scopeArea() =>` scope: the whole factory, or one area at a time Layout work happens one area at a time so it is not cluttered…
+- 786 `scopeMid(m) =>`
+- 790 `scopeObj`
+- 796 `scopeMark`
+- 799 `scopeIssues(c, A)` the layout checks (blocked, walls, aisles...) kept to what touches the scope
+- 817 `scopeCmp(c, A)`
+- 832 `scopeBox(a)` a box round the area with a little room, in drawing units
+- 838 `selectableInScope(i)` a selected thing that the scope hides must not stay selected: it could not be seen but could be deleted
+- 848 `setScope(id, fromHash = false)`
+- 857 `scopeBarHTML()`
+- 868 `updateScopeBar()`
+- 878 `on #canvas click`
+- 884 `scopePass(p, keepUnplaced = false) =>` the scope applied to registers and lists (pins carry a position; documents may not)
+- 887 `scopeProblem(p)` a problem is "where" a zone: it passes when that zone is the scope or sits in the scoped line
+- 896 `ensureVisible(x, y)` about to look at a point: widen the view to the whole factory if it is outside what is being shown
+- 903 `widenIfOutside(ids)` things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are n…
 
 ## js/34-import.js (237 lines)
 Pick a project from My projects (your own, or a teammate's copy), tick the items you want, and they are added to the layout you have open. Sizes follow the scale of each project; the operator tasks that use the items can come with them. Nothing in the other project is changed.
@@ -892,18 +892,19 @@ One small menu (#ctxMenu) for a right-click on the drawing and on register rows.
 - 158 `on window resize`
 - 159 `on document scroll`
 
-## js/37-labels.js (245 lines)
+## js/37-labels.js (279 lines)
 Every name on the drawing (items, marked areas, fixed equipment, lines and zones) is placed here, in one pass, on top of everything else. All sizes are in screen pixels (world units / k), so the screen, Present mode and the A3 print behave the same way. An item's name goes inside it: the whole name…
 
-- 14 `LABEL`
-- 15 `LAB_MIN`
-- 17 `labW(s, fs, bold = false) =>`
-- 18 `labOv(a, b) =>`
-- 23 `labBox(cx, cy, w, h) =>`
-- 30 `labWrap(text, maxLines, maxChars)` wrap on spaces into at most maxLines lines of maxChars; null if a word is too long
-- 48 `labInside(text, long, thick, startFs, maxLines, minFs = LAB_MIN)` the biggest text that fits a name inside a box of long x thick pixels: { fs, lines } or null
-- 57 `labAngle(a) =>`
-- 64 `labelsSVG(sh, k, o)`
+- 17 `LABEL`
+- 18 `LAB_MIN`
+- 20 `labW(s, fs, bold = false) =>`
+- 21 `labOv(a, b) =>`
+- 26 `labBox(cx, cy, w, h) =>`
+- 33 `labWrap(text, maxLines, maxChars)` wrap on spaces into at most maxLines lines of maxChars; null if a word is too long
+- 51 `labInside(text, long, thick, startFs, maxLines, minFs = LAB_MIN)` the biggest text that fits a name inside a box of long x thick pixels: { fs, lines } or null
+- 60 `labAngle(a) =>`
+- 67 `labelsSVG(sh, k, o)`
+- 270 `printKeyHTML(key = LABEL.key)` the key under a printed plan: each number, its name and how many there are
 
 ## js/37-layout-edit.js (446 lines)
 Called from the canvas (07) at runtime. Everything here works on the current selection (ui.sel) and the same find()/selected() shapes the rest of the editor uses.
@@ -1011,7 +1012,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/10-header.css** (523 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 86 Setup done (a scale and a zone): a tick before its name · 174 the pages of the current section
 - **css/20-layout.css** (979 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer · 834 the sheet picker: the sheet's kind badge opens a list of every sheet (the stand… · 884 drawing, layers and sheet: a small icon group at the top right of the drawing · 943 the tab on the right edge of the drawing that hides or shows the details panel · 966 tips for the Select tool, folded away until wanted
 - **css/30-registers.css** (451 lines): 1 trends · 28 the line about the page stays one line; it is cut short with … when the window … · 64 a view switch (Tasks / Spaghetti diagram) sits on the same row as the filters t… · 145 the row under the pointer gets a navy edge, so it is clear which one a click op… · 162 registers, drift · 378 phones: name and use get full rows, the small fields share one · 412 5S view
-- **css/40-dialogs.css** (664 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 457 tracking charts and red tag photos · 500 boards and labels · 648 SMED
+- **css/40-dialogs.css** (715 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 466 tracking charts and red tag photos · 509 boards and labels · 657 SMED · 674 the key to numbered items on a print (the layout and zone sheets): number, name…
 - **css/45-motion.css** (104 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 46 messages slide up and fade · 54 a page fades and lifts in as it opens · 65 a row that was just saved lights up in tape yellow, then settles · 76 buttons answer the press · 81 the empty layout card eases in (it is centred with a transform, so it keeps tha…
 - **css/50-accounts.css** (113 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (356 lines): 1 problem solving · 2 view switches (Problems / Pareto, Board / A3 details, Tasks / Spaghetti diagram… · 242 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 342 phones: the improvement log is number and idea; who, when and status sit under …

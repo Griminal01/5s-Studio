@@ -621,6 +621,8 @@ function drawNow() {
   if (!panOnly) {
     cmpCache = ref ? compare(sh, ref) : null;
     svg.innerHTML = buildSVG(sh, { k, cmp: cmpCache, scoped: true });
+    // a printed layout: the key to the numbered items goes under the drawing
+    $("#printKey").innerHTML = ui.printing ? printKeyHTML() : "";
     svg.dataset.renderSheet = sh.id;
     svg.dataset.renderScale = k;
   }

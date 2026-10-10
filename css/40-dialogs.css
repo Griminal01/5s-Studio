@@ -189,6 +189,14 @@ dialog h3 {
     background: #fff;
     border: 1px solid #999;
   }
+  /* a key to numbered items under the drawing: the drawing gives up room for it */
+  .stage:has(.pkeywrap:not(:empty)) .canvas {
+    height: 212mm;
+  }
+  .pkeywrap:not(:empty) {
+    display: block !important;
+    margin-top: 3mm;
+  }
   .scale {
     bottom: 6px;
     right: 6px;
@@ -200,6 +208,7 @@ dialog h3 {
   .editban,
   .cvtools,
   .sidetoggle,
+  #bPresent,
   .sheetpick .pop,
   .sheetpick > summary::after {
     display: none !important;
@@ -660,4 +669,46 @@ dialog.xwide {
   border-radius: 10px;
   padding: 14px 8px 10px;
   margin: 8px 0;
+}
+
+/* the key to numbered items on a print (the layout and zone sheets): number, name, how many */
+.pkeywrap {
+  display: none;
+}
+.pkey {
+  columns: 5 46mm;
+  column-gap: 6mm;
+  font-size: 8.5pt;
+  line-height: 1.35;
+  padding: 2mm 3mm;
+  border-top: 1px solid #999;
+}
+.pkey > b {
+  display: block;
+  column-span: all;
+  margin-bottom: 1mm;
+}
+.pkey span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  break-inside: avoid;
+}
+.pkey i {
+  flex: none;
+  font-style: normal;
+  font-weight: 700;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 2px;
+  border: 1.4px solid;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7.5pt;
+  background: #fff;
+}
+.pkey small {
+  color: #555;
 }

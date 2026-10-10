@@ -9,9 +9,12 @@
    drawn at all (detached tags covered the drawing underneath and were hard to match to their item):
    it shows when the item is pointed at or selected (labelTagsSVG in 37-layout-edit), and zooming in
    lets more names fit.
+   On paper there is no pointing at things, so a print numbers them instead (o.numbered, or while
+   printing the layout): an item whose name does not fit gets a small number, the same number for
+   every item with that name, and LABEL.key lists them for printKeyHTML() to put beside the plan.
    Line and zone names pick a clear spot along their edge. Nothing is cut short with "...".
    The Layers menu has a "Names on the drawing" switch. */
-const LABEL = { shown: new Set() }; // ids whose full name is on the drawing right now
+const LABEL = { shown: new Set(), key: [] }; // key: the numbered names of the last print // ids whose full name is on the drawing right now
 const LAB_MIN = 8, // smallest text inside an item, px
   LAB_CALL = 11; // text size of a marked area's name, px
 const labW = (s, fs, bold = false) => s.length * fs * (bold ? 0.62 : 0.58);
@@ -63,6 +66,7 @@ const labAngle = (a) => {
 
 function labelsSVG(sh, k, o) {
   LABEL.shown.clear();
+  LABEL.key = [];
   const L = ui.layers;
   if (L.labels === false) return "";
   const dm = DM(sh),
@@ -174,6 +178,7 @@ function labelsSVG(sh, k, o) {
   }
 
   /* names that fit inside their item; one that does not shows when the item is pointed at or selected */
+  const left = []; // items whose names did not fit
   for (const e of ents) {
     const z = e.o,
       wpx = z.w / k,
@@ -237,8 +242,37 @@ function labelsSVG(sh, k, o) {
         }
       }
       if (e.done) continue;
+      continue;
+    }
+    if (!e.fixed) left.push(e);
+  }
+
+  /* a print: number the items whose names did not fit, one number per name, in A to Z order */
+  if (o.numbered || ui.printing) {
+    const names = [...new Set(left.map((e) => e.text))].sort((a, b) =>
+      a.localeCompare(b),
+    );
+    LABEL.key = names.map((text, i) => {
+      const its = left.filter((e) => e.text === text);
+      return { n: i + 1, text, count: its.length, col: its[0].col };
+    });
+    const num = new Map(LABEL.key.map((x) => [x.text, x.n]));
+    for (const e of left) {
+      const n = num.get(e.text),
+        r = (n > 9 ? 7.5 : 6.5) * k;
+      out += `<circle cx="${e.o.x}" cy="${e.o.y}" r="${r}" fill="#fff" stroke="${esc(e.col || "#1C2250")}" stroke-width="${1.4 * k}"/><text x="${e.o.x}" y="${e.o.y}" font-size="${8.5 * k}" font-weight="700" font-family="Segoe UI,system-ui,sans-serif" fill="#1C2250" text-anchor="middle" dominant-baseline="central">${n}</text>`;
     }
   }
 
   return `<g class="names" pointer-events="none">${out}</g>`;
+}
+// the key under a printed plan: each number, its name and how many there are
+function printKeyHTML(key = LABEL.key) {
+  if (!key.length) return "";
+  return `<div class="pkey"><b>Key</b>${key
+    .map(
+      (x) =>
+        `<span><i style="border-color:${esc(x.col || "#1C2250")}">${x.n}</i>${esc(x.text)}${x.count > 1 ? ` <small>×${x.count}</small>` : ""}</span>`,
+    )
+    .join("")}</div>`;
 }

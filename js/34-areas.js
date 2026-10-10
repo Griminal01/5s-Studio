@@ -658,7 +658,8 @@ function planCrop(sh, box, asp) {
     if (bw / bh < asp) bw = bh * asp;
     else bh = bw / asp;
     const vb = [cx - bw / 2, cy - bh / 2, bw, bh];
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}">${buildSVG(sh, { k: vb[2] / 1500, cmp: null, export: true })}</svg>`;
+    // numbered: small items carry a number and the key under the plan names them (on paper)
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb.map((v) => Math.round(v * 100) / 100).join(" ")}">${buildSVG(sh, { k: vb[2] / 1500, cmp: null, export: true, numbered: true })}</svg>${printKeyHTML()}`;
   } finally {
     Object.assign(ui.layers, save);
     ui.hiddenCategories = hid;
