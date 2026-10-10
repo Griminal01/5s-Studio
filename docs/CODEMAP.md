@@ -179,6 +179,15 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 807 `tabWarn(text, reload = false)`
 - 843 `deviceId()`
 
+## js/06-icons.js (128 lines)
+A small set of line icons (24 px grid, drawn in the text colour) and the one place that puts them on buttons: ICON_RULES matches a button's label ("Print", "Export CSV", "Delete this tag") to an icon, and every button that appears on the page gets its icon as it is added (a MutationObserver), so te…
+
+- 9 `ICONS`
+- 52 `icon(name) =>`
+- 58 `ICON_RULES` a button's label (its text, spaces tidied) to its icon; the first match wins
+- 92 `ICON_SKIP` where buttons keep their own look: tools, zoom, Present, dialog answers, tabs and toggles
+- 94 `iconize(root)`
+
 ## js/06-ui-helpers.js (175 lines)
 Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete: offerUndo()), flashRow() (a saved row lights up), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
 
@@ -197,7 +206,7 @@ Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete:
 - 167 `on #dlgX onclick` the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
 - 171 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1350 lines)
+## js/07-canvas.js (1345 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -234,12 +243,12 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 696 `ptrs`
 - 821 `startPan(e, clickClears)`
 - 981 `endDrag(e)`
-- 1069 `setTool(t, level)`
-- 1089 `placeOrDraw(e, p)`
-- 1095 `addDraftPoint(e, p)`
-- 1139 `async finishDraft()`
-- 1311 `cancelDraft()`
-- 1317 `updateHint()`
+- 1064 `setTool(t, level)`
+- 1084 `placeOrDraw(e, p)`
+- 1090 `addDraftPoint(e, p)`
+- 1134 `async finishDraft()`
+- 1306 `cancelDraft()`
+- 1312 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -830,6 +839,22 @@ problem solving: fishbone, Pareto, A3 report, CSV
 - 208 `printProblem(p)` A3 report
 - 274 `csvProblems()` CSV
 
+## js/37-context-menu.js (160 lines)
+One small menu (#ctxMenu) for a right-click on the drawing and on register rows. On the drawing: on an item, tape, route or zone, the actions of the toolbar under a selection plus Copy, with their shortcuts; on a zone also "Show only this zone" and "Raise an idea here"; on empty floor Paste, Red ta…
+
+- 9 `openCtx(x, y, items)` show the menu at a screen point with [label, run, { key, danger, disabled }] entries ("-" a rule)
+- 28 `ctxItems`
+- 29 `closeCtx()`
+- 37 `drawingCtx(e)` what a right-click on the drawing offers
+- 102 `rowCtx(row)` what a right-click on a register row offers: Open, then the row's own buttons
+- 116 `on document contextmenu`
+- 122 `on #ctxMenu click`
+- 129 `on #ctxMenu keydown`
+- 154 `on document pointerdown` anything else closes it: a press elsewhere, scrolling, the window losing focus
+- 157 `on window blur`
+- 158 `on window resize`
+- 159 `on document scroll`
+
 ## js/37-labels.js (299 lines)
 Every name on the drawing (items, marked areas, fixed equipment, lines and zones) is placed here, in one pass, on top of everything else. All sizes are in screen pixels (world units / k), so the screen, Present mode and the A3 print behave the same way. For each item, in this order: 1. Inside it: t…
 
@@ -945,15 +970,15 @@ Startup: calls init() (last file to load) and registers the service worker for o
 
 ## css (sections: line, title)
 
-- **css/00-base.css** (120 lines): 116 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables
+- **css/00-base.css** (147 lines): 116 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables · 121 an icon before a button's words (js/06-icons.js)
 - **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
 - **css/20-layout.css** (829 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 558 side · 805 phones: a one-time note that drawing is easiest on a computer
 - **css/30-registers.css** (396 lines): 1 trends · 90 the row under the pointer gets a navy edge, so it is clear which one a click op… · 107 registers, drift · 323 phones: name and use get full rows, the small fields share one · 357 5S view
 - **css/40-dialogs.css** (654 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 447 tracking charts and red tag photos · 490 boards and labels · 638 SMED
-- **css/45-motion.css** (103 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 45 messages slide up and fade · 53 a page fades and lifts in as it opens · 64 a row that was just saved lights up in tape yellow, then settles · 75 buttons answer the press · 80 the empty layout card eases in (it is centred with a transform, so it keeps tha…
+- **css/45-motion.css** (104 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 46 messages slide up and fade · 54 a page fades and lifts in as it opens · 65 a row that was just saved lights up in tape yellow, then settles · 76 buttons answer the press · 81 the empty layout card eases in (it is centred with a transform, so it keeps tha…
 - **css/50-accounts.css** (113 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (341 lines): 1 problem solving · 227 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 327 phones: the improvement log is number and idea; who, when and status sit under …
-- **css/70-layout-edit.css** (112 lines): 1 layout editing
+- **css/70-layout-edit.css** (158 lines): 1 layout editing · 113 right-click menu (the drawing and register rows)
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card
 - **css/85-document-map.css** (108 lines): 1 document map: documents on their own map
 - **css/90-tasks-present.css** (244 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden

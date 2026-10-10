@@ -56,6 +56,13 @@ Review fixes (10 Oct): record numbers and dates stay on one line in registers; a
 its dashed edge does not cross it out; the Showing picker zooms in close on a zone and the view stays on the
 drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Present leave the control bar hidden.
 
+UI polish (10 Oct): Escape closes menus; every dialog has a ✕ (closes like Esc, never counts as Cancel); a delete
+says what went with an Undo button (stale Undo refuses rather than undoing something else); a saved register row
+lights up; an empty Layout shows a start card; dialogs, menus, messages and pages ease in (`css/45-motion.css`).
+Right-click menus on the drawing and register rows (`js/37-context-menu.js`). Icons on buttons by label
+(`js/06-icons.js`). Next agreed: a layout review (page header bands; the sheet name on the Layout toolbar is cut
+short at 1600 px and the toolbar wraps at 1366 px).
+
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
 ## Outside review (10 Oct)

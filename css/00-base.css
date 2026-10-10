@@ -117,3 +117,30 @@ textarea {
 .nw {
   white-space: nowrap;
 }
+
+/* an icon before a button's words (js/06-icons.js) */
+.hasic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.ic {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.menu .pop .hasic,
+.ctxmenu .hasic {
+  justify-content: flex-start;
+}
+.ctxmenu .ic,
+.menu .pop .ic {
+  color: var(--muted);
+}
+.ctxmenu .danger .ic {
+  color: inherit;
+}
+.top .ico.hasic .btxt {
+  margin-left: 0;
+}

@@ -271,7 +271,7 @@ h3 {
 .sheetbar .name {
   font: 600 16px var(--disp);
   border-color: transparent;
-  flex: 1 1 140px;
+  flex: 1 1 120px;
   padding: 5px 6px;
 }
 .sheetbar .name:hover,
@@ -291,7 +291,7 @@ h3 {
 }
 .sheetbar select {
   width: auto;
-  max-width: 220px;
+  max-width: 170px;
   color: var(--ink);
 }
 .kind {
