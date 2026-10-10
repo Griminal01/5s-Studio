@@ -32,7 +32,8 @@ details.menu[open] > .pop {
   animation: popIn var(--t-fast) var(--ease-out);
   transform-origin: top right;
 }
-.selbar:not([hidden]) {
+.selbar:not([hidden]),
+.ctxmenu:not([hidden]) {
   animation: popIn var(--t-fast) var(--ease-out);
 }
 @keyframes popIn {

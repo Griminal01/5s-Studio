@@ -1048,12 +1048,7 @@ svg.addEventListener(
   },
   { passive: false },
 );
-svg.addEventListener("contextmenu", (e) => {
-  if (ui.draft) {
-    e.preventDefault();
-    finishDraft();
-  }
-});
+// right-click: js/37-context-menu.js (ends a line being drawn, else a menu)
 svg.addEventListener("dragover", (e) => {
   if (e.dataTransfer.types.includes("text/x-lib")) e.preventDefault();
 });
