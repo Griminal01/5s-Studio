@@ -56,11 +56,10 @@ Review fixes (10 Oct): record numbers and dates stay on one line in registers; a
 its dashed edge does not cross it out; the Showing picker zooms in close on a zone and the view stays on the
 drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Present leave the control bar hidden.
 
-Names on a crowded layout (10 Oct): with a real zone of 70+ small items the name tags filled the area and their
-leader lines crossed it. Tags now only go on empty floor close to their item, never over another item, bigger items
-first, and a name used on many items (bins, stools) only where it fits right beside one. The rest show when you
-zoom in, point at or select an item; a note by the zoom buttons says how many are not shown. Layers > "All names"
-brings back the old behaviour. Not done: a printed sheet leaves the same names off (a numbered key would fix that).
+Names on the layout (10 Oct): only inside their item. Detached name tags with leader lines were removed: on a real
+zone of 70+ small items they covered the CAD drawing and were hard to match to their item. A name that does not fit
+inside shows when the item is pointed at or selected, and zooming in lets more names fit. Line and zone names stay
+on their edge. Not done: a printed sheet only has the names that fit (a numbered key would add the rest).
 
 Task walks and spaghetti diagrams (10 Oct, `js/34-walks.js`): a task can be placed where it is done (task form,
 "Place on the layout", then click the drawing). Its walk goes from there to the items it uses and back, round
@@ -158,7 +157,7 @@ write the same team file (the second gets the project name plus a short device i
 collapses to the name and an Options button; the drawing has a full-screen button (Esc returns); wide tables show a soft
 edge; the empty layout points to Setup; the stylesheet is split into `css/*.css`. Known and not fixed: "Show" on a
 task and several dialogs lose unsaved edits if you leave through a button inside the dialog (Settings Scale/Logo).
-Names on the layout (9 Oct, `js/37-labels.js`): every name is placed in one pass. Inside the item when it fits (wrapped, turned along the long side), otherwise a tag with a leader line in the nearest free floor space; line and zone names move to a clear spot. On a phone-sized drawing the tags are held back until you zoom. Layers > "Names on the drawing" turns them off. Not done: route names and pin names are not in the engine; long names are never shortened, so a very crowded sheet can leave a tag out (tap or hover shows it).
+Names on the layout (9 Oct, `js/37-labels.js`): every name is placed in one pass. Inside the item when it fits (wrapped, turned along the long side); line and zone names move to a clear spot. (Tags with leader lines for names that do not fit were removed on 10 Oct, see above.) Layers > "Names on the drawing" turns them off. Not done: route names and pin names are not in the engine; long names are never shortened (hover or select shows a name that does not fit).
 
 ## Review done (two passes, all fixed and pushed)
 

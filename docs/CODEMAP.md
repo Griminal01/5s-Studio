@@ -206,7 +206,7 @@ Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete:
 - 167 `on #dlgX onclick` the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
 - 171 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1354 lines)
+## js/07-canvas.js (1348 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -237,18 +237,18 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 584 `cmpCache`
 - 586 `updateEmptyCanvas()` a new, empty standard with no plan: a start card in the middle of the canvas
 - 598 `drawNow()`
-- 644 `drawScale(k)`
-- 658 `snapV(v, sh)`
-- 661 `snapPoint(p, e, last)`
-- 702 `ptrs`
-- 827 `startPan(e, clickClears)`
-- 987 `endDrag(e)`
-- 1070 `setTool(t, level)`
-- 1090 `placeOrDraw(e, p)`
-- 1097 `addDraftPoint(e, p)`
-- 1141 `async finishDraft()`
-- 1313 `cancelDraft()`
-- 1319 `updateHint()`
+- 638 `drawScale(k)`
+- 652 `snapV(v, sh)`
+- 655 `snapPoint(p, e, last)`
+- 696 `ptrs`
+- 821 `startPan(e, clickClears)`
+- 981 `endDrag(e)`
+- 1064 `setTool(t, level)`
+- 1084 `placeOrDraw(e, p)`
+- 1091 `addDraftPoint(e, p)`
+- 1135 `async finishDraft()`
+- 1307 `cancelDraft()`
+- 1313 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -268,28 +268,28 @@ Sheets: the standard, proposals and daily checks. openSheet(), newDaily(), newPr
 - 98 `async makeStandard()`
 - 115 `async deleteSheet()`
 
-## js/10-render.js (272 lines)
+## js/10-render.js (271 lines)
 the sheet picker (#days, the list under the sheet's kind badge): the standard, proposals, daily checks
 
 - 4 `renderDays()` the sheet picker (#days, the list under the sheet's kind badge): the standard, proposals, daily checks
 - 31 `on #days click`
 - 42 `LAYERS`
-- 60 `renderSheetBar()`
-- 92 `on #sName onchange`
-- 98 `on #sDate onchange`
-- 104 `on #cmpSel onchange`
-- 108 `on #layersPop change`
-- 115 `on #sheetPop click`
-- 130 `on document pointerdown`
-- 149 `renderTools()`
-- 195 `on #toolSeg click`
-- 199 `on #toolOpts click`
-- 217 `on #toolOpts change`
-- 227 `renderLib()`
-- 241 `on #libSearch oninput`
-- 242 `on #lib click`
-- 246 `on #lib dragstart`
-- 253 `on #bCustom onclick`
+- 59 `renderSheetBar()`
+- 91 `on #sName onchange`
+- 97 `on #sDate onchange`
+- 103 `on #cmpSel onchange`
+- 107 `on #layersPop change`
+- 114 `on #sheetPop click`
+- 129 `on document pointerdown`
+- 148 `renderTools()`
+- 194 `on #toolSeg click`
+- 198 `on #toolOpts click`
+- 216 `on #toolOpts change`
+- 226 `renderLib()`
+- 240 `on #libSearch oninput`
+- 241 `on #lib click`
+- 245 `on #lib dragstart`
+- 252 `on #bCustom onclick`
 
 ## js/11-side-panel.js (538 lines)
 The layout's right-hand panel: tabs (Item, Zones, Compare, Routes, Tape, 5S), renderSide() picks the pane; paneItem() is the selected item's form, sheetStats() the summary when nothing is selected.
@@ -892,18 +892,18 @@ One small menu (#ctxMenu) for a right-click on the drawing and on register rows.
 - 158 `on window resize`
 - 159 `on document scroll`
 
-## js/37-labels.js (321 lines)
-Every name on the drawing (items, marked areas, fixed equipment, lines and zones) is placed here, in one pass, on top of everything else. All sizes are in screen pixels (world units / k), so the screen, Present mode and the A3 print behave the same way. For each item, in this order: 1. Inside it: t…
+## js/37-labels.js (245 lines)
+Every name on the drawing (items, marked areas, fixed equipment, lines and zones) is placed here, in one pass, on top of everything else. All sizes are in screen pixels (world units / k), so the screen, Present mode and the A3 print behave the same way. An item's name goes inside it: the whole name…
 
-- 19 `LABEL`
-- 20 `LAB_MIN`
-- 22 `labW(s, fs, bold = false) =>`
-- 23 `labOv(a, b) =>`
-- 28 `labBox(cx, cy, w, h) =>`
-- 35 `labWrap(text, maxLines, maxChars)` wrap on spaces into at most maxLines lines of maxChars; null if a word is too long
-- 53 `labInside(text, long, thick, startFs, maxLines, minFs = LAB_MIN)` the biggest text that fits a name inside a box of long x thick pixels: { fs, lines } or null
-- 62 `labAngle(a) =>`
-- 69 `labelsSVG(sh, k, o)`
+- 14 `LABEL`
+- 15 `LAB_MIN`
+- 17 `labW(s, fs, bold = false) =>`
+- 18 `labOv(a, b) =>`
+- 23 `labBox(cx, cy, w, h) =>`
+- 30 `labWrap(text, maxLines, maxChars)` wrap on spaces into at most maxLines lines of maxChars; null if a word is too long
+- 48 `labInside(text, long, thick, startFs, maxLines, minFs = LAB_MIN)` the biggest text that fits a name inside a box of long x thick pixels: { fs, lines } or null
+- 57 `labAngle(a) =>`
+- 64 `labelsSVG(sh, k, o)`
 
 ## js/37-layout-edit.js (446 lines)
 Called from the canvas (07) at runtime. Everything here works on the current selection (ui.sel) and the same find()/selected() shapes the rest of the editor uses.
@@ -1009,7 +1009,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 
 - **css/00-base.css** (149 lines): 118 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables · 123 an icon before a button's words (js/06-icons.js)
 - **css/10-header.css** (523 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 86 Setup done (a scale and a zone): a tick before its name · 174 the pages of the current section
-- **css/20-layout.css** (1004 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer · 834 the sheet picker: the sheet's kind badge opens a list of every sheet (the stand… · 884 drawing, layers and sheet: a small icon group at the top right of the drawing · 943 the tab on the right edge of the drawing that hides or shows the details panel · 966 tips for the Select tool, folded away until wanted · 980 how many names are left off in a crowded area, beside the zoom buttons
+- **css/20-layout.css** (979 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer · 834 the sheet picker: the sheet's kind badge opens a list of every sheet (the stand… · 884 drawing, layers and sheet: a small icon group at the top right of the drawing · 943 the tab on the right edge of the drawing that hides or shows the details panel · 966 tips for the Select tool, folded away until wanted
 - **css/30-registers.css** (451 lines): 1 trends · 28 the line about the page stays one line; it is cut short with … when the window … · 64 a view switch (Tasks / Spaghetti diagram) sits on the same row as the filters t… · 145 the row under the pointer gets a navy edge, so it is clear which one a click op… · 162 registers, drift · 378 phones: name and use get full rows, the small fields share one · 412 5S view
 - **css/40-dialogs.css** (664 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 457 tracking charts and red tag photos · 500 boards and labels · 648 SMED
 - **css/45-motion.css** (104 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 46 messages slide up and fade · 54 a page fades and lifts in as it opens · 65 a row that was just saved lights up in tape yellow, then settles · 76 buttons answer the press · 81 the empty layout card eases in (it is centred with a transform, so it keeps tha…

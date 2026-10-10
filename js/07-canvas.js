@@ -632,12 +632,6 @@ function drawNow() {
     );
   $("#zlabel").textContent = Math.round((fitW / ui.vb.w) * 100) + "%";
   drawScale(k);
-  // names left off in a crowded area: say so, and how to see them
-  const nn = $("#nameNote"),
-    hid = ui.layers.labels === false ? 0 : LABEL.hidden;
-  nn.hidden = !hid;
-  if (hid)
-    nn.textContent = `${hid} name${hid > 1 ? "s" : ""} not shown at this zoom: zoom in, or point at or select an item`;
   positionSelbar();
   updateScopeBar();
 }
