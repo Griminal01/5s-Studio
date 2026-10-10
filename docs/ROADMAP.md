@@ -37,7 +37,7 @@ Effort: **S** = under a day, **M** = a few days, **L** = a week or more.
 | D2 | Items have no "home contents" (the tools on a shadow board, quantities, labels). Shadow boards were removed in version 9, so this is open again. | Can't print shadow-board outlines or location labels. |
 | D3 | The tape plan exists but the **printed output** for the person laying tape needs review against real use. | The point of the tool is a plan someone can take onto the floor. |
 | D4 | ~~No problem-solving tools~~ Built (section 5). SMED was built and removed (section 4). | Still to try on a real problem. |
-| D5 | Two people share one project by passing a file or a team folder. The app now warns when a second tab has the project open, and keeps same-name team files from different computers apart. Copies still do not merge. | Overwrite risk is lower, not gone. |
+| D5 | ~~Two people share one project by passing copies.~~ Projects now live as files in a shared project folder (OneDrive); a clash is detected and asks, never overwrites. Changes are not merged: one version is chosen or both kept. | Try with the real OneDrive folder. |
 | D6 | ~~Item labels hard to read at whole-factory scale.~~ Done: `js/37-labels.js` (inside, else tag with leader line; zone names clear of items). Route and pin names still sit outside it. | Try on a real sheet. |
 
 ---|---|---|
@@ -136,8 +136,8 @@ Earlier answers that still apply when these resume: TV is a mini PC or the TV's 
 - **Hosting:** GitHub Pages (workflow included, see README). The site is public and holds no data.
 - **People:** a name per person ("Who is working?"), no password, kept in each browser. Names separate people's
   projects on a shared computer; they are not security. Real sign-in comes with a shared backend (section 7).
-- **Sharing:** each person points the studio at a shared team folder (OneDrive, Teams or a network drive);
-  the open project is published there as a file, and teammates' projects open as copies in your own list.
+- **Storage and sharing:** each person points the studio at the team's OneDrive or Teams folder; every project is
+  a file there (the real copy), opened and saved by everyone. Access, version history and retention are OneDrive's.
   No server, no IT approval needed for the studio itself.
 - **Data stays in one browser.** The app asks the browser to keep its storage, but clearing site data still deletes it. A backup file (File > Save project) is the real safety net; the header shows a chip when no backup has been downloaded for a week.
 - **Not covered:** two people editing the same project at once (copies do not merge), or protecting files in

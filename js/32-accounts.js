@@ -175,6 +175,7 @@ async function readProject(pid) {
 }
 function afterProjectChange() {
   tabWarn("");
+  folderRelease(); // a sync question belongs to the project that has just closed
   tabTell("open");
   undoS = [];
   redoS = [];
@@ -247,6 +248,7 @@ async function openProject(pid) {
   await idb.write([[indexKey(), IDX]]);
   renderAll();
   save();
+  folderCheck(); // a project saved in the folder may have been changed there
 }
 async function deleteProject(pid) {
   await flushSave();
@@ -356,8 +358,8 @@ async function accountDialog(tab = "projects") {
     if (t === "team") wireTeamTab(root, closeThen(dlg));
   };
   await modal(
-    "Account, projects and team",
-    `<div class="tabs" id="acTabs"><button data-t="projects">My projects</button><button data-t="team">Team</button><button data-t="account">Account</button></div><div id="acRoot"></div>`,
+    "Projects, folder and account",
+    `<div class="tabs" id="acTabs"><button data-t="projects">My projects</button><button data-t="team">Project folder</button><button data-t="account">Account</button></div><div id="acRoot"></div>`,
     "",
     {
       cls: "xwide",
@@ -421,7 +423,7 @@ async function accountDialog(tab = "projects") {
               const e0 = IDX.list.find((x) => x.id === pid),
                 r = await modal(
                   "Delete " + e0.name + "?",
-                  '<p style="margin-top:0">The project is removed from this browser. Project files you saved are not affected. This cannot be undone.</p>',
+                  `<p style="margin-top:0">The project is removed from this browser. ${e0.file ? `Its file in the project folder, <b>${esc(e0.file)}</b>, is not deleted.` : "Project files you saved are not affected."} This cannot be undone.</p>`,
                   "Delete",
                 );
               if (r) await deleteProject(pid);
@@ -453,7 +455,7 @@ function projectsTabHTML() {
     .sort((a, b) => b.updated - a.updated)
     .map(
       (e) =>
-        `<tr data-p="${esc(e.id)}"><td><b>${esc(e.name)}</b>${e.id === PID ? ' <span class="pill done">open now</span>' : ""}${e.from ? `<span class="sub">copy of ${esc(e.from)}'s project</span>` : ""}</td><td>${esc(ago(e.updated))}</td><td class="bact">${e.id === PID ? "" : '<button data-a="open" class="pri">Open</button>'}<button data-a="rename">Rename</button><button data-a="copy">Copy</button><button data-a="delete" class="danger">Delete</button></td></tr>`,
+        `<tr data-p="${esc(e.id)}"><td><b>${esc(e.name)}</b>${e.id === PID ? ' <span class="pill done">open now</span>' : ""}${e.from ? `<span class="sub">copy of ${esc(e.from)}'s project</span>` : ""}<span class="sub">${e.file ? "In the project folder: " + esc(e.file) : "Only in this browser"}</span></td><td>${esc(ago(e.updated))}</td><td class="bact">${e.id === PID ? "" : '<button data-a="open" class="pri">Open</button>'}<button data-a="rename">Rename</button><button data-a="copy">Copy</button><button data-a="delete" class="danger">Delete</button></td></tr>`,
     )
     .join("");
   return `<p style="margin-top:0">Your projects are saved in this browser under <b>${esc(CUR.name)}</b>. Switching is instant and nothing is lost.</p><div class="regtbl"><table class="tbl" style="width:100%"><tr><th>Project</th><th>Last saved</th><th></th></tr>${rows}</table></div><div class="btns"><button id="acNew" class="pri">New project</button><button id="acExample">Open the example model line</button><button id="acFile">Open a project file…</button></div>`;

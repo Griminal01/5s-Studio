@@ -85,11 +85,12 @@ display. They are in git history at commit `2ddb593`.
   encrypted. Keep **Save project** backups.
 - Each account has several **projects** (person icon, top right). Opening a project file, the example
   or a teammate's project always adds a new project; nothing is replaced.
-- **Team**: pick a folder you both reach (a synced OneDrive or Teams folder, or a network drive) and your
-  open project is written there as a file. Your teammate's projects appear in the Team tab, and opening one
-  adds a copy to your own list, so you can look at each other's work and never overwrite it. Needs Chrome
-  or Edge; other browsers use the download and open buttons. The files are plain project files: anyone who
-  can open the folder can read them.
+- **Project folder**: pick your team's OneDrive or Teams folder (synced to the PC) or a network drive. Each
+  project becomes one file there (`<name>.leanstudio.json`), saved a moment after every change, and your
+  teammates open the same files. If someone else saved a file while you also changed it, you are asked: use
+  theirs (yours is kept as a copy) or save yours as a new file; nothing is overwritten. Who can open the files
+  is set by the folder's sharing, and OneDrive keeps their version history. Needs Edge or Chrome on a
+  computer; other browsers use the download and open buttons.
 
 ## Live site
 
@@ -136,5 +137,5 @@ See `docs/ROADMAP.md` for where this is going and `CLAUDE.md` for how the code i
    `https://<username>.github.io/<repository>/`.
 
 Pages sites are public (private Pages needs GitHub Enterprise Cloud). Nothing is stored on the site:
-projects stay in each person's browser or in their team folder. Because the site is public, anyone can
-create an account in their own browser and use the tool; the accounts only keep people on one computer apart.
+projects stay in each person's browser or in the project folder (your OneDrive). Because the site is public,
+anyone can use the tool in their own browser; the names only keep people on one computer apart.

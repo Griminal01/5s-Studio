@@ -49,6 +49,18 @@ Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `do
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
+## Project folder (10 Oct, `js/33-team.js`)
+
+Projects can live as files in a folder: Account (name button) > Project folder > Choose the project folder, then
+"Save the open project to the folder". Pick a OneDrive or Teams folder synced to the PC. Each project is one
+file, `<name>.leanstudio.json`; the browser keeps a working copy and writes the file a moment after each change
+(the header says "Saved to folder"). Teammates open the same file from the list. If someone else saved the file
+and you have no unsaved changes, their version simply comes in; if you both changed it, a yellow banner asks:
+use theirs (yours is kept in My projects) or save yours as a new file. Nothing is overwritten. Access, version
+history and retention come from OneDrive. Needs Edge or Chrome on a computer; elsewhere use Download and Open.
+The old publish-a-copy team folder is replaced; older team files still open as copies. Ask IT whether the browser
+may edit files in synced folders (some companies restrict it). Next: `docs/IT.md`, an information sheet for IT.
+
 ## Improvement log (9 Oct, `js/35-ideas.js`)
 
 Improve now opens on the **Improvement log**: ideas anyone can raise (anyone, not just account holders: "Raised
@@ -111,8 +123,7 @@ example, prints everything, and opens a real backup made with the original v7 fi
 
 "Who is working?" screen (names only; passwords were removed on 10 Oct because a static site cannot protect
 anything with them and a forgotten one could only be recovered by deleting the work), several projects per
-person, and a Team
-tab that publishes your open project to a shared folder and opens teammates' projects as copies. Data is
+person, and a Project folder (see above) where projects are saved as files and shared. Data is
 stored under per-account keys in the `studio-5s` database. Project files, the example and teammates'
 projects always become new projects. Not security: the site is public and nothing is encrypted.
 

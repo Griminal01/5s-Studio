@@ -152,7 +152,7 @@ Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everyt
 - 254 `safeImage(value)` Keep raster drawings untouched; sanitize SVG drawings before embedding them.
 - 328 `imageMap(value)`
 
-## js/05-storage.js (852 lines)
+## js/05-storage.js (855 lines)
 Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(), autosave save() / flushSave() / runSave() with a localStorage fallback, validate(p) migrates every older project shape (bump the version here), migrateLegacy() for v6 files, keepStorage(), the second-tab warning (tab…
 
 - 8 `idb` One transaction keeps project metadata and media consistent after interruption.
@@ -166,17 +166,17 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 83 `saveDone`
 - 86 `flushSave()` Resolves when everything edited so far is saved. If a save is already running its loop picks up the newer edi…
 - 96 `async runSave()`
-- 160 `on document visibilitychange` Hidden tabs throttle timers. Start the pending save while the page is still alive.
-- 163 `on window pagehide`
-- 164 `on window beforeunload`
-- 171 `normMark(m, types)`
-- 193 `validate(p)`
-- 690 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
-- 786 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
-- 795 `TAB_ID`
-- 798 `tabTell(kind)`
-- 804 `tabWarn(text, reload = false)`
-- 840 `deviceId()`
+- 163 `on document visibilitychange` Hidden tabs throttle timers. Start the pending save while the page is still alive.
+- 166 `on window pagehide`
+- 167 `on window beforeunload`
+- 174 `normMark(m, types)`
+- 196 `validate(p)`
+- 693 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
+- 789 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
+- 798 `TAB_ID`
+- 801 `tabTell(kind)`
+- 807 `tabWarn(text, reload = false)`
+- 843 `deviceId()`
 
 ## js/06-ui-helpers.js (117 lines)
 Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(), printWithPage() which every print goes through, printView().
@@ -359,7 +359,7 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 267 `on window beforeprint`
 - 272 `on window afterprint`
 
-## js/16-app.js (191 lines)
+## js/16-app.js (192 lines)
 renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the project, keep anything unreadable instead of overwriting it).
 
 - 5 `renderAll()`
@@ -523,7 +523,7 @@ Tracking's drift map: where each item was found across daily checks (driftCalc),
 - 314 `moveHome(ref)`
 - 330 `addExtraToStd(i)`
 
-## js/32-accounts.js (500 lines)
+## js/32-accounts.js (502 lines)
 People, not passwords. Whoever uses the studio picks their name ("Who is working?"), or types it the first time; everything they save is kept under that name in this browser, so two people sharing a computer each have their own projects. There is no password: the site is a static page and the data …
 
 - 11 `AUTH_KEY`
@@ -542,44 +542,59 @@ People, not passwords. Whoever uses the studio picks their name ("Who is working
 - 160 `blankProjectObject() =>`
 - 167 `async readProject(pid)`
 - 176 `afterProjectChange()`
-- 203 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
-- 223 `async openProject(pid)`
-- 251 `async deleteProject(pid)`
-- 303 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
-- 326 `async startNewProject(name)`
-- 331 `ago(ms) =>` the account dialog: projects, team, account
-- 341 `async accountDialog(tab = "projects")`
-- 450 `projectsTabHTML()`
-- 461 `async renameMeDialog()`
-- 480 `async deleteAccountDialog()`
-- 499 `on #userBtn onclick`
+- 204 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
+- 224 `async openProject(pid)`
+- 253 `async deleteProject(pid)`
+- 305 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
+- 328 `async startNewProject(name)`
+- 333 `ago(ms) =>` the account dialog: projects, team, account
+- 343 `async accountDialog(tab = "projects")`
+- 452 `projectsTabHTML()`
+- 463 `async renameMeDialog()`
+- 482 `async deleteAccountDialog()`
+- 501 `on #userBtn onclick`
 
-## js/33-team.js (274 lines)
-The studio is a static web page, so there is no server to hold shared data. Instead each person points the studio at a folder their team shares (a OneDrive or Teams folder synced to the PC, or a network drive). The studio writes your open project there as a file, and lists the files your teammates …
+## js/33-team.js (470 lines)
+The studio is a static page with no server. Each person picks a folder once (a OneDrive or Teams folder synced to the PC, or a network drive); every project in it is one file, <name>.leanstudio.json. The file is the real copy: who can open it is decided by the folder's own sharing, OneDrive keeps i…
 
-- 13 `fsaOK() =>`
-- 14 `TEAM`
-- 15 `teamKey() =>`
-- 16 `async teamLoad()`
+- 16 `fsaOK() =>`
+- 17 `FILE_EXT`
+- 18 `TEAM`
+- 19 `teamKey() =>`
+- 20 `async teamLoad()`
 - 26 `teamSave() =>`
 - 27 `fsafe(s) =>`
 - 33 `TEAM_FILE` Files were named 5S-Studio__... before the rename; both are still read.
-- 34 `teamFileName(user, proj, prefix = "Lean-Studio") =>`
-- 36 `myFileName() =>`
-- 39 `async myFileNameSafe()` If a file of that name was written by a different computer, publish under a name with this computer's id inst…
-- 64 `async teamPerm(write, ask)`
-- 75 `async teamPublish(ask = true)`
-- 96 `teamTimer` keep the team copy fresh: shortly after you stop editing, publish quietly
-- 97 `teamAfterSave()`
-- 109 `teamChip(needs)`
-- 113 `on #teamChip onclick`
-- 121 `async teamList()`
-- 139 `teamEntries`
-- 140 `async teamTabHTML()`
-- 163 `wireTeamTab(root, closeThen)`
-- 222 `async openTeamFile(en)`
-- 231 `async openTeammateBundle(j, user, proj)`
-- 258 `on #fTeam onchange`
+- 34 `curEntry() =>`
+- 35 `contentKey(text) =>`
+- 37 `entryDirty(e) =>` the open project has changes that are not in its file yet
+- 41 `async folderPerm(ask)` may the folder be written to? ask show the browser's prompt (needs a click)
+- 54 `async folderFiles()` project files and older team files in the folder, newest first
+- 70 `async freeFileName(project)` a file name for a project that no other file in the folder has
+- 88 `async writeFile(fh, text)`
+- 94 `saveIndex() =>`
+- 97 `folderTimer` the open project and its file
+- 101 `folderAfterSave()` called after every save in the browser (05-storage)
+- 108 `folderSync(ask = false)` one at a time: write local changes to the file, or bring in a newer file
+- 117 `async folderSyncNow(ask)`
+- 143 `async folderLoad(e, f, quiet = false)` take the file's version into the open project (no local changes are waiting)
+- 177 `async keepLocalCopy(label)` keep the open project as a separate project in My projects, not linked to any file
+- 197 `folderHold(why, e, f)`
+- 207 `folderRelease()`
+- 212 `on #syncWarn click`
+- 253 `async linkToNewFile(e, name)` write the open project to a new file in the folder and link it
+- 264 `async folderCheck()` check the open project's file: on opening, and when the person comes back to the tab
+- 269 `on document visibilitychange`
+- 273 `folderStatus(problem)` the save status in the header says where the work is
+- 288 `folderChip(needs)`
+- 292 `on #teamChip onclick`
+- 301 `async folderOpenFile(row)` opening a file from the folder
+- 339 `folderRows` the Project folder tab of the account dialog
+- 340 `async teamTabHTML()`
+- 364 `wireTeamTab(root, closeThen)`
+- 418 `async openTeamFile(en)` older team files and files opened by hand: added as copies
+- 427 `async openTeammateBundle(j, user, proj)`
+- 454 `on #fTeam onchange`
 
 ## js/34-areas.js (912 lines)
 areas: named zones on the drawing, with items designated to them
@@ -916,5 +931,5 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/70-layout-edit.css** (112 lines): 1 layout editing
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card
 - **css/85-document-map.css** (108 lines): 1 document map: documents on their own map
-- **css/90-tasks-present.css** (238 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden
+- **css/90-tasks-present.css** (244 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden
 - **css/95-tape-plan.css** (167 lines): 1 tape plan (A3) and colour standard: print only, the #printDoc box is hidden on …

@@ -1,26 +1,26 @@
 "use strict";
-/* ============ team: share projects through a folder everyone can reach ============ */
-// The studio is a static web page, so there is no server to hold shared data.
-// Instead each person points the studio at a folder their team shares (a
-// OneDrive or Teams folder synced to the PC, or a network drive). The studio
-// writes your open project there as a file, and lists the files your teammates
-// have put there; opening one adds it to your own project list as a copy, so
-// you never overwrite their work and they never overwrite yours. Needs a
-// browser that can write to folders (Chrome or Edge). Anyone else can use the
-// same files by hand with the download and open buttons.
-// The files are plain project files: anyone who can open the folder can read them.
+/* ============ project folder: projects saved as files in a OneDrive, Teams or network folder ============ */
+// The studio is a static page with no server. Each person picks a folder once (a OneDrive or Teams folder
+// synced to the PC, or a network drive); every project in it is one file, <name>.leanstudio.json. The file is
+// the real copy: who can open it is decided by the folder's own sharing, OneDrive keeps its version history,
+// and teammates open the same file. The browser keeps a working copy for speed, offline and crash recovery.
+// A project in My projects is linked to its file by the index entry (IDX.list, 32-accounts): e.file (file
+// name), e.fileMod (the file's lastModified when we last read or wrote it) and e.fileKey (a hash of the
+// project as it is in the file). The open project differing from e.fileKey means changes not in the file
+// yet; opening a project without changing it writes nothing, so it never looks like a change to others.
+// Nothing is overwritten silently: a file changed by someone else is loaded only when there are no local
+// changes; otherwise the person chooses (theirs, with theirs kept as a copy; or mine, saved as a new file).
+// Needs Chrome or Edge on a computer (File System Access API); elsewhere files are opened and downloaded.
+// Older team files (Lean-Studio__user__project.json, 5S-Studio__...) still open as copies.
 
 const fsaOK = () => !!window.showDirectoryPicker;
-let TEAM = { handle: null, auto: false, last: 0 };
+const FILE_EXT = ".leanstudio.json";
+let TEAM = { handle: null }; // the project folder, kept under the old "team" key
 const teamKey = () => userPrefix() + "team";
 async function teamLoad() {
   try {
-    TEAM = {
-      handle: null,
-      auto: false,
-      last: 0,
-      ...((await idb.get(teamKey())) || {}),
-    };
+    const t = (await idb.get(teamKey())) || {};
+    TEAM = { handle: t.handle || null };
   } catch {}
 }
 const teamSave = () => idb.write([[teamKey(), TEAM]]);
@@ -31,40 +31,18 @@ const fsafe = (s) =>
     .slice(0, 60) || "x";
 // Files were named 5S-Studio__... before the rename; both are still read.
 const TEAM_FILE = /^(?:Lean-Studio|5S-Studio)__(.+?)__(.+)\.json$/;
-const teamFileName = (user, proj, prefix = "Lean-Studio") =>
-  `${prefix}__${fsafe(user)}__${fsafe(proj)}.json`;
-const myFileName = () => teamFileName(CUR.name, P.projectName || "project");
-// If a file of that name was written by a different computer, publish under a name with this
-// computer's id instead of overwriting it.
-async function myFileNameSafe() {
-  const base = myFileName();
-  TEAM.owned = TEAM.owned || {};
-  if (TEAM.owned[base] || TEAM.lastName === base) return base;
-  let existing = null;
-  try {
-    existing = await (await TEAM.handle.getFileHandle(base)).getFile();
-  } catch {}
-  let name = base;
-  if (existing) {
-    let theirs = "";
-    try {
-      theirs = JSON.parse(await existing.text()).device || "";
-    } catch {}
-    const mine = deviceId();
-    if (theirs !== mine)
-      name = teamFileName(
-        CUR.name,
-        `${P.projectName || "project"} (${mine || "2"})`,
-      );
-  }
-  TEAM.owned[name] = true;
-  return name;
-}
+const curEntry = () => IDX.list.find((e) => e.id === PID);
+const contentKey = (text) => hashStr(text) + ":" + text.length;
+// the open project has changes that are not in its file yet
+const entryDirty = (e) =>
+  e.id === PID && !!P && contentKey(JSON.stringify(P)) !== e.fileKey;
 
-async function teamPerm(write, ask) {
+// may the folder be written to? ask = show the browser's prompt (needs a click)
+async function folderPerm(ask) {
   const h = TEAM.handle;
   if (!h) return false;
-  const o = { mode: write ? "readwrite" : "read" };
+  if (!h.queryPermission) return true;
+  const o = { mode: "readwrite" };
   try {
     if ((await h.queryPermission(o)) === "granted") return true;
     return ask && (await h.requestPermission(o)) === "granted";
@@ -72,130 +50,360 @@ async function teamPerm(write, ask) {
     return false;
   }
 }
-async function teamPublish(ask = true) {
-  if (!TEAM.handle || !(await teamPerm(true, ask))) return false;
-  await flushSave();
-  const fname = await myFileNameSafe(),
-    fh = await TEAM.handle.getFileHandle(fname, { create: true }),
-    w = await fh.createWritable();
-  await w.write(JSON.stringify(projectBundle()));
-  await w.close();
-  // my copy under the old name is now out of date: remove it so teammates see one copy
-  try {
-    await TEAM.handle.removeEntry(
-      teamFileName(CUR.name, P.projectName || "project", "5S-Studio"),
-    );
-  } catch {}
-  TEAM.last = Date.now();
-  TEAM.lastName = fname;
-  await teamSave();
-  teamChip(false);
-  return true;
+// project files and older team files in the folder, newest first
+async function folderFiles() {
+  const files = [],
+    older = [];
+  for await (const [name, h] of TEAM.handle.entries()) {
+    if (h.kind !== "file") continue;
+    const m = name.match(TEAM_FILE);
+    if (!m && !name.endsWith(FILE_EXT)) continue;
+    const f = await h.getFile(),
+      row = { name, h, modified: f.lastModified, size: f.size };
+    if (m) older.push({ ...row, user: m[1], project: m[2] });
+    else files.push(row);
+  }
+  const byDate = (a, b) => b.modified - a.modified;
+  return { files: files.sort(byDate), older: older.sort(byDate) };
 }
-/* keep the team copy fresh: shortly after you stop editing, publish quietly */
-let teamTimer = 0;
-function teamAfterSave() {
-  if (!TEAM.auto || !TEAM.handle) return;
-  clearTimeout(teamTimer);
-  teamTimer = setTimeout(async () => {
+// a file name for a project that no other file in the folder has
+async function freeFileName(project) {
+  // characters a file name cannot hold become a spaced dash: "Line 1: redesign" is "Line 1 - redesign"
+  const base =
+    String(project || "Project")
+      .replace(/\s*[\\/:*?"<>|]+\s*/g, " - ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80) || "Project";
+  for (let i = 1; i < 100; i++) {
+    const name = base + (i > 1 ? ` (${i})` : "") + FILE_EXT;
     try {
-      if (await teamPerm(true, false)) await teamPublish(false);
-      else teamChip(true);
-    } catch (e) {
-      console.warn(e);
+      await TEAM.handle.getFileHandle(name);
+    } catch {
+      return name;
     }
-  }, 20000);
+  }
+  return base + " " + uid() + FILE_EXT;
 }
-function teamChip(needs) {
+async function writeFile(fh, text) {
+  const w = await fh.createWritable();
+  await w.write(text);
+  await w.close();
+  return (await fh.getFile()).lastModified;
+}
+const saveIndex = () => idb.write([[indexKey(), IDX]]);
+
+/* ----- the open project and its file ----- */
+let folderTimer = 0,
+  folderRun = Promise.resolve(),
+  folderHeld = ""; // why syncing is paused for the open project ("conflict", "gone"), shown in the banner
+// called after every save in the browser (05-storage)
+function folderAfterSave() {
+  const e = curEntry();
+  if (!e?.file || !TEAM.handle || folderHeld) return;
+  clearTimeout(folderTimer);
+  folderTimer = setTimeout(() => folderSync(), 1500);
+}
+// one at a time: write local changes to the file, or bring in a newer file
+function folderSync(ask = false) {
+  folderRun = folderRun
+    .then(() => folderSyncNow(ask))
+    .catch((err) => {
+      console.warn(err);
+      folderStatus("Could not save to the folder: " + err.message);
+    });
+  return folderRun;
+}
+async function folderSyncNow(ask) {
+  const e = curEntry();
+  if (!e?.file || !TEAM.handle || folderHeld) return;
+  if (!(await folderPerm(ask))) return folderChip(true);
+  folderChip(false);
+  let fh, f;
+  try {
+    fh = await TEAM.handle.getFileHandle(e.file);
+    f = await fh.getFile();
+  } catch {
+    return folderHold("gone", e);
+  }
+  if (f.lastModified !== e.fileMod) {
+    // someone else (or this person on another computer) saved the file since we last read it
+    if (!entryDirty(e)) return folderLoad(e, f);
+    return folderHold("conflict", e, f);
+  }
+  if (!entryDirty(e)) return;
+  await flushSave();
+  const key = contentKey(JSON.stringify(P));
+  e.fileMod = await writeFile(fh, JSON.stringify(projectBundle()));
+  e.fileKey = key;
+  await saveIndex();
+  folderStatus();
+}
+// take the file's version into the open project (no local changes are waiting)
+async function folderLoad(e, f, quiet = false) {
+  const j = JSON.parse(await f.text());
+  if (!j.project) throw Error("not a project file");
+  const p = validate(j.project),
+    d = imageMap(j.drawings),
+    ph = imageMap(j.photos);
+  await idb.write([
+    [K("project", e.id), JSON.stringify(p)],
+    [K("drawings", e.id), d],
+    [K("photos", e.id), ph],
+  ]);
+  e.fileMod = f.lastModified;
+  e.fileKey = contentKey(JSON.stringify(p));
+  e.name = p.projectName || e.name;
+  await saveIndex();
+  if (e.id === PID) {
+    P = p;
+    D = d;
+    PH = ph;
+    lastSavedProject = JSON.stringify(P); // already saved: no write back to the file
+    dirtyImg = false;
+    undoS = [];
+    redoS = [];
+    ui.sel = [];
+    renderAll();
+  }
+  if (!quiet)
+    toast(
+      `Updated from the folder: saved by ${j.by || "someone"} ${ago(Date.parse(j.saved) || f.lastModified)}.`,
+      5000,
+    );
+  folderStatus();
+}
+// keep the open project as a separate project in My projects, not linked to any file
+async function keepLocalCopy(label) {
+  await flushSave();
+  const id = uid(),
+    name = `${P.projectName || "Project"} (${label})`,
+    copy = { ...JSON.parse(JSON.stringify(P)), projectName: name };
+  await idb.write([
+    [K("project", id), JSON.stringify(copy)],
+    [K("drawings", id), { ...D }],
+    [K("photos", id), { ...PH }],
+  ]);
+  IDX.list.push({
+    id,
+    name,
+    created: today(),
+    updated: Date.now(),
+    from: "",
+  });
+  await saveIndex();
+  return name;
+}
+function folderHold(why, e, f) {
+  folderHeld = why;
+  const el = $("#syncWarn");
+  if (!el) return;
+  el.hidden = false;
+  el.innerHTML =
+    why === "conflict"
+      ? `<span>Someone saved <b>${esc(e.file)}</b> ${esc(ago(f.lastModified))}, and you have changes that are not in the file yet.</span><button type="button" data-sync="theirs">Use theirs (keep mine as a copy)</button><button type="button" data-sync="mine">Save mine as a new file</button>`
+      : `<span><b>${esc(e.file)}</b> is no longer in the project folder (renamed, moved or deleted). Your work is safe in this browser.</span><button type="button" data-sync="again">Save it to the folder again</button><button type="button" data-sync="unlink">Keep it in this browser only</button>`;
+}
+function folderRelease() {
+  folderHeld = "";
+  const el = $("#syncWarn");
+  if (el) el.hidden = true;
+}
+$("#syncWarn").addEventListener("click", async (ev) => {
+  const b = ev.target.closest("[data-sync]");
+  const e = curEntry();
+  if (!b || !e) return;
+  try {
+    if (b.dataset.sync === "theirs") {
+      const kept = await keepLocalCopy("my changes " + fmtD(today()));
+      const f = await (await TEAM.handle.getFileHandle(e.file)).getFile();
+      folderRelease();
+      await folderLoad(e, f, true);
+      toast(
+        `Their version is open. Yours is kept in My projects as "${kept}".`,
+        7000,
+      );
+    } else if (b.dataset.sync === "mine" || b.dataset.sync === "again") {
+      if (!(await folderPerm(true))) return void folderChip(true);
+      const name =
+        b.dataset.sync === "mine"
+          ? await freeFileName(`${P.projectName || "Project"} (${CUR.name})`)
+          : await freeFileName(P.projectName);
+      await linkToNewFile(e, name);
+      folderRelease();
+      toast(
+        b.dataset.sync === "mine"
+          ? `Saved yours as ${name}. The other file keeps their version.`
+          : `Saved to the folder as ${name}.`,
+        7000,
+      );
+    } else if (b.dataset.sync === "unlink") {
+      delete e.file;
+      delete e.fileMod;
+      delete e.fileKey;
+      await saveIndex();
+      folderRelease();
+      folderStatus();
+    }
+  } catch (err) {
+    toast("That did not work: " + err.message, 6000);
+  }
+});
+// write the open project to a new file in the folder and link it
+async function linkToNewFile(e, name) {
+  await flushSave();
+  const fh = await TEAM.handle.getFileHandle(name, { create: true });
+  e.file = name;
+  const key = contentKey(JSON.stringify(P));
+  e.fileMod = await writeFile(fh, JSON.stringify(projectBundle()));
+  e.fileKey = key;
+  await saveIndex();
+  folderStatus();
+}
+// check the open project's file: on opening, and when the person comes back to the tab
+async function folderCheck() {
+  const e = curEntry();
+  if (!e?.file || !TEAM.handle) return folderStatus();
+  await folderSync();
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && P) folderCheck();
+});
+// the save status in the header says where the work is
+function folderStatus(problem) {
+  const e = P && curEntry(),
+    el = $("#saved");
+  if (!el || !e?.file || !TEAM.handle) return;
+  el.textContent = problem
+    ? problem
+    : entryDirty(e)
+      ? "Saving to folder…"
+      : "Saved to folder · " +
+        new Date().toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+  el.title = problem || `${TEAM.handle.name} / ${e.file}`;
+}
+function folderChip(needs) {
   const el = $("#teamChip");
   if (el) el.hidden = !needs;
 }
 $("#teamChip").onclick = async () => {
-  try {
-    if (await teamPublish(true))
-      toast("Team folder reconnected and your project published.");
-  } catch (e) {
-    toast("The team folder could not be written to: " + e.message);
-  }
+  if (await folderPerm(true)) {
+    folderChip(false);
+    await folderSync();
+    toast("Project folder reconnected.");
+  } else toast("The folder needs your permission to save there.");
 };
-async function teamList() {
-  const out = [];
-  for await (const [name, h] of TEAM.handle.entries()) {
-    if (h.kind !== "file") continue;
-    const m = name.match(TEAM_FILE);
-    if (!m) continue;
-    // my own files are hidden; a file under my name with another computer's id is someone else's
-    const other = /\(([a-z0-9]{6})\)$/.exec(m[2]); // deviceId() is 6 characters
-    if (
-      nameKey(m[1]) === nameKey(CUR.name) &&
-      !(other && other[1] !== deviceId())
-    )
-      continue;
-    const f = await h.getFile();
-    out.push({ name, user: m[1], project: m[2], modified: f.lastModified, h });
+
+/* ----- opening a file from the folder ----- */
+async function folderOpenFile(row) {
+  const mine = IDX.list.find((x) => x.file === row.name);
+  if (mine) {
+    if (mine.id !== PID) await openProject(mine.id);
+    await folderCheck();
+    return;
   }
-  return out.sort((a, b) => b.modified - a.modified);
+  let j;
+  try {
+    j = JSON.parse(await (await row.h.getFile()).text());
+    if (!j.project) throw Error();
+  } catch {
+    return void toast("That file could not be read as a project.");
+  }
+  const p = validate(j.project);
+  const id = await addProject(
+    p,
+    imageMap(j.drawings),
+    imageMap(j.photos),
+    p.projectName || row.name.replace(FILE_EXT, ""),
+  );
+  const e = IDX.list.find((x) => x.id === id);
+  e.file = row.name;
+  e.fileMod = row.modified;
+  e.fileKey = contentKey(JSON.stringify(P)); // it came from the file: nothing to write back
+  await saveIndex();
+  folderStatus();
+  if (j.by && nameKey(j.by) !== nameKey(CUR.name)) {
+    const mins = (Date.now() - (Date.parse(j.saved) || row.modified)) / 60000;
+    if (mins < 30)
+      toast(
+        `${j.by} saved this ${ago(Date.parse(j.saved) || row.modified)} and may still be working on it. If you both change it, you will be asked which to keep.`,
+        8000,
+      );
+  }
 }
-let teamEntries = [];
+
+/* ----- the Project folder tab of the account dialog ----- */
+let folderRows = { files: [], older: [] };
 async function teamTabHTML() {
   await teamLoad();
   if (!fsaOK())
-    return `<p style="margin-top:0">This browser cannot write to a shared folder, so the team features work by hand. Use <b>Chrome</b> or <b>Edge</b> for the automatic version.</p><div class="btns"><button id="tmDl" class="pri">Download my project for the shared folder</button><button id="tmFile">Open a teammate's file…</button></div><p class="small muted">Put the downloaded file in the folder your team shares. A teammate opens it with the second button and gets their own copy.</p>`;
+    return `<p style="margin-top:0">This browser cannot save into a folder, so files are handled by hand. Use <b>Edge</b> or <b>Chrome</b> on a computer to save projects straight into your OneDrive or Teams folder.</p><div class="btns"><button id="tmDl" class="pri">Download the open project</button><button id="tmFile">Open a project file…</button></div><p class="small muted">Put downloaded files in the folder your team shares; open them from there with the second button.</p>`;
   if (!TEAM.handle)
-    return `<p style="margin-top:0">Pick the folder your team shares: a OneDrive or Teams folder synced to this PC, or a network drive. Your open project is written there as a file, and the projects your teammates put there appear here, ready to open as your own copy.</p><div class="btns"><button id="tmPick" class="pri">Choose the shared folder</button></div><p class="small muted">The files are ordinary project files. Anyone who can open the folder can read them, so choose a folder only your team can reach.</p>`;
-  const ok = await teamPerm(false, false);
-  let list = [];
+    return `<p style="margin-top:0">Choose the folder your projects should live in: a <b>OneDrive or Teams folder</b> synced to this computer, or a network drive. Each project becomes one file there. Who can open them is set by that folder's sharing, OneDrive keeps every version, and your teammates open the same files.</p><div class="btns"><button id="tmPick" class="pri">Choose the project folder</button></div><p class="small muted">Your work stays in this browser too, so it keeps working offline; it is written to the folder a moment after each change.</p>`;
+  const ok = await folderPerm(false);
+  folderRows = { files: [], older: [] };
   if (ok)
     try {
-      list = await teamList();
+      folderRows = await folderFiles();
     } catch (e) {
       console.warn(e);
     }
-  teamEntries = list;
-  return `<p style="margin-top:0">Shared folder: <b>${esc(TEAM.handle.name)}</b>${TEAM.last ? `. Last published ${esc(ago(TEAM.last))}.` : ""}</p>
+  const e = curEntry(),
+    { files, older } = folderRows;
+  return `<p style="margin-top:0">Project folder: <b>${esc(TEAM.handle.name)}</b>. The open project is ${e?.file ? `saved there as <b>${esc(e.file)}</b>` : "<b>only in this browser</b>"}.</p>
     ${ok ? "" : '<div class="status extra">The browser needs your permission again to use this folder.<button id="tmGrant">Reconnect</button></div>'}
-    <div class="btns"><button id="tmPub" class="pri">Publish my open project now</button><button id="tmPick">Change folder</button><button id="tmStop" class="danger">Stop using a team folder</button></div>
-    <label class="chk"><input type="checkbox" id="tmAuto"${TEAM.auto ? " checked" : ""}>Keep my team copy up to date automatically while I work</label>
-    <h3>Your teammates' projects</h3>
-    ${list.length ? `<div class="regtbl"><table class="tbl" style="width:100%"><tr><th>Who</th><th>Project</th><th>Published</th><th></th></tr>${list.map((e, i) => `<tr data-i="${i}"><td><b>${esc(e.user)}</b></td><td>${esc(e.project)}</td><td>${esc(ago(e.modified))}</td><td><button data-open="${i}" class="pri">Open as my copy</button></td></tr>`).join("")}</table></div>` : `<p class="empty">${ok ? "Nobody else has published here yet." : "Reconnect to see them."}</p>`}
-    <p class="small muted">Opening one adds a copy to <b>My projects</b>. Your work and theirs never overwrite each other. Open it again later to refresh the copy.</p>`;
+    <div class="btns">${e?.file ? "" : '<button id="tmLink" class="pri">Save the open project to the folder</button>'}<button id="tmPick">Change folder</button><button id="tmStop" class="danger">Stop using a project folder</button></div>
+    <h3>Projects in the folder</h3>
+    ${files.length ? `<div class="regtbl"><table class="tbl" style="width:100%"><tr><th>File</th><th>Last saved</th><th></th></tr>${files.map((r, i) => `<tr><td><b>${esc(r.name.replace(FILE_EXT, ""))}</b>${r.name === e?.file ? ' <span class="pill done">open now</span>' : IDX.list.some((x) => x.file === r.name) ? ' <span class="pill">in my list</span>' : ""}</td><td>${esc(ago(r.modified))}</td><td>${r.name === e?.file ? "" : `<button data-open="${i}" class="pri">Open</button>`}</td></tr>`).join("")}</table></div>` : `<p class="empty">${ok ? "No project files here yet." : "Reconnect to see them."}</p>`}
+    ${older.length ? `<h3>Older shared copies</h3><div class="regtbl"><table class="tbl" style="width:100%"><tr><th>Who</th><th>Project</th><th>Published</th><th></th></tr>${older.map((r, i) => `<tr><td><b>${esc(r.user)}</b></td><td>${esc(r.project)}</td><td>${esc(ago(r.modified))}</td><td><button data-older="${i}">Open as my copy</button></td></tr>`).join("")}</table></div><p class="small muted">Files from the earlier way of sharing. Opening one adds a copy to My projects; to share it the new way, open it and save it to the folder.</p>` : ""}
+    <p class="small muted">Anyone who can open this folder can open these files, so choose a folder shared only with your team.</p>`;
 }
 function wireTeamTab(root, closeThen) {
-  root.onclick = async (e) => {
-    const b = e.target.closest("button");
+  root.onclick = async (ev) => {
+    const b = ev.target.closest("button");
     if (!b) return;
     try {
       if (b.id === "tmPick") {
         // must run straight from the click: the picker needs the user gesture
-        const handle = await showDirectoryPicker({
+        TEAM.handle = await showDirectoryPicker({
           id: "studio5s-team",
           mode: "readwrite",
         });
-        TEAM.handle = handle;
         await teamSave();
+        folderRelease();
         root.innerHTML = await teamTabHTML();
       } else if (b.id === "tmGrant") {
-        await teamPerm(true, true);
+        await folderPerm(true);
         root.innerHTML = await teamTabHTML();
-      } else if (b.id === "tmPub") {
-        if (await teamPublish(true)) {
-          toast("Published: " + myFileName());
-          root.innerHTML = await teamTabHTML();
-        } else toast("The folder needs your permission. Press Reconnect.");
+      } else if (b.id === "tmLink") {
+        if (!(await folderPerm(true)))
+          return void toast("The folder needs your permission.");
+        const e = curEntry(),
+          name = await freeFileName(P.projectName);
+        await linkToNewFile(e, name);
+        toast("Saved to the folder as " + name);
+        root.innerHTML = await teamTabHTML();
       } else if (b.id === "tmStop") {
-        TEAM = { handle: null, auto: false, last: 0 };
+        TEAM = { handle: null };
         await teamSave();
-        teamChip(false);
+        folderChip(false);
+        folderRelease();
         root.innerHTML = await teamTabHTML();
       } else if (b.dataset.open !== undefined) {
-        const en = teamEntries[+b.dataset.open];
-        closeThen(() => openTeamFile(en));
+        const r = folderRows.files[+b.dataset.open];
+        closeThen(() => folderOpenFile(r));
+      } else if (b.dataset.older !== undefined) {
+        const r = folderRows.older[+b.dataset.older];
+        closeThen(() => openTeamFile(r));
       } else if (b.id === "tmDl") {
         download(
           new Blob([JSON.stringify(projectBundle())], {
             type: "application/json",
           }),
-          myFileName(),
+          fsafe(P.projectName || "Project") + FILE_EXT,
         );
         toast("Downloaded. Put it in the folder your team shares.");
       } else if (b.id === "tmFile") closeThen(() => $("#fTeam").click());
@@ -204,21 +412,9 @@ function wireTeamTab(root, closeThen) {
         toast("That did not work: " + err.message, 6000);
     }
   };
-  root.onchange = async (e) => {
-    if (e.target.id === "tmAuto") {
-      TEAM.auto = e.target.checked;
-      await teamSave();
-      if (TEAM.auto) {
-        try {
-          if (await teamPublish(true))
-            toast("Published. It will now stay up to date while you work.");
-        } catch (err) {
-          toast("Could not write to the folder: " + err.message);
-        }
-      }
-    }
-  };
 }
+
+/* ----- older team files and files opened by hand: added as copies ----- */
 async function openTeamFile(en) {
   let j;
   try {
@@ -265,7 +461,7 @@ $("#fTeam").onchange = async () => {
     await openTeammateBundle(
       j,
       m ? m[1] : j.by || "Teammate",
-      m ? m[2] : f.name.replace(/\.json$/, ""),
+      m ? m[2] : f.name.replace(/(\.leanstudio)?\.json$/, ""),
     );
   } catch {
     toast("That file could not be opened.");

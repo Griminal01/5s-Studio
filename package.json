@@ -5,7 +5,7 @@
   "description": "Lean Studio: 5S layout and floor tape design, lines and zones, operator tasks, documents and problem solving boards for a production area",
   "scripts": {
     "serve": "npx http-server -p 8080 -c-1 .",
-    "test": "node tests/smoke.cjs && node tests/offline.cjs",
+    "test": "node tests/smoke.cjs && node tests/offline.cjs && node tests/folder.cjs",
     "check": "for f in js/*.js; do node --check \"$f\" || exit 1; done && node tools/codemap.cjs --check",
     "map": "node tools/codemap.cjs",
     "lint": "node tools/lint.cjs",

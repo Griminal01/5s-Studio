@@ -151,7 +151,10 @@ async function runSave() {
         minute: "2-digit",
       });
     updateProjectIdentity();
-    if (typeof teamAfterSave === "function") teamAfterSave();
+    if (typeof folderAfterSave === "function") {
+      folderStatus();
+      folderAfterSave();
+    }
   } finally {
     saveRunning = false;
   }

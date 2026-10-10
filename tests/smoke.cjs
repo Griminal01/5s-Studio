@@ -1309,13 +1309,13 @@ const VIEWS = [
     title: document.title,
     h1: document.querySelector(".brand h1").textContent,
     oldName: TEAM_FILE.test("5S-Studio__Sam__Line 1.json"),
-    newName: teamFileName("Sam", "Line 1"),
+    newName: TEAM_FILE.test("Lean-Studio__Sam__Line 1.json"),
   }));
   expect(
     /Lean Studio/.test(rb.title) &&
       rb.h1 === "Lean Studio" &&
       rb.oldName &&
-      rb.newName === "Lean-Studio__Sam__Line 1.json",
+      rb.newName,
     "the rename to Lean Studio is incomplete: " + JSON.stringify(rb),
   );
   // accounts and projects

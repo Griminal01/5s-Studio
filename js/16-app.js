@@ -186,5 +186,6 @@ async function init() {
   renderAll();
   if (!applyHash()) syncHash(false);
   tabTell("open");
+  if (!held) folderCheck(); // the project's file may have been changed by someone else
   if (held) await resolveHeld(bundle, readFailed || storageDown);
 }

@@ -235,3 +235,9 @@ body.drawfocus .stage {
       100% 0 / 12px 100% no-repeat scroll,
     #fff;
 }
+#syncWarn button {
+  min-height: 36px;
+}
+body.drawfocus #syncWarn {
+  display: none;
+}

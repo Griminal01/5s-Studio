@@ -13,7 +13,8 @@ are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT 
 - **No external network dependencies at runtime** (no CDNs, fonts, analytics). It must work offline on the shop floor.
 - **Keep the old internal names.** The rename to Lean Studio is display only. The database `studio-5s`, the
   `studio5s-*` and `5s-smed-timer-draft` browser keys and `app: "5s-studio"` in project files must not change, or
-  people's saved work disappears. Team files are written as `Lean-Studio__...` and `5S-Studio__...` is still read.
+  people's saved work disappears. Projects in a project folder are `<name>.leanstudio.json`; older team files
+  `Lean-Studio__...` and `5S-Studio__...` are still read (as copies).
 - **Never lose user data.** Storage lives in `js/05-storage.js` (`validate()` migrates old shapes,
   `migrateLegacy()` reads v6 files). Any change to the project shape must: bump a version, migrate old
   projects in `validate()`, and keep opening old backup files working.
@@ -64,7 +65,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 39-document-map | the Documents map tab: documents pinned, moved and opened over a faded copy of the standard layout, with a line to the item each is kept at. Document pins are off on the Layout by default |
 | 37-labels | every name on the layout, placed in one pass on top of the drawing (`labelsSVG`): inside its item (wrapped, turned along the long side, 8 px or bigger), else a tag with a leader line in free floor space; line and zone names pick a clear spot along their edge. Works in screen pixels (world / `k`), so screen, Present and prints agree. `LABEL.shown` says which names are whole; the Layers menu has a switch. `objSVG`, `fixedSVG` and `areaSVG` no longer draw names themselves when called from `buildSVG` |
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
-| 33-team | sharing through a team folder (File System Access API): publish my project, open teammates' projects as copies |
+| 33-team | the **project folder** (File System Access API; a synced OneDrive or Teams folder in real use): each project is a file `<name>.leanstudio.json`, the file is the real copy and the browser a working copy. Links live on the index entry (`e.file`, `e.fileMod`, `e.fileKey`). `folderAfterSave` writes the file 1.5 s after a browser save; `folderSync` loads a file someone else saved when there are no local changes, else `folderHold` shows the `#syncWarn` banner (use theirs and keep mine as a copy, or save mine as a new file; never overwrite). Checks again on opening a project and on returning to the tab. Older `Lean-Studio__` team files open as copies (`openTeammateBundle`). Tested in `tests/folder.cjs` with the browser's private file system standing in for the folder |
 | 40-main | startup; registers the service worker |
 | css/*.css | the stylesheet in numbered files (`00-base` to `90-tasks-present`), loaded in order by `index.html`, so keep the order when adding one. Add a link in `index.html`; `sw.js` and the deploy pick it up |
 | sw.js, manifest.webmanifest, icons/ | offline and install: `sw.js` caches every file `index.html` names (so a new script or stylesheet needs nothing extra), the deploy stamps `__BUILD__` and the css/js links with the commit id; anything outside `css/` and `js/` that the page needs must be added to the file list in `sw.js`. `tools/make-icons.cjs` redraws the PNG icons from `icons/icon.svg` |
