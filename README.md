@@ -86,7 +86,8 @@ display. They are in git history at commit `2ddb593`.
 - Each account has several **projects** (person icon, top right). Opening a project file, the example
   or a teammate's project always adds a new project; nothing is replaced.
 - **Project folder**: pick your team's OneDrive or Teams folder (synced to the PC) or a network drive. Each
-  project becomes one file there (`<name>.leanstudio.json`), saved a moment after every change, and your
+  project becomes one file there (`<name>.leanstudio.json`), updated at most every 30 seconds while you work
+  and straight away when you leave the page, and your
   teammates open the same files. If someone else saved a file while you also changed it, you are asked: use
   theirs (yours is kept as a copy) or save yours as a new file; nothing is overwritten. Who can open the files
   is set by the folder's sharing, and OneDrive keeps their version history. Needs Edge or Chrome on a

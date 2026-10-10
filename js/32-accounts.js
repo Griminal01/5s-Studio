@@ -224,6 +224,7 @@ async function addProject(p, d, ph, name, from = "", src = "") {
 async function openProject(pid) {
   if (pid === PID) return;
   await flushSave();
+  await folderFlushNow();
   let r;
   try {
     r = await readProject(pid);

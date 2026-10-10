@@ -66,6 +66,24 @@ async function folderFiles() {
   const byDate = (a, b) => b.modified - a.modified;
   return { files: files.sort(byDate), older: older.sort(byDate) };
 }
+// Edge and Chrome write a file through a temporary "<file>.crswap" next to it and remove it when done; a
+// crash mid-save can leave one behind. Only old ones go: a fresh one may be a teammate's save in progress.
+const SWAP_AGE = 10 * 60000;
+async function folderTidy(maxAge = SWAP_AGE) {
+  if (!TEAM.handle || !(await folderPerm(false))) return 0;
+  let gone = 0;
+  const old = [];
+  for await (const [name, h] of TEAM.handle.entries())
+    if (h.kind === "file" && name.endsWith(FILE_EXT + ".crswap"))
+      if (Date.now() - (await h.getFile()).lastModified >= maxAge)
+        old.push(name);
+  for (const name of old)
+    try {
+      await TEAM.handle.removeEntry(name);
+      gone++;
+    } catch {}
+  return gone;
+}
 // a file name for a project that no other file in the folder has
 async function freeFileName(project) {
   // characters a file name cannot hold become a spaced dash: "Line 1: redesign" is "Line 1 - redesign"
@@ -89,21 +107,46 @@ async function writeFile(fh, text) {
   const w = await fh.createWritable();
   await w.write(text);
   await w.close();
+  folderWroteAt = Date.now();
   return (await fh.getFile()).lastModified;
 }
 const saveIndex = () => idb.write([[indexKey(), IDX]]);
 
 /* ----- the open project and its file ----- */
+// The browser copy saves at once; the file is written at most every FOLDER_GAP while someone works, and
+// straight away when they leave the tab or close the page. Each write is a new OneDrive version and a full
+// upload, so this keeps both down without risking work (the browser copy is always current).
+const FOLDER_GAP = 30000;
 let folderTimer = 0,
+  folderWroteAt = 0,
   folderRun = Promise.resolve(),
   folderHeld = ""; // why syncing is paused for the open project ("conflict", "gone"), shown in the banner
 // called after every save in the browser (05-storage)
 function folderAfterSave() {
   const e = curEntry();
-  if (!e?.file || !TEAM.handle || folderHeld) return;
-  clearTimeout(folderTimer);
-  folderTimer = setTimeout(() => folderSync(), 1500);
+  if (!e?.file || !TEAM.handle || folderHeld || folderTimer) return;
+  const wait = Math.max(1500, FOLDER_GAP - (Date.now() - folderWroteAt));
+  folderTimer = setTimeout(() => {
+    folderTimer = 0;
+    folderSync();
+  }, wait);
 }
+// leaving the tab or closing the page: write now rather than wait for the gap
+function folderFlush() {
+  if (!folderTimer) return;
+  clearTimeout(folderTimer);
+  folderTimer = 0;
+  flushSave().then(() => folderSync());
+}
+// before another project opens: the waiting write goes to this project's file first
+async function folderFlushNow() {
+  if (!folderTimer) return;
+  clearTimeout(folderTimer);
+  folderTimer = 0;
+  await flushSave();
+  await folderSync();
+}
+window.addEventListener("pagehide", folderFlush);
 // one at a time: write local changes to the file, or bring in a newer file
 function folderSync(ask = false) {
   folderRun = folderRun
@@ -261,13 +304,21 @@ async function linkToNewFile(e, name) {
   folderStatus();
 }
 // check the open project's file: on opening, and when the person comes back to the tab
+let folderTidied = 0;
 async function folderCheck() {
   const e = curEntry();
   if (!e?.file || !TEAM.handle) return folderStatus();
   await folderSync();
+  // leftover temporary files, at most every ten minutes
+  if (Date.now() - folderTidied > SWAP_AGE) {
+    folderTidied = Date.now();
+    folderTidy().catch(() => {});
+  }
 }
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && P) folderCheck();
+  if (!P) return;
+  if (document.hidden) folderFlush();
+  else folderCheck();
 });
 // the save status in the header says where the work is
 function folderStatus(problem) {
@@ -277,7 +328,7 @@ function folderStatus(problem) {
   el.textContent = problem
     ? problem
     : entryDirty(e)
-      ? "Saving to folder…"
+      ? "Saved · folder update soon"
       : "Saved to folder · " +
         new Date().toLocaleTimeString("en-GB", {
           hour: "2-digit",
@@ -342,7 +393,7 @@ async function teamTabHTML() {
   if (!fsaOK())
     return `<p style="margin-top:0">This browser cannot save into a folder, so files are handled by hand. Use <b>Edge</b> or <b>Chrome</b> on a computer to save projects straight into your OneDrive or Teams folder.</p><div class="btns"><button id="tmDl" class="pri">Download the open project</button><button id="tmFile">Open a project file…</button></div><p class="small muted">Put downloaded files in the folder your team shares; open them from there with the second button.</p>`;
   if (!TEAM.handle)
-    return `<p style="margin-top:0">Choose the folder your projects should live in: a <b>OneDrive or Teams folder</b> synced to this computer, or a network drive. Each project becomes one file there. Who can open them is set by that folder's sharing, OneDrive keeps every version, and your teammates open the same files.</p><div class="btns"><button id="tmPick" class="pri">Choose the project folder</button></div><p class="small muted">Your work stays in this browser too, so it keeps working offline; it is written to the folder a moment after each change.</p>`;
+    return `<p style="margin-top:0">Choose the folder your projects should live in: a <b>OneDrive or Teams folder</b> synced to this computer, or a network drive. Each project becomes one file there. Who can open them is set by that folder's sharing, OneDrive keeps every version, and your teammates open the same files.</p><div class="btns"><button id="tmPick" class="pri">Choose the project folder</button></div><p class="small muted">Your work stays in this browser too, so it keeps working offline. The file is updated at most every 30 seconds while you work, and straight away when you leave the page, so the folder and its version history do not fill up.</p>`;
   const ok = await folderPerm(false);
   folderRows = { files: [], older: [] };
   if (ok)

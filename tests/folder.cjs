@@ -72,14 +72,55 @@ const server = http.createServer((req, res) => {
       return { j: JSON.parse(await f.text()), mod: f.lastModified };
     }, name);
   const fname = await page.evaluate(() => curEntry().file);
-  // autosave reaches the file
+  // a change is saved in the browser at once but waits for the gap before the file is written ...
   await page.evaluate(() => {
     checkpoint();
     P.projectName = "Folder line v2";
     renderAll();
   });
   await page.waitForTimeout(2600);
+  const f0 = await readFile(fname);
+  // ... and leaving the tab writes it straight away
+  await page.evaluate(async () => {
+    Object.defineProperty(document, "hidden", {
+      value: true,
+      configurable: true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+    await new Promise((r) => setTimeout(r, 800));
+    await folderRun;
+    delete document.hidden; // back to the real value
+  });
   const f1 = await readFile(fname);
+  // switching to another project first writes the waiting change to this one's file
+  const switched = await page.evaluate(async (n) => {
+    folderWroteAt = 0;
+    checkpoint();
+    P.projectName = "Folder line v3";
+    renderAll();
+    await flushSave();
+    folderWroteAt = Date.now(); // so the timer waits the full gap
+    clearTimeout(folderTimer);
+    folderTimer = 0;
+    folderAfterSave();
+    const here = PID;
+    await openProject(IDX.list.find((e) => e.id !== here).id);
+    const name = JSON.parse(
+      await (await (await TEAM.handle.getFileHandle(n)).getFile()).text(),
+    ).project.projectName;
+    await openProject(here);
+    return name;
+  }, fname);
+  // a leftover temporary file goes only once it is old
+  const tidy = await page.evaluate(async () => {
+    await TEAM.handle.getFileHandle("Folder line.leanstudio.json.crswap", {
+      create: true,
+    });
+    const keptFresh = (await folderTidy()) === 0,
+      goneOld = (await folderTidy(0)) === 1;
+    return { keptFresh, goneOld };
+  });
+  const fMid = await readFile(fname);
   // opening another project and coming back writes nothing
   const backAgain = await page.evaluate(async () => {
     const here = PID;
@@ -164,9 +205,13 @@ const server = http.createServer((req, res) => {
   });
   expect(
     fname.endsWith(".leanstudio.json") &&
+      f0.j.project.projectName === "Folder line" &&
       f1.j.project.projectName === "Folder line v2" &&
+      switched === "Folder line v3" &&
+      tidy.keptFresh &&
+      tidy.goneOld &&
       backAgain === fname &&
-      f2.mod === f1.mod &&
+      f2.mod === fMid.mod &&
       theirs === "Saved by Sam" &&
       clash.asked &&
       clash.now === "Sam again" &&
@@ -180,6 +225,10 @@ const server = http.createServer((req, res) => {
       opened.file === "Sams own line.leanstudio.json",
     "project folder is wrong: " +
       JSON.stringify({
+        f0: f0.j.project.projectName,
+        switched,
+        tidy,
+
         fname,
         f1: f1.j.project.projectName,
         f1m: f1.mod,
@@ -192,6 +241,15 @@ const server = http.createServer((req, res) => {
       }),
   );
 
+  const count = await page.evaluate(async () => {
+    const names = [];
+    for await (const [n] of TEAM.handle.entries()) names.push(n);
+    return names;
+  });
+  expect(
+    count.length === 3,
+    "the folder holds more files than were asked for: " + count.join(", "),
+  );
   expect(errors.length === 0, "errors: " + errors.join("; "));
   await browser.close();
   server.close();

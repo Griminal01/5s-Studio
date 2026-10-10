@@ -523,7 +523,7 @@ Tracking's drift map: where each item was found across daily checks (driftCalc),
 - 314 `moveHome(ref)`
 - 330 `addExtraToStd(i)`
 
-## js/32-accounts.js (502 lines)
+## js/32-accounts.js (503 lines)
 People, not passwords. Whoever uses the studio picks their name ("Who is working?"), or types it the first time; everything they save is kept under that name in this browser, so two people sharing a computer each have their own projects. There is no password: the site is a static page and the data …
 
 - 11 `AUTH_KEY`
@@ -544,17 +544,17 @@ People, not passwords. Whoever uses the studio picks their name ("Who is working
 - 176 `afterProjectChange()`
 - 204 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
 - 224 `async openProject(pid)`
-- 253 `async deleteProject(pid)`
-- 305 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
-- 328 `async startNewProject(name)`
-- 333 `ago(ms) =>` the account dialog: projects, team, account
-- 343 `async accountDialog(tab = "projects")`
-- 452 `projectsTabHTML()`
-- 463 `async renameMeDialog()`
-- 482 `async deleteAccountDialog()`
-- 501 `on #userBtn onclick`
+- 254 `async deleteProject(pid)`
+- 306 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
+- 329 `async startNewProject(name)`
+- 334 `ago(ms) =>` the account dialog: projects, team, account
+- 344 `async accountDialog(tab = "projects")`
+- 453 `projectsTabHTML()`
+- 464 `async renameMeDialog()`
+- 483 `async deleteAccountDialog()`
+- 502 `on #userBtn onclick`
 
-## js/33-team.js (470 lines)
+## js/33-team.js (521 lines)
 The studio is a static page with no server. Each person picks a folder once (a OneDrive or Teams folder synced to the PC, or a network drive); every project in it is one file, <name>.leanstudio.json. The file is the real copy: who can open it is decided by the folder's own sharing, OneDrive keeps i…
 
 - 16 `fsaOK() =>`
@@ -570,31 +570,38 @@ The studio is a static page with no server. Each person picks a folder once (a O
 - 37 `entryDirty(e) =>` the open project has changes that are not in its file yet
 - 41 `async folderPerm(ask)` may the folder be written to? ask show the browser's prompt (needs a click)
 - 54 `async folderFiles()` project files and older team files in the folder, newest first
-- 70 `async freeFileName(project)` a file name for a project that no other file in the folder has
-- 88 `async writeFile(fh, text)`
-- 94 `saveIndex() =>`
-- 97 `folderTimer` the open project and its file
-- 101 `folderAfterSave()` called after every save in the browser (05-storage)
-- 108 `folderSync(ask = false)` one at a time: write local changes to the file, or bring in a newer file
-- 117 `async folderSyncNow(ask)`
-- 143 `async folderLoad(e, f, quiet = false)` take the file's version into the open project (no local changes are waiting)
-- 177 `async keepLocalCopy(label)` keep the open project as a separate project in My projects, not linked to any file
-- 197 `folderHold(why, e, f)`
-- 207 `folderRelease()`
-- 212 `on #syncWarn click`
-- 253 `async linkToNewFile(e, name)` write the open project to a new file in the folder and link it
-- 264 `async folderCheck()` check the open project's file: on opening, and when the person comes back to the tab
-- 269 `on document visibilitychange`
-- 273 `folderStatus(problem)` the save status in the header says where the work is
-- 288 `folderChip(needs)`
-- 292 `on #teamChip onclick`
-- 301 `async folderOpenFile(row)` opening a file from the folder
-- 339 `folderRows` the Project folder tab of the account dialog
-- 340 `async teamTabHTML()`
-- 364 `wireTeamTab(root, closeThen)`
-- 418 `async openTeamFile(en)` older team files and files opened by hand: added as copies
-- 427 `async openTeammateBundle(j, user, proj)`
-- 454 `on #fTeam onchange`
+- 71 `SWAP_AGE` Edge and Chrome write a file through a temporary "<file>.crswap" next to it and remove it when done; a crash …
+- 72 `async folderTidy(maxAge = SWAP_AGE)`
+- 88 `async freeFileName(project)` a file name for a project that no other file in the folder has
+- 106 `async writeFile(fh, text)`
+- 113 `saveIndex() =>`
+- 119 `FOLDER_GAP` the open project and its file The browser copy saves at once; the file is written at most every FOLDER_GAP wh…
+- 120 `folderTimer`
+- 125 `folderAfterSave()` called after every save in the browser (05-storage)
+- 135 `folderFlush()` leaving the tab or closing the page: write now rather than wait for the gap
+- 142 `async folderFlushNow()` before another project opens: the waiting write goes to this project's file first
+- 149 `on window pagehide`
+- 151 `folderSync(ask = false)` one at a time: write local changes to the file, or bring in a newer file
+- 160 `async folderSyncNow(ask)`
+- 186 `async folderLoad(e, f, quiet = false)` take the file's version into the open project (no local changes are waiting)
+- 220 `async keepLocalCopy(label)` keep the open project as a separate project in My projects, not linked to any file
+- 240 `folderHold(why, e, f)`
+- 250 `folderRelease()`
+- 255 `on #syncWarn click`
+- 296 `async linkToNewFile(e, name)` write the open project to a new file in the folder and link it
+- 307 `folderTidied` check the open project's file: on opening, and when the person comes back to the tab
+- 308 `async folderCheck()`
+- 318 `on document visibilitychange`
+- 324 `folderStatus(problem)` the save status in the header says where the work is
+- 339 `folderChip(needs)`
+- 343 `on #teamChip onclick`
+- 352 `async folderOpenFile(row)` opening a file from the folder
+- 390 `folderRows` the Project folder tab of the account dialog
+- 391 `async teamTabHTML()`
+- 415 `wireTeamTab(root, closeThen)`
+- 469 `async openTeamFile(en)` older team files and files opened by hand: added as copies
+- 478 `async openTeammateBundle(j, user, proj)`
+- 505 `on #fTeam onchange`
 
 ## js/34-areas.js (912 lines)
 areas: named zones on the drawing, with items designated to them

@@ -53,8 +53,10 @@ Deploys stamp the css and script links with the commit id (`pages.yml`), so a br
 
 Projects can live as files in a folder: Account (name button) > Project folder > Choose the project folder, then
 "Save the open project to the folder". Pick a OneDrive or Teams folder synced to the PC. Each project is one
-file, `<name>.leanstudio.json`; the browser keeps a working copy and writes the file a moment after each change
-(the header says "Saved to folder"). Teammates open the same file from the list. If someone else saved the file
+file, `<name>.leanstudio.json`, overwritten in place (no extra files); the browser copy saves at once and the
+file at most every 30 seconds while you work, and straight away when you leave the tab, close the page or open
+another project, so OneDrive's version history and uploads stay small. Leftover `.crswap` temporary files
+(from a browser crash mid-save) are removed once they are 10 minutes old. Teammates open the same file from the list. If someone else saved the file
 and you have no unsaved changes, their version simply comes in; if you both changed it, a yellow banner asks:
 use theirs (yours is kept in My projects) or save yours as a new file. Nothing is overwritten. Access, version
 history and retention come from OneDrive. Needs Edge or Chrome on a computer; elsewhere use Download and Open.
