@@ -251,7 +251,8 @@ body.drawfocus #syncWarn {
 }
 .wkkpis {
   justify-content: flex-start;
-  margin: 4px 0 12px;
+  gap: 8px;
+  margin: 0 0 12px;
 }
 .wkmap {
   position: relative;

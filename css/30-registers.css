@@ -2,19 +2,74 @@
 .trends {
   flex: 1;
   overflow: auto;
-  padding: 20px 24px 40px;
+  padding: 16px 24px 40px;
 }
+/* every page's header, the same shape everywhere: title (and a quiet line about the page) on the left,
+   the page's buttons on the right, its numbers on a compact row underneath */
 .trends > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "title acts"
+    "kpis kpis";
+  align-items: start;
+  gap: 4px 24px;
+  margin-bottom: 14px;
+  max-width: var(--page-max);
+}
+.trends > header > :first-child {
+  grid-area: title;
+}
+.trends > header > :not(:first-child):not(.kpis) {
+  grid-area: acts;
+  justify-self: end;
+  align-self: center;
+}
+/* the line about the page stays one line; it is cut short with … when the window is narrow */
+.trends > header > p.muted,
+.trends > header > :first-child > p.muted {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trends > header > .kpis {
+  grid-area: kpis;
+  margin: 6px 0 0;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.trends > header > .kpis > div,
+.kpis.wkkpis > div {
   display: flex;
-  align-items: flex-end;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-  max-width: 1400px;
+  align-items: baseline;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 12px;
+}
+.trends > header > .kpis b,
+.kpis.wkkpis b {
+  font-size: 19px;
+}
+.trends > header > .kpis span,
+.kpis.wkkpis span {
+  font-size: 12px;
 }
 .trends h2 {
   font-size: 22px;
   margin: 0;
+}
+/* a view switch (Tasks | Spaghetti diagram) sits on the same row as the filters that follow it */
+.trends > .psmode:has(+ .filters) {
+  display: inline-flex;
+  vertical-align: bottom;
+  margin: 0 18px 12px 0;
+}
+.trends > .psmode + .filters {
+  display: inline-flex;
+  vertical-align: bottom;
 }
 .kpis {
   display: flex;
@@ -36,7 +91,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
   gap: 18px;
-  max-width: 1400px;
+  max-width: var(--page-max);
 }
 .block {
   background: #fff;
@@ -144,7 +199,7 @@
   align-items: flex-end;
   flex-wrap: wrap;
   margin: 0 0 12px;
-  max-width: 1400px;
+  max-width: var(--page-max);
 }
 .filters label {
   display: grid;
@@ -169,7 +224,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 6px 10px;
-  max-width: 1400px;
+  max-width: var(--page-max);
   overflow-x: auto;
 }
 .regtbl td {
@@ -361,7 +416,7 @@ dialog form {
   gap: 18px;
   flex-wrap: wrap;
   margin: 0 0 14px;
-  max-width: 1400px;
+  max-width: var(--page-max);
 }
 .fhead h2 {
   font-size: 22px;

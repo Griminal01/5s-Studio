@@ -70,8 +70,12 @@ UI polish (10 Oct): Escape closes menus; every dialog has a ✕ (closes like Esc
 says what went with an Undo button (stale Undo refuses rather than undoing something else); a saved register row
 lights up; an empty Layout shows a start card; dialogs, menus, messages and pages ease in (`css/45-motion.css`).
 Right-click menus on the drawing and register rows (`js/37-context-menu.js`). Icons on buttons by label
-(`js/06-icons.js`). Next agreed: a layout review (page header bands; the sheet name on the Layout toolbar is cut
-short at 1600 px and the toolbar wraps at 1366 px).
+(`js/06-icons.js`). Page layout (10 Oct, from the layout review): every page header has one shape (title and a one-line
+note on the left, the page's buttons on the right, its numbers as compact chips underneath: CSS grid on
+`.trends > header`, so templates keep header > title div, .kpis, buttons); view switches (Tasks | Spaghetti,
+Ideas | Quick-win chart, Problems | Pareto, Board | A3 details) are one small segmented control on the filter
+row; pages grow to `--page-max` (1800 px) instead of 1400. Next agreed: the Layout page itself (fold the sheet
+strip into a picker, one-row toolbar, tools help behind ?, collapsible side panel) once the user has seen this.
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 

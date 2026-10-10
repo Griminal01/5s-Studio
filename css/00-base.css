@@ -1,4 +1,6 @@
 :root {
+  /* how wide a page's content may grow (registers, tables, setup) */
+  --page-max: 1800px;
   --navy: #202c86;
   --navy-d: #18216a;
   --ink: #1c2250;

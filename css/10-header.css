@@ -231,7 +231,7 @@
   grid-template-columns: minmax(280px, 1fr) minmax(320px, 460px);
   gap: 18px;
   align-items: start;
-  max-width: 1400px;
+  max-width: var(--page-max);
 }
 .splan {
   position: sticky;
