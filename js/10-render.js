@@ -127,6 +127,20 @@ document.addEventListener("pointerdown", (e) => {
   for (const d of $$("details.menu[open]"))
     if (!d.contains(e.target)) d.open = false;
 });
+// Escape closes an open menu first (and nothing else), focus back on its button
+document.addEventListener(
+  "keydown",
+  (e) => {
+    if (e.key !== "Escape") return;
+    const open = $$("details.menu[open]");
+    if (!open.length) return;
+    for (const d of open) d.open = false;
+    open[0].querySelector("summary")?.focus();
+    e.stopPropagation();
+    e.preventDefault();
+  },
+  true,
+);
 
 function renderTools() {
   const el = $("#toolOpts"),

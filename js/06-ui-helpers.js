@@ -1,13 +1,67 @@
 "use strict";
 /* ============ small UI helpers ============
-   Dialogs and output: toast(), modal() (fresh body each time; Enter never submits), download(), csv(),
-   printWithPage() which every print goes through, printView(). */
-function toast(t, ms = 3200) {
+   Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete: offerUndo()),
+   flashRow() (a saved row lights up), modal() (fresh body each time; Enter never submits), download(),
+   csv(), printWithPage() which every print goes through, printView(). */
+// action: { label, run } adds a button to the message (Undo after a delete)
+function toast(t, ms = 3200, action) {
   const el = $("#toast");
   el.textContent = t;
-  el.style.display = "block";
+  if (action) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = action.label;
+    b.onclick = () => {
+      hideToast();
+      action.run();
+    };
+    el.append(b);
+  }
+  toast.text = t;
+  toast.n = (toast.n || 0) + 1;
+  el.classList.add("show");
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => (el.style.display = "none"), ms);
+  toast.t = setTimeout(hideToast, ms);
+}
+function hideToast() {
+  $("#toast").classList.remove("show");
+}
+// after a delete: say what went and offer Undo, while nothing else has changed since
+const UNDO_AFTER =
+  /^(Deleted|(Red tag|Action|Document|Idea|Problem|Task|Sheet) deleted)$/;
+function offerUndo(action, detail) {
+  const n = toast.n || 0,
+    depth = undoS.length;
+  setTimeout(() => {
+    if ($("#dlg").open || !depth) return;
+    // a message shown by the delete itself (a warning) keeps its words and gains the button
+    const said =
+      (toast.n || 0) !== n
+        ? toast.text
+        : action + (detail ? ": " + String(detail).slice(0, 70) : "");
+    toast(said, 7000, {
+      label: "Undo",
+      run: () =>
+        undoS.length === depth
+          ? restore(undoS, redoS)
+          : toast("Something has changed since. Use Undo at the top instead."),
+    });
+  }, 0);
+}
+// light up a register row that was just saved, so the eye finds it
+function flashRow(id) {
+  setTimeout(() => {
+    const q = CSS.escape(id),
+      row = document.querySelector(
+        ["tag", "actid", "docid", "taskid", "ideaid", "ps-open"]
+          .map((a) => `main:not([hidden]) tr[data-${a}="${q}"]`)
+          .join(","),
+      );
+    if (!row) return;
+    row.classList.remove("flash");
+    void row.offsetWidth; // restart the animation if it is already lit
+    row.classList.add("flash");
+  }, 0);
 }
 function modal(title, html, ok = "OK", opts = {}) {
   return new Promise((res) => {
@@ -35,6 +89,7 @@ function modal(title, html, ok = "OK", opts = {}) {
     };
     d.addEventListener("close", done);
     d.returnValue = "";
+    for (const m of $$("details.menu[open]")) m.open = false;
     d.showModal();
     opts.onOpen?.(d);
     const f = $("#dlgBody").querySelector("input,select,textarea");
@@ -107,6 +162,9 @@ $("#dlgForm").addEventListener("keydown", (e) => {
   )
     e.preventDefault();
 });
+
+// the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
+$("#dlgX").onclick = () => $("#dlg").close();
 
 // Only the dialog's own OK and Cancel may close it. A button inside the body
 // (tabs, row actions) is inside the form, so it would otherwise submit it.

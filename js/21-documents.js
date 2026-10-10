@@ -142,6 +142,7 @@ async function docModal(d, isNew) {
     docNo(d) + " " + d.title,
   );
   renderAll();
+  flashRow(d.id);
   if (after === "pin") startDocPin(d.id);
   else if (after === "show") showOnDocMap(d);
 }

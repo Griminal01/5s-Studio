@@ -270,6 +270,7 @@ function record(action, detail) {
     detail: detail || "",
   });
   if (P.journal.length > 3000) P.journal.splice(0, P.journal.length - 3000);
+  if (UNDO_AFTER.test(action)) offerUndo(action, detail);
 }
 // Images are immutable strings: keep references rather than stringify them per edit.
 function historySnapshot() {

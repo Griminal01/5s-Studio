@@ -315,6 +315,7 @@ async function ideaModal(x, isNew) {
   }
   record(isNew ? "Idea raised" : "Idea updated", ideaNo(x) + " " + x.title);
   renderAll();
+  flashRow(x.id);
   if (after === "act") {
     await newAction({ idea: x.id, sheet: x.sheet, tag: x.tag });
     ideaModal(x, false);

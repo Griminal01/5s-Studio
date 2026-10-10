@@ -295,6 +295,17 @@
             ><button id="phoneHintOk">OK</button>
           </div>
           <div class="hint" id="hint" hidden></div>
+          <div class="emptycv" id="emptyCv" hidden>
+            <h3>Start with the factory map</h3>
+            <p>
+              Add the floor plan and its scale in Setup, then draw your lines
+              and zones. Come back here to place items and plan the tape.
+            </p>
+            <div class="btns">
+              <button class="pri" id="emptySetup">Go to Setup</button
+              ><button id="emptyExample">Open the example model line</button>
+            </div>
+          </div>
           <div
             class="selbar"
             id="selbar"
@@ -347,6 +358,15 @@
     <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
     <dialog id="dlg">
       <form method="dialog" id="dlgForm">
+        <button
+          type="button"
+          class="dlgx"
+          id="dlgX"
+          aria-label="Close"
+          title="Close (Esc)"
+        >
+          ×
+        </button>
         <h3 id="dlgTitle"></h3>
         <div id="dlgBody"></div>
         <div class="acts">

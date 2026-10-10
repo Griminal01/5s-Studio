@@ -230,6 +230,8 @@ window.addEventListener("blur", () => {
 });
 $("#zIn").onclick = () => zoomAt(1.3);
 $("#zOut").onclick = () => zoomAt(1 / 1.3);
+$("#emptySetup").onclick = () => act("goSetup");
+$("#emptyExample").onclick = () => act("loadExample");
 $("#zFit").onclick = () => {
   fitView();
   draw();

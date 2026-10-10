@@ -134,6 +134,7 @@ async function tagModal(t, isNew) {
   dirtyImg = true;
   ui.tagDraft = null;
   renderAll();
+  flashRow(t.id);
   if (after === "pin") startPinning("tag", t.id);
   else if (after === "show") showOnLayout(t);
 }
@@ -229,6 +230,7 @@ async function actionModal(a, isNew) {
   }
   record(isNew ? "Action added" : "Action updated", actNo(a) + " " + a.title);
   renderAll();
+  flashRow(a.id);
   if (after === "pin") startPinning("act", a.id);
   else if (after === "show") showOnLayout(a);
 }

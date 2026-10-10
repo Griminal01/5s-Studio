@@ -273,6 +273,7 @@ async function taskModal(t, isNew) {
   }
   record(isNew ? "Task added" : "Task updated", taskNo(t) + " " + t.name);
   renderAll();
+  flashRow(t.id);
   if (ui.view === "tasks" && !taskInScope(t))
     toast(
       "Saved. It is not in the zone being shown, so it is hidden here.",

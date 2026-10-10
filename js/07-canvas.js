@@ -582,8 +582,22 @@ function draw() {
   });
 }
 let cmpCache = null;
+// a new, empty standard with no plan: a start card in the middle of the canvas
+function updateEmptyCanvas() {
+  const sh = S(),
+    blank =
+      sh.kind === "standard" &&
+      !sh.objects.length &&
+      !sh.marks.length &&
+      !sh.routes.length &&
+      !D[sh.drawing] &&
+      !(DM(sh)?.fixed || []).length &&
+      !(P.areas || []).some((a) => a.drawing === sh.drawing);
+  $("#emptyCv").hidden = !blank;
+}
 function drawNow() {
   if (ui.view !== "layout") return;
+  updateEmptyCanvas();
   if (!ui.vb) fitView();
   if (!ui.vb) return;
   const sh = S(),

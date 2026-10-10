@@ -85,7 +85,11 @@
   cursor: pointer;
 }
 .tbl tr.click:hover td {
-  background: var(--soft);
+  background: #eceefa;
+}
+/* the row under the pointer gets a navy edge, so it is clear which one a click opens */
+.tbl tr.click:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--navy);
 }
 .log {
   max-height: 320px;

@@ -37,16 +37,65 @@ dialog img.big {
   position: fixed;
   bottom: 22px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 12px);
   background: var(--ink);
   color: #fff;
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   z-index: 100;
   font-size: 13px;
-  box-shadow: 0 6px 20px rgba(28, 34, 80, 0.3);
-  display: none;
+  box-shadow: 0 8px 24px rgba(28, 34, 80, 0.32);
+  display: flex;
+  align-items: center;
+  gap: 14px;
   max-width: 90vw;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+#toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+/* the button on a message: Undo after a delete */
+#toast button {
+  background: transparent;
+  color: var(--tape);
+  border: 1px solid rgba(254, 194, 15, 0.6);
+  font-weight: 700;
+  padding: 4px 12px;
+  min-height: 30px;
+}
+#toast button:hover {
+  background: rgba(254, 194, 15, 0.14);
+}
+/* ✕ in the corner of every dialog: closes it like Esc */
+dialog form {
+  position: relative;
+}
+dialog .dlgx {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 8px;
+}
+dialog .dlgx:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+dialog h3 {
+  padding-right: 36px;
 }
 @media (max-width: 1180px) {
   .studio {
