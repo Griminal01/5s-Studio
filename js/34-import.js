@@ -220,6 +220,7 @@ function bringItems(sp, chosen, o) {
         zone: zone?.id || "",
         items: mine,
         doc: "", // documents are not brought across
+        at: null, // where it was done is on the other project's drawing
       });
       tasks++;
     }

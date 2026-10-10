@@ -1085,6 +1085,7 @@ function placeOrDraw(e, p) {
   if (ui.tool === "datum") setDatum(p);
   else if (ui.tool === "doc" || ui.tool === "action" || ui.tool === "tag")
     placePin(p);
+  else if (ui.tool === "taskat") placeTaskAt(p);
   else addDraftPoint(e, p);
 }
 function addDraftPoint(e, p) {
@@ -1336,6 +1337,8 @@ function updateHint() {
     doc: "Click the drawing where the document lives.",
     tag: "Click the drawing where the red tag belongs.",
     action: "Click the drawing where the action belongs.",
+    taskat:
+      "Click where the task is done. Its walk to the items it uses starts and ends here.",
   }[t];
   h.innerHTML = `<span>${msg}</span>${d && d.pts.length > 1 && t !== "measure" ? '<button class="pri" id="hFin">Finish</button>' : ""}${d && d.pts.length ? '<button id="hCan">Cancel</button>' : ""}<button id="hDone">Done</button>`;
   $("#hFin") && ($("#hFin").onclick = finishDraft);

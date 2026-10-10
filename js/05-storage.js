@@ -580,6 +580,19 @@ function validate(p) {
         doc: docIds.has(t.doc) ? t.doc : "",
         how: str(t.how),
         note: str(t.note),
+        // version 14: where the task is done (a point on a drawing), times a shift, how they walk
+        at:
+          t.at &&
+          Number.isFinite(Number(t.at.x)) &&
+          Number.isFinite(Number(t.at.y)) &&
+          p.drawings[t.at.drawing]
+            ? { x: Number(t.at.x), y: Number(t.at.y), drawing: t.at.drawing }
+            : null,
+        per:
+          t.per == null || t.per === "" || !Number.isFinite(Number(t.per))
+            ? null
+            : Math.max(0, Number(t.per)),
+        walk: t.walk === "each" ? "each" : "round",
       }));
     const seenT = new Set();
     for (const t of p.tasks) {
@@ -684,7 +697,7 @@ function validate(p) {
     if (s.kind === "daily" && !(s.rev && p.revisions[s.rev])) s.rev = stdRev(p);
   pruneRevisions(p);
   normalizeItemCategories(p);
-  p.version = 13;
+  p.version = 14;
   p.app = "5s-studio";
   return p;
 }

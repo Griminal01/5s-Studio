@@ -56,6 +56,16 @@ Review fixes (10 Oct): record numbers and dates stay on one line in registers; a
 its dashed edge does not cross it out; the Showing picker zooms in close on a zone and the view stays on the
 drawing (`viewInDrawing` in 03-geometry, also used by Present); arrow keys in Present leave the control bar hidden.
 
+Task walks and spaghetti diagrams (10 Oct, `js/34-walks.js`): a task can be placed where it is done (task form,
+"Place on the layout", then click the drawing). Its walk goes from there to the items it uses and back, round
+walls, machines and other items and through doors: one round in the shortest order, or there and back for each.
+The form shows how far each item is; the Operator tasks page has a Spaghetti diagram tab (follows the Showing
+picker and the who/when filters, so one task, a zone or one person's shift) with metres and walking time a
+shift, measured on the standard, a proposal or a daily check and compared with another sheet, printed on A3,
+CSV. "Times a shift" comes from When (every shift 1, hourly = shift hours) or is typed for as-needed tasks.
+Project version 14. Not done: a person's walk joining several tasks in sequence; paths do not use the walkway
+tape as preferred lanes.
+
 UI polish (10 Oct): Escape closes menus; every dialog has a ✕ (closes like Esc, never counts as Cancel); a delete
 says what went with an Undo button (stale Undo refuses rather than undoing something else); a saved register row
 lights up; an empty Layout shows a start card; dialogs, menus, messages and pages ease in (`css/45-motion.css`).

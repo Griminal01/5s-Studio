@@ -241,3 +241,77 @@ body.drawfocus .stage {
 body.drawfocus #syncWarn {
   display: none;
 }
+
+/* spaghetti diagram (Operator tasks, 34-walks.js) */
+.wkctl {
+  align-items: flex-end;
+}
+.wkctl .grow {
+  flex: 1;
+}
+.wkkpis {
+  justify-content: flex-start;
+  margin: 4px 0 12px;
+}
+.wkmap {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  height: min(62vh, 620px);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.wkmap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.wksw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: 0;
+}
+.tbl tr.wkon td {
+  background: #fff3c4;
+}
+.wkun {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.wkun > b {
+  width: 100%;
+}
+.wksum {
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 4px 0 10px;
+}
+.good-t {
+  color: var(--ok);
+}
+.canvas[data-tool="taskat"] #svg {
+  cursor: crosshair;
+}
+.pd.wkprint svg {
+  display: block;
+  width: 100%;
+  height: 165mm;
+  margin: 4mm 0;
+  border: 1px solid #ccc;
+}
+.wktbl td:first-child,
+.wktbl td.n {
+  white-space: nowrap;
+}
+.wkctl select {
+  max-width: 300px;
+}

@@ -80,39 +80,39 @@ Fixed lists and their helpers: floor tape types (DEFAULT_TYPES, TAPE, tapeOf, ap
 - 416 `categoryGroupsHTML(sh)`
 - 489 `async manageItemCategories()`
 
-## js/02-state.js (340 lines)
+## js/02-state.js (348 lines)
 Global state: the open project P and the UI state ui (view, selection ui.sel, viewbox ui.vb, layers, scope). Sheet shortcuts S() current sheet, STD() standard, DM(sh) its drawing, stdFor(daily). Units: mpu/upm, toUser/fromUser, fmtLen. newProject(), record() journal, undo: checkpoint() / restore(),…
 
 - 6 `P`
 - 9 `ui`
-- 82 `undoS`
-- 86 `S() =>`
-- 87 `STD() =>`
-- 88 `DM(sh) =>`
-- 89 `mpu(sh) =>`
-- 90 `upm(sh) =>`
-- 94 `uName(sh) =>`
-- 95 `toUser(u, sh) =>`
-- 99 `fromUser(v, sh) =>`
-- 103 `fmtLen(u, sh)`
-- 111 `fmtTime(s) =>`
-- 117 `tolU(sh) =>`
-- 118 `snapStep(sh) =>`
-- 119 `gridStep(sh) =>`
-- 121 `blankSheet(kind, name, drawing)`
-- 139 `stdOf(p) =>`
-- 140 `stdSig(p = P)`
-- 168 `stdRev(p = P)`
-- 184 `pruneRevisions(p = P)` only daily checks use revisions: drop the ones no check points at any more
-- 192 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
-- 207 `newProject()`
-- 265 `record(action, detail)`
-- 276 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
-- 283 `trimHistory(stack)`
-- 296 `checkpoint()`
-- 301 `restore(from, to)`
-- 321 `find(id, sh = S()` find element by id in active sheet
-- 339 `selected() =>`
+- 90 `undoS`
+- 94 `S() =>`
+- 95 `STD() =>`
+- 96 `DM(sh) =>`
+- 97 `mpu(sh) =>`
+- 98 `upm(sh) =>`
+- 102 `uName(sh) =>`
+- 103 `toUser(u, sh) =>`
+- 107 `fromUser(v, sh) =>`
+- 111 `fmtLen(u, sh)`
+- 119 `fmtTime(s) =>`
+- 125 `tolU(sh) =>`
+- 126 `snapStep(sh) =>`
+- 127 `gridStep(sh) =>`
+- 129 `blankSheet(kind, name, drawing)`
+- 147 `stdOf(p) =>`
+- 148 `stdSig(p = P)`
+- 176 `stdRev(p = P)`
+- 192 `pruneRevisions(p = P)` only daily checks use revisions: drop the ones no check points at any more
+- 200 `stdFor(sh)` what a daily check is scored against: the standard as it was when the check started
+- 215 `newProject()`
+- 273 `record(action, detail)`
+- 284 `historySnapshot()` Images are immutable strings: keep references rather than stringify them per edit.
+- 291 `trimHistory(stack)`
+- 304 `checkpoint()`
+- 309 `restore(from, to)`
+- 329 `find(id, sh = S()` find element by id in active sheet
+- 347 `selected() =>`
 
 ## js/03-geometry.js (295 lines)
 Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles, viewInDrawing (keeps a zone's view on the drawing).
@@ -153,7 +153,7 @@ Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everyt
 - 254 `safeImage(value)` Keep raster drawings untouched; sanitize SVG drawings before embedding them.
 - 328 `imageMap(value)`
 
-## js/05-storage.js (855 lines)
+## js/05-storage.js (868 lines)
 Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(), autosave save() / flushSave() / runSave() with a localStorage fallback, validate(p) migrates every older project shape (bump the version here), migrateLegacy() for v6 files, keepStorage(), the second-tab warning (tab…
 
 - 8 `idb` One transaction keeps project metadata and media consistent after interruption.
@@ -172,12 +172,12 @@ Saving and loading. IndexedDB 'studio-5s' (idb), keys per account and project K(
 - 167 `on window beforeunload`
 - 174 `normMark(m, types)`
 - 196 `validate(p)`
-- 693 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
-- 789 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
-- 798 `TAB_ID`
-- 801 `tabTell(kind)`
-- 807 `tabWarn(text, reload = false)`
-- 843 `deviceId()`
+- 706 `migrateLegacy(old)` older ChatGPT-built format (percent coordinates, one picture per sheet)
+- 802 `async keepStorage()` Ask the browser to keep this site's data (it may otherwise clear it when the disk is short).
+- 811 `TAB_ID`
+- 814 `tabTell(kind)`
+- 820 `tabWarn(text, reload = false)`
+- 856 `deviceId()`
 
 ## js/06-icons.js (128 lines)
 A small set of line icons (24 px grid, drawn in the text colour) and the one place that puts them on buttons: ICON_RULES matches a button's label ("Print", "Export CSV", "Delete this tag") to an icon, and every button that appears on the page gets its icon as it is added (a MutationObserver), so te…
@@ -206,7 +206,7 @@ Dialogs and output: toast() (optionally with a button, e.g. Undo after a delete:
 - 167 `on #dlgX onclick` the ✕ closes like Esc: no answer (not Cancel, which some dialogs read as a choice)
 - 171 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1345 lines)
+## js/07-canvas.js (1348 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -245,10 +245,10 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 981 `endDrag(e)`
 - 1064 `setTool(t, level)`
 - 1084 `placeOrDraw(e, p)`
-- 1090 `addDraftPoint(e, p)`
-- 1134 `async finishDraft()`
-- 1306 `cancelDraft()`
-- 1312 `updateHint()`
+- 1091 `addDraftPoint(e, p)`
+- 1135 `async finishDraft()`
+- 1307 `cancelDraft()`
+- 1313 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -518,11 +518,11 @@ The A3 sheet someone lays floor tape from: the plan drawn to a true scale (1:50,
 - 40 `printTapePlan()`
 - 168 `printColourStandard()` the colour standard: every tape type as a document to review and sign
 
-## js/24-example-project.js (1358 lines)
+## js/24-example-project.js (1381 lines)
 A made-up but realistic line so you can see every feature filled in: walls, machines, items with home marks, floor tape, routes, documents, actions and a proposal to compare. Dates are relative to today, so the document review warnings always show something. Open it from the empty layout or Setting…
 
 - 9 `makeExampleProject()`
-- 1345 `async loadExample()` the example is added to your projects, so nothing you have is replaced
+- 1368 `async loadExample()` the example is added to your projects, so nothing you have is replaced
 
 ## js/25-tracking.js (224 lines)
 tracking: checks over time and where things actually sit
@@ -689,7 +689,7 @@ areas: named zones on the drawing, with items designated to them
 - 895 `ensureVisible(x, y)` about to look at a point: widen the view to the whole factory if it is outside what is being shown
 - 902 `widenIfOutside(ids)` things just duplicated or pasted that fall outside the zone being shown: show the whole factory so they are n…
 
-## js/34-import.js (236 lines)
+## js/34-import.js (237 lines)
 Pick a project from My projects (your own, or a teammate's copy), tick the items you want, and they are added to the layout you have open. Sizes follow the scale of each project; the operator tasks that use the items can come with them. Nothing in the other project is changed.
 
 - 8 `srcZoneOf(sp, o)` the zone an item of another project sits in: designated, else the smallest zone round it
@@ -697,7 +697,7 @@ Pick a project from My projects (your own, or a teammate's copy), tick the items
 - 28 `bringListHTML(sp)` the list of items to choose from, grouped by zone
 - 61 `async bringItemsDialog()`
 - 152 `bringItems(sp, chosen, o)` put copies of `chosen` (items of project `sp`) on the open sheet; returns what was added
-- 235 `on #bFromProject onclick`
+- 236 `on #bFromProject onclick`
 
 ## js/34-setup.js (287 lines)
 Three pages in the Setup section. 1 Factory map: the plan image, its scale, walls and fixed equipment. 2 Lines: the outline of each production line. 3 Zones: the zones inside each line. Lines and zones are drawn with the Area tool on the layout (P.areas, level "line" / "zone"); everything else on t…
@@ -716,35 +716,70 @@ Three pages in the Setup section. 1 Factory map: the plan image, its scale, wall
 - 241 `on #setupView change`
 - 265 `async setupDelete(id)`
 
-## js/34-tasks.js (427 lines)
-P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item refs], doc, how, note }. Items are linked by ref, so a task follows its items across the standard, proposals and daily checks. The page follows the Showing picker (see scopePass in 34-areas.js).
+## js/34-tasks.js (477 lines)
+P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item refs], doc, how, note, at: { x, y, drawing } where it is done or null, per: times a shift or null, walk: "round" / "each" }. Where it is done and the walk to its items: 34-walks.js (the Spaghetti diagram tab of this page).…
 
-- 7 `blankTask(i = {}) =>`
-- 21 `zoneName(id) =>`
-- 22 `itemByRef(ref) =>`
-- 23 `taskItems(t) =>`
-- 24 `tasksOfItem(o) =>`
-- 25 `tasksOfZone(a) =>`
-- 31 `taskInScope(t) =>`
-- 36 `SHIFT_FREQ` tasks that happen every shift, counted into a shift's operator time
-- 39 `tasksFiltered()` the page
-- 76 `taskItemsCell(t)`
-- 90 `taskRows(rows)`
-- 107 `tasksHTML()`
-- 134 `renderTasks()`
-- 141 `taskItemPickHTML(zone, chosen)` the form
-- 160 `async taskModal(t, isNew)`
-- 283 `newTask(i) =>`
-- 290 `taskRowsPanel(list, empty)` side panel blocks (zone and item)
-- 300 `zoneTasksHTML(a) =>`
-- 304 `itemTasksHTML(o) =>`
-- 310 `csvTasks()` output
-- 352 `taskSheetHTML(rows, extra = "")`
-- 364 `printTasks()`
-- 383 `showTaskItems(t)` events
-- 397 `on #taskView click`
-- 415 `on #taskView change`
-- 421 `on #taskView input`
+- 9 `blankTask(i = {}) =>`
+- 26 `zoneName(id) =>`
+- 27 `itemByRef(ref) =>`
+- 28 `taskItems(t) =>`
+- 29 `tasksOfItem(o) =>`
+- 30 `tasksOfZone(a) =>`
+- 36 `taskInScope(t) =>`
+- 41 `SHIFT_FREQ` tasks that happen every shift, counted into a shift's operator time
+- 44 `tasksFiltered()` the page
+- 81 `taskItemsCell(t)`
+- 95 `taskRows(rows)`
+- 112 `tasksHTML()`
+- 143 `renderTasks()`
+- 151 `taskItemPickHTML(zone, chosen)` the form
+- 170 `async taskModal(t, isNew)`
+- 311 `newTask(i) =>`
+- 318 `taskRowsPanel(list, empty)` side panel blocks (zone and item)
+- 328 `zoneTasksHTML(a) =>`
+- 332 `itemTasksHTML(o) =>`
+- 338 `csvTasks()` output
+- 380 `taskSheetHTML(rows, extra = "")`
+- 392 `printTasks()`
+- 411 `showTaskItems(t)` events
+- 425 `on #taskView click`
+- 457 `on #taskView change`
+- 468 `on #taskView input`
+
+## js/34-walks.js (700 lines)
+Each operator task can be placed where it is done (t.at, a point on a drawing). Its walk goes from there to the items it uses and back: one round in the shortest order (walkOrder), or there and back for each (t.walk). Paths are found on a grid over the drawing (walkGrid), around walls and fixed equ…
+
+- 13 `WALK`
+- 14 `WALK_COL`
+- 26 `taskPerShift(t)` how many times a shift a task happens: typed on the task, or from how often (null not known)
+- 32 `taskPerAuto(t) =>`
+- 36 `walkSig(sh)` the grid: what can be walked through changes when anything that blocks or is walked to moves
+- 55 `walkGrid(sh)`
+- 101 `SQ2` one leg of a walk
+- 103 `gridSearch(G, si, goal, tx, ty, rad, allow)` shortest way on the grid from cell si to any cell where goal[i] is set (A*, 8 ways, no corner cutting)
+- 184 `nearFree(G, p, allow = -1)` the walkable cell nearest a point (the point itself may be on a machine or an item)
+- 199 `pullPath(G, path, start)` straighten a grid path: keep a corner only where the straight line would cross something
+- 226 `walkPath(sh, from, to)` the walk from a point to an item (to an item) or to a point (to {x, y}): { pts, len, ok }
+- 308 `walkOrder(sh, at, objs)` a task's walk the order to visit items in one round: up to 5 items every order is walked; up to 7 every order…
+- 393 `taskWalk(t, sh)` on sheet sh: { items: [{ o, leg }] (one way from where the task is done), legs, len (each time), per (times a…
+- 426 `walkSecs(len, sh) =>` seconds to walk a distance at the walking speed in Settings (null without a scale)
+- 430 `startTaskPlace(id)` placing a task where it is done
+- 438 `placeTaskAt(p)`
+- 455 `walkSheets() =>` the spaghetti diagram (a tab on the Operator tasks page) sheets on the standard's drawing that a walk can be …
+- 456 `walkSheet() =>`
+- 458 `walkCmp() =>`
+- 462 `walkSheetName(s) =>`
+- 469 `walkData()` work out every walk shown: the rows of the page that are placed, measured on the chosen sheet
+- 487 `sumShift(list, key) =>`
+- 490 `walkBox(V)` the part of the drawing to show: the zone or line being shown, grown to take in every walk
+- 512 `walkLinesSVG(V, k)` the walks drawn over a sheet: one colour per task, thicker for more trips a shift
+- 536 `walkMapSVG(V, k)`
+- 543 `drawWalkMap()`
+- 557 `walkItemsCell(x, sh)`
+- 568 `walksHTML()`
+- 633 `walkSummaryHTML(t)` a short summary for the task form: how far each item is from where the task is done
+- 642 `printWalks()` output
+- 667 `csvWalks()`
 
 ## js/35-ideas.js (503 lines)
 Ideas anyone can raise (P.ideas), taken from New to Done: who raised it, the zone, what it would improve, benefit and effort (which place it on the quick-win chart), an owner, and links to a layout proposal to try it, a problem it helps or a red tag it came from. The work it needs is ordinary actio…
@@ -972,7 +1007,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 
 - **css/00-base.css** (147 lines): 116 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables · 121 an icon before a button's words (js/06-icons.js)
 - **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
-- **css/20-layout.css** (829 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 558 side · 805 phones: a one-time note that drawing is easiest on a computer
+- **css/20-layout.css** (833 lines): 1 sheet strip · 84 studio · 521 a new, empty standard: where to start, in the middle of the drawing · 552 the hint is dark, so its plain buttons need dark words on their white face · 562 side · 809 phones: a one-time note that drawing is easiest on a computer
 - **css/30-registers.css** (396 lines): 1 trends · 90 the row under the pointer gets a navy edge, so it is clear which one a click op… · 107 registers, drift · 323 phones: name and use get full rows, the small fields share one · 357 5S view
 - **css/40-dialogs.css** (654 lines): 1 dialog · 62 the button on a message: Undo after a delete · 74 ✕ in the corner of every dialog: closes it like Esc · 447 tracking charts and red tag photos · 490 boards and labels · 638 SMED
 - **css/45-motion.css** (104 lines): 11 dialogs: the backdrop fades, the dialog lifts into place · 30 menus (File, Layers, Sheet) and the toolbar under a selection · 46 messages slide up and fade · 54 a page fades and lifts in as it opens · 65 a row that was just saved lights up in tape yellow, then settles · 76 buttons answer the press · 81 the empty layout card eases in (it is centred with a transform, so it keeps tha…
@@ -981,5 +1016,5 @@ Startup: calls init() (last file to load) and registers the service worker for o
 - **css/70-layout-edit.css** (158 lines): 1 layout editing · 113 right-click menu (the drawing and register rows)
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card
 - **css/85-document-map.css** (108 lines): 1 document map: documents on their own map
-- **css/90-tasks-present.css** (244 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden
+- **css/90-tasks-present.css** (318 lines): 1 operator tasks · 56 presentation mode · 159 a second tab has the same project open · 175 the drawing on its own · 188 phones: the sheet bar shows the name and one Options button; the rest opens fro… · 217 a table wider than the screen shows a soft edge where more is hidden · 245 spaghetti diagram (Operator tasks, 34-walks.js)
 - **css/95-tape-plan.css** (167 lines): 1 tape plan (A3) and colour standard: print only, the #printDoc box is hidden on …

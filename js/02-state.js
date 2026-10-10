@@ -51,7 +51,15 @@ const ui = {
     tags: { st: "open", owner: "", cat: "", area: "", q: "" },
     acts: { st: "open", owner: "", s5: "", area: "", stream: "5s", q: "" },
     docs: { tab: "map", st: "all", type: "", owner: "", area: "", q: "" },
-    tasks: { freq: "", who: "", q: "" },
+    tasks: {
+      freq: "",
+      who: "",
+      q: "",
+      tab: "list",
+      sheet: "",
+      cmp: "",
+      focus: "",
+    },
     ideas: { tab: "log", st: "open", q: "" },
   },
   layers: {
@@ -208,7 +216,7 @@ function newProject() {
   D = {};
   const std = blankSheet("standard", "Standard layout", "d1");
   P = {
-    version: 13,
+    version: 14,
     app: "5s-studio",
     itemCategories: clone(DEFAULT_ITEM_CATEGORIES),
     marking: {

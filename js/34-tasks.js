@@ -1,6 +1,8 @@
 "use strict";
 /* ============ operator tasks: what is done in a zone, how often, and which items it uses ============ */
-// P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item refs], doc, how, note }.
+// P.tasks: { id, no, name, zone (a zone id), who, freq, mins, s5, items: [item refs], doc, how, note,
+//   at: { x, y, drawing } where it is done or null, per: times a shift or null, walk: "round" | "each" }.
+// Where it is done and the walk to its items: 34-walks.js (the Spaghetti diagram tab of this page).
 // Items are linked by ref, so a task follows its items across the standard, proposals and daily checks.
 // The page follows the Showing picker (see scopePass in 34-areas.js).
 
@@ -17,6 +19,9 @@ const blankTask = (i = {}) => ({
   doc: "",
   how: "",
   note: "",
+  at: null,
+  per: null,
+  walk: "round",
 });
 const zoneName = (id) => P.areas.find((a) => a.id === id)?.name || "";
 const itemByRef = (ref) => STD().objects.find((o) => o.ref === ref);
@@ -125,16 +130,21 @@ function tasksHTML() {
       h +
       `<div class="emptybox"><b>No tasks yet</b>List what an operator does in a zone: start-of-shift checks, cleaning, restocking, a changeover. Give each a frequency and a time, and link the items it uses (the film rack, the spill kit). The zone, the layout and the document list then show which items and documents are really needed.<div style="margin-top:14px"><button class="pri" id="tNew2">New task</button></div></div>`
     );
+  h += `<div class="psmode"><button data-tw-tab="list" class="${F.tab !== "walks" ? "on" : ""}">Tasks</button><button data-tw-tab="walks" class="${F.tab === "walks" ? "on" : ""}">Spaghetti diagram</button></div>`;
   h += `<div class="filters"><label>When<select data-f="freq">${optsKV([["", "Any time"], ...TASK_FREQ.map((x) => [x, x])], F.freq)}</select></label>
     <label>Who<select data-f="who">${optsKV([["", "Anyone"], ...whoList.map((x) => [x, x])], F.who)}</select></label>
-    <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Task, item, step"></label></div>
-    <div class="regtbl" id="taskTbl">${taskRows(tasksFiltered())}</div>`;
+    <label>Search<input type="search" data-f="q" value="${esc(F.q)}" placeholder="Task, item, step"></label></div>`;
+  h +=
+    F.tab === "walks"
+      ? `<div id="taskTbl">${walksHTML()}</div>`
+      : `<div class="regtbl" id="taskTbl">${taskRows(tasksFiltered())}</div>`;
   return h;
 }
 function renderTasks() {
   const el = $("#taskView");
   if (!el) return;
   el.innerHTML = tasksHTML();
+  if (ui.reg.tasks.tab === "walks") requestAnimationFrame(drawWalkMap);
 }
 
 /* ---------- the form ---------- */
@@ -158,7 +168,9 @@ function taskItemPickHTML(zone, chosen) {
     .join("");
 }
 async function taskModal(t, isNew) {
-  let del = false;
+  let del = false,
+    after = "";
+  const auto = taskPerAuto(t);
   // the task's current zone and document stay selectable even if they are withdrawn or elsewhere
   const zones = P.areas.filter(
       (a) => !isLine(a) && (a.drawing === STD().drawing || a.id === t.zone),
@@ -175,6 +187,14 @@ async function taskModal(t, isNew) {
       docs.map((d) => [d.id, docNo(d) + " " + d.title]),
       t.doc,
     )}</select></label></div>
+    <div class="row3"><label class="f">Times a shift<input name="per" type="number" min="0" step="0.1" value="${esc(t.per ?? "")}" placeholder="${auto == null ? "e.g. 2" : esc(n2(auto)) + " from When"}"></label><label class="f">How they walk<select name="walk">${optsKV(
+      [
+        ["round", "One round, shortest order"],
+        ["each", "There and back for each item"],
+      ],
+      t.walk,
+    )}</select></label><div class="f"><span>Where it is done</span><div class="btns" style="align-items:center"><span class="small ${t.at ? "" : "muted"}">${t.at ? "Placed on the drawing" : "Not placed yet"}</span><button type="button" id="taskPlace">${t.at ? "Move it" : "Place on the layout"}</button></div></div></div>
+    ${walkSummaryHTML(t)}
     <label class="f">How it is done (one step per line)<textarea name="how" rows="3" placeholder="1. Stop the packer&#10;2. Fit the new reel">${esc(t.how)}</textarea></label>
     <div class="f"><span>Items it uses <small class="muted">tick everything the task touches</small></span>
       <input type="search" id="itSearch" placeholder="Search items" aria-label="Search items" style="margin:4px 0">
@@ -229,6 +249,11 @@ async function taskModal(t, isNew) {
           dlg
             .querySelectorAll("#itPick input")
             .forEach((c) => (c.checked = false));
+        $("#taskPlace").onclick = () => {
+          after = "place";
+          $("#dlgOk").click();
+          if ($("#dlg").open) after = ""; // blocked by validation: do not act later
+        };
         $("#taskDel") &&
           ($("#taskDel").onclick = () => {
             del = true;
@@ -263,6 +288,8 @@ async function taskModal(t, isNew) {
     doc: r.doc,
     how: r.how.trim(),
     note: r.note.trim(),
+    per: r.per === "" ? null : Math.max(0, Number(r.per) || 0),
+    walk: r.walk === "each" ? "each" : "round",
     items: Object.keys(r)
       .filter((k) => k.startsWith("it:") && r[k])
       .map((k) => k.slice(3)),
@@ -274,6 +301,7 @@ async function taskModal(t, isNew) {
   record(isNew ? "Task added" : "Task updated", taskNo(t) + " " + t.name);
   renderAll();
   flashRow(t.id);
+  if (after === "place") return startTaskPlace(t.id);
   if (ui.view === "tasks" && !taskInScope(t))
     toast(
       "Saved. It is not in the zone being shown, so it is hidden here.",
@@ -396,12 +424,26 @@ function showTaskItems(t) {
 }
 $("#taskView").addEventListener("click", (e) => {
   let b;
+  if ((b = e.target.closest("[data-tw-tab]"))) {
+    ui.reg.tasks.tab = b.dataset.twTab;
+    return renderTasks();
+  }
+  if ((b = e.target.closest("[data-tplace]")))
+    return startTaskPlace(b.dataset.tplace);
+  if (e.target.closest("#wPrint")) return printWalks();
+  if (e.target.closest("#wCsv")) return csvWalks();
   if ((b = e.target.closest("[data-tshow]"))) {
     showTaskItems(P.tasks.find((t) => t.id === b.dataset.tshow));
     return;
   }
   if ((b = e.target.closest("[data-taskid]")))
     return editTask(b.dataset.taskid);
+  // the spaghetti diagram: a row picks out that task's walk (again to show them all)
+  if ((b = e.target.closest("[data-wfocus]"))) {
+    const F = ui.reg.tasks;
+    F.focus = F.focus === b.dataset.wfocus ? "" : b.dataset.wfocus;
+    return renderTasks();
+  }
   if (e.target.closest("#tNew,#tNew2")) {
     const a = scopeArea(),
       only =
@@ -413,6 +455,11 @@ $("#taskView").addEventListener("click", (e) => {
   else if (e.target.closest("#tCsv")) csvTasks();
 });
 $("#taskView").addEventListener("change", (e) => {
+  const w = e.target.dataset.w;
+  if (w) {
+    ui.reg.tasks[w] = e.target.value;
+    return renderTasks();
+  }
   const k = e.target.dataset.f;
   if (!k || k === "q") return;
   ui.reg.tasks[k] = e.target.value;
@@ -421,6 +468,9 @@ $("#taskView").addEventListener("change", (e) => {
 $("#taskView").addEventListener("input", (e) => {
   if (e.target.dataset.f === "q") {
     ui.reg.tasks.q = e.target.value;
-    $("#taskTbl").innerHTML = taskRows(tasksFiltered());
+    if (ui.reg.tasks.tab === "walks") {
+      $("#taskTbl").innerHTML = walksHTML();
+      requestAnimationFrame(drawWalkMap);
+    } else $("#taskTbl").innerHTML = taskRows(tasksFiltered());
   }
 });

@@ -344,7 +344,7 @@ const VIEWS = [
     old.actions[0].prob = "";
     const v = validate(old);
     chart.migrated =
-      v.version === 13 &&
+      v.version === 14 &&
       v.ideas.length === 0 &&
       v.actions[0].idea === "" &&
       v.actions[0].stream !== "improve";
@@ -876,6 +876,116 @@ const VIEWS = [
   expect(
     tk4.view === "layout" && tk4.sel >= 1,
     "Show on an operator task did not select its items: " + JSON.stringify(tk4),
+  );
+  // where a task is done and its walk: placed through the form and the canvas, walks round machines,
+  // drawn on the spaghetti diagram, compared with a proposal, printed, and old projects migrate
+  await go("tasks");
+  await page.evaluate(() => editTask(P.tasks.at(-1).id));
+  await page.waitForSelector("#taskPlace");
+  await page.fill('#dlgBody [name="per"]', "3");
+  await page.selectOption('#dlgBody [name="walk"]', "each");
+  await page.click("#taskPlace");
+  await page.waitForTimeout(300);
+  const wk0 = await page.evaluate(() => ({ tool: ui.tool, view: ui.view }));
+  const box = await page.locator("#svg").boundingBox();
+  await page.mouse.click(box.x + box.width * 0.45, box.y + box.height * 0.62);
+  await page.waitForTimeout(500);
+  const wk1 = await page.evaluate(() => {
+    const t = P.tasks.at(-1),
+      sh = STD(),
+      w = taskWalk(t, sh);
+    let inside = 0;
+    for (const l of w.legs)
+      for (let i = 1; i < l.pts.length; i++)
+        for (let s = 0; s <= 20; s++) {
+          const a = l.pts[i - 1],
+            b = l.pts[i],
+            q = {
+              x: a.x + ((b.x - a.x) * s) / 20,
+              y: a.y + ((b.y - a.y) * s) / 20,
+            };
+          if (fxRects(sh).some((z) => ptInRect(q, z))) inside++;
+        }
+    return {
+      view: ui.view,
+      tab: ui.reg.tasks.tab,
+      at: !!t.at && t.at.drawing === sh.drawing,
+      per: t.per,
+      walk: t.walk,
+      len: w.len,
+      items: w.items.length,
+      legs: w.legs.length,
+      ok: w.ok,
+      shift: Math.round(w.shift) === Math.round(w.len * 3),
+      inside,
+      lines: document.querySelectorAll("#wkSvg polyline").length,
+      rows: document.querySelectorAll("#taskView tr[data-wfocus]").length,
+      placed: P.tasks.filter(taskInScope).filter((x) => x.at).length,
+    };
+  });
+  expect(
+    wk0.tool === "taskat" &&
+      wk0.view === "layout" &&
+      wk1.view === "tasks" &&
+      wk1.tab === "walks" &&
+      wk1.at &&
+      wk1.per === 3 &&
+      wk1.walk === "each" &&
+      wk1.len > 0 &&
+      wk1.items >= 4 &&
+      wk1.legs === wk1.items * 2 &&
+      wk1.ok &&
+      wk1.shift &&
+      wk1.inside === 0 &&
+      wk1.lines > 0 &&
+      wk1.rows === wk1.placed,
+    "placing a task and drawing its walk did not work: " +
+      JSON.stringify({ wk0, wk1 }),
+  );
+  const wk2 = await page.evaluate(() => {
+    const prop = P.sheets.find((s) => s.kind === "proposal");
+    Object.assign(ui.reg.tasks, { sheet: prop.id, cmp: STD().id });
+    renderTasks();
+    const V = walkData(),
+      out = {
+        compared: V.data.every((x) => x.c && Number.isFinite(x.c.len)),
+        col: !!document.querySelector("#taskView th.n:nth-of-type(8)"),
+      };
+    printWalks();
+    out.printed = {
+      svg: document.querySelectorAll("#printDoc svg polyline").length,
+      rows: document.querySelectorAll("#printDoc tr").length,
+    };
+    document.body.classList.remove("printing-doc");
+    // a project from before version 14: tasks without a place, times a shift or walk
+    const old = JSON.parse(JSON.stringify(P));
+    old.version = 13;
+    for (const t of old.tasks) {
+      delete t.at;
+      delete t.per;
+      delete t.walk;
+    }
+    const v = validate(old);
+    out.migrated =
+      v.version === 14 &&
+      v.tasks.every(
+        (t) => t.at === null && t.per === null && t.walk === "round",
+      );
+    out.kept =
+      JSON.stringify(validate(JSON.parse(JSON.stringify(P))).tasks) ===
+      JSON.stringify(P.tasks);
+    Object.assign(ui.reg.tasks, { tab: "list", sheet: "", cmp: "", focus: "" });
+    renderTasks();
+    return out;
+  });
+  expect(
+    wk2.compared &&
+      wk2.printed.svg > 0 &&
+      wk2.printed.rows >= 2 &&
+      wk2.migrated &&
+      wk2.kept,
+    "spaghetti diagram compare, print or version 14 migration is wrong: " +
+      JSON.stringify(wk2),
   );
   // deleting a zone keeps the task, just not in a zone
   const tk5 = await page.evaluate(() => {

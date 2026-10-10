@@ -707,6 +707,29 @@ function makeExampleProject() {
       "",
       "",
     );
+    // where each task is done (metres from the top left), and times a shift for the occasional ones
+    const at = {
+      "Stage film and cartons for the next order": [15.4, 5.2],
+      "Change the film reel": [13, 11.1],
+      "Start-of-shift line checklist": [14.4, 11.1],
+      "Clear a case packer jam": [19, 11.1],
+      "Clean the line at end of shift": [16.5, 11.6],
+      "Fetch the format kit for a changeover": [13, 11.1],
+      "Seal integrity check": [19, 11.1],
+      "Pick up and stack finished pallets": [25.5, 12.6],
+      "Update the KPI board": [25, 15.2],
+    };
+    const per = {
+      "Change the film reel": 4,
+      "Clear a case packer jam": 2,
+      "Fetch the format kit for a changeover": 1,
+    };
+    for (const t of p.tasks) {
+      const q = at[t.name];
+      t.at = q ? { x: u(q[0]), y: u(q[1]), drawing: "d1" } : null;
+      t.per = per[t.name] ?? null;
+      t.walk = "round";
+    }
   }
 
   /* ----- actions ----- */
