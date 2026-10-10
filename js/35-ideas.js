@@ -134,7 +134,7 @@ function ideaRows(rows) {
     .map((x) => {
       const acts = ideaActs(x),
         done = acts.filter((a) => ["Done", "Cancelled"].includes(a.status));
-      return `<tr class="click" data-ideaid="${esc(x.id)}"><td><b>${esc(ideaNo(x))}</b></td><td class="t"><b>${esc(x.title)}</b>${ideaQuick(x) && ideaOpen(x) ? ' <span class="pill done">Quick win</span>' : ""}${x.what ? `<span class="sub">${esc(clipText(x.what.split("\n")[0], 120))}</span>` : ""}<span class="sub imob">${esc(x.by || "Someone")}, ${esc(fmtD(x.raised))} ${ideaPill(x)}</span></td><td>${esc(x.by || "-")}<span class="sub">${esc(fmtD(x.raised))}</span></td><td>${esc(zoneName(x.zone) || "-")}</td><td>${lvlCell(x.gain)}</td><td>${lvlCell(x.effort)}</td><td>${ideaPill(x)}</td><td>${esc(x.owner || "-")}</td><td class="n">${acts.length ? done.length + "/" + acts.length : "-"}</td></tr>`;
+      return `<tr class="click" data-ideaid="${esc(x.id)}"><td><b class="nw">${esc(ideaNo(x))}</b></td><td class="t"><b>${esc(x.title)}</b>${ideaQuick(x) && ideaOpen(x) ? ' <span class="pill done">Quick win</span>' : ""}${x.what ? `<span class="sub">${esc(clipText(x.what.split("\n")[0], 120))}</span>` : ""}<span class="sub imob">${esc(x.by || "Someone")}, ${esc(fmtD(x.raised))} ${ideaPill(x)}</span></td><td>${esc(x.by || "-")}<span class="sub">${esc(fmtD(x.raised))}</span></td><td>${esc(zoneName(x.zone) || "-")}</td><td>${lvlCell(x.gain)}</td><td>${lvlCell(x.effort)}</td><td>${ideaPill(x)}</td><td>${esc(x.owner || "-")}</td><td class="n">${acts.length ? done.length + "/" + acts.length : "-"}</td></tr>`;
     })
     .join("")}</table>`;
 }
@@ -451,7 +451,7 @@ function printIdeas() {
       `<table class="fixed"><colgroup><col style="width:7%"><col style="width:33%"><col style="width:12%"><col style="width:12%"><col style="width:8%"><col style="width:8%"><col style="width:10%"><col style="width:10%"></colgroup><tr><th>No.</th><th>Idea</th><th>Raised by</th><th>Zone</th><th>Benefit</th><th>Effort</th><th>Status</th><th>Owner</th></tr>${list
         .map(
           (x) =>
-            `<tr><td><b>${esc(ideaNo(x))}</b></td><td><b>${esc(x.title)}</b>${x.benefit ? `<br><span class="pdm">${esc(x.benefit)}</span>` : ""}${x.result && !ideaOpen(x) ? `<br><span class="pdm">Result: ${esc(x.result)}</span>` : ""}</td><td>${esc(x.by)}<br><span class="pdm">${esc(fmtD(x.raised))}</span></td><td>${esc(zoneName(x.zone))}</td><td>${esc(x.gain ? IDEA_LEVEL[x.gain] : "-")}</td><td>${esc(x.effort ? IDEA_LEVEL[x.effort] : "-")}</td><td>${esc(x.status)}</td><td>${esc(x.owner)}</td></tr>`,
+            `<tr><td><b class="nw">${esc(ideaNo(x))}</b></td><td><b>${esc(x.title)}</b>${x.benefit ? `<br><span class="pdm">${esc(x.benefit)}</span>` : ""}${x.result && !ideaOpen(x) ? `<br><span class="pdm">Result: ${esc(x.result)}</span>` : ""}</td><td>${esc(x.by)}<br><span class="pdm">${esc(fmtD(x.raised))}</span></td><td>${esc(zoneName(x.zone))}</td><td>${esc(x.gain ? IDEA_LEVEL[x.gain] : "-")}</td><td>${esc(x.effort ? IDEA_LEVEL[x.effort] : "-")}</td><td>${esc(x.status)}</td><td>${esc(x.owner)}</td></tr>`,
         )
         .join("")}</table>`,
     closed = mine.filter((x) => !ideaOpen(x));

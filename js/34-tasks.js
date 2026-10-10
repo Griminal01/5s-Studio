@@ -100,7 +100,7 @@ function taskRows(rows) {
       h += `<tr class="tgrp"><td colspan="8"><b>${esc(z ? z.name : "Not in a zone")}</b>${l ? ` <span class="muted">${esc(l.name)}</span>` : ""}</td></tr>`;
     }
     const d = P.documents.find((x) => x.id === t.doc);
-    h += `<tr class="click" data-taskid="${esc(t.id)}"><td><b>${taskNo(t)}</b></td><td class="t"><b>${esc(t.name)}</b>${d ? `<span class="sub">${esc(docNo(d))} ${esc(d.title)}</span>` : ""}${t.how ? `<span class="sub">${esc(t.how.split("\n")[0])}</span>` : ""}</td><td>${esc(t.who)}</td><td>${esc(t.freq)}</td><td class="n">${t.mins || "-"}</td><td>${taskItemsCell(t)}</td><td>${esc(S5.find((x) => x[0] === t.s5)?.[1] || "")}</td><td>${taskItems(t).length ? `<button data-tshow="${esc(t.id)}">Show</button>` : ""}</td></tr>`;
+    h += `<tr class="click" data-taskid="${esc(t.id)}"><td><b class="nw">${taskNo(t)}</b></td><td class="t"><b>${esc(t.name)}</b>${d ? `<span class="sub">${esc(docNo(d))} ${esc(d.title)}</span>` : ""}${t.how ? `<span class="sub">${esc(t.how.split("\n")[0])}</span>` : ""}</td><td>${esc(t.who)}</td><td>${esc(t.freq)}</td><td class="n">${t.mins || "-"}</td><td>${taskItemsCell(t)}</td><td>${esc(S5.find((x) => x[0] === t.s5)?.[1] || "")}</td><td>${taskItems(t).length ? `<button data-tshow="${esc(t.id)}">Show</button>` : ""}</td></tr>`;
   }
   return h + "</table>";
 }
@@ -352,7 +352,7 @@ function taskSheetHTML(rows, extra = "") {
   return `<table class="fixed"><colgroup><col style="width:6%"><col style="width:26%"><col style="width:11%"><col style="width:12%"><col style="width:5%"><col style="width:30%"><col style="width:${extra ? 5 : 10}%">${extra ? '<col style="width:5%">' : ""}</colgroup><tr><th>No.</th><th>Task</th><th>Who</th><th>When</th><th class="n">Min</th><th>Items it uses</th><th>How</th>${extra ? "<th>Done</th>" : ""}</tr>${rows
     .map(
       (t) =>
-        `<tr><td><b>${esc(taskNo(t))}</b></td><td>${esc(t.name)}</td><td>${esc(t.who)}</td><td>${esc(t.freq)}</td><td class="n">${t.mins || "-"}</td><td>${
+        `<tr><td><b class="nw">${esc(taskNo(t))}</b></td><td>${esc(t.name)}</td><td>${esc(t.who)}</td><td>${esc(t.freq)}</td><td class="n">${t.mins || "-"}</td><td>${
           taskItems(t)
             .map((o) => esc(o.label))
             .join(", ") || "-"

@@ -112,3 +112,8 @@ textarea {
 [hidden] {
   display: none !important;
 }
+
+/* keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables */
+.nw {
+  white-space: nowrap;
+}

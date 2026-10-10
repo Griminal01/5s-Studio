@@ -10,7 +10,7 @@ function renderRegister() {
 const pill = (txt, cls) => `<span class="pill ${cls}">${esc(txt)}</span>`;
 const dueCell = (d, late) =>
   d
-    ? `<span class="${late ? "late-t" : ""}">${esc(fmtD(d))}${late ? " (overdue)" : ""}</span>`
+    ? `<span class="${late ? "late-t" : ""}"><span class="nw">${esc(fmtD(d))}</span>${late ? " (overdue)" : ""}</span>`
     : '<span class="muted">none</span>';
 function tagFiltered() {
   const f = ui.reg.tags,
@@ -62,7 +62,7 @@ function tagRows() {
         t.status === "Closed"
           ? daysBetween(t.raised || t.closed, t.closed || today())
           : daysBetween(t.raised || today(), today());
-      return `<tr class="click" data-tag="${esc(t.id)}"><td><b>${tagNo(t)}</b></td><td>${esc(fmtD(t.raised))}</td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td>${areaCell(t)}<td>${t.status === "Closed" ? esc(fmtD(t.due)) : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button> ` : ""}${t.status !== "Closed" ? `<button data-tagprob="${esc(t.id)}" title="Raise a problem to find out why this keeps happening">Problem</button> <button data-tagidea="${esc(t.id)}" title="Raise an improvement idea from this red tag">Idea</button>` : ""}</td></tr>`;
+      return `<tr class="click" data-tag="${esc(t.id)}"><td><b class="nw">${tagNo(t)}</b></td><td><span class="nw">${esc(fmtD(t.raised))}</span></td><td class="t"><b>${esc(t.title)}</b>${t.reason ? `<span class="sub">${esc(t.reason)}</span>` : ""}</td><td>${esc(t.cat)}</td><td>${esc(t.disp)}</td><td>${esc(t.owner) || '<span class="muted">none</span>'}</td>${areaCell(t)}<td>${t.status === "Closed" ? `<span class="nw">${esc(fmtD(t.due))}</span>` : dueCell(t.due, tagOverdue(t))}</td><td>${pill(t.status, t.status === "Closed" ? "done" : t.status === "In red tag area" ? "prog" : "open")}</td><td class="n">${days}</td><td>${t.x != null ? `<button data-show="tag:${t.id}">Show</button> ` : ""}${t.status !== "Closed" ? `<button data-tagprob="${esc(t.id)}" title="Raise a problem to find out why this keeps happening">Problem</button> <button data-tagidea="${esc(t.id)}" title="Raise an improvement idea from this red tag">Idea</button>` : ""}</td></tr>`;
     })
     .join("")}</table>`;
 }
@@ -156,7 +156,7 @@ function actRows() {
         from = [sheetLabel(a.sheet), tg ? tagNo(tg) : "", a.source || ""]
           .filter(Boolean)
           .join(", ");
-      return `<tr class="click" data-actid="${esc(a.id)}"><td><b>${actNo(a)}</b></td><td class="t"><b>${esc(a.title)}</b>${a.note ? `<span class="sub">${esc(a.note)}</span>` : ""}</td><td>${esc(s5name(a.s5))}</td><td>${esc(a.owner) || '<span class="muted">none</span>'}</td>${areaCell(a)}<td>${fin ? esc(fmtD(a.done)) : dueCell(a.due, actOverdue(a))}</td><td>${pill(a.pri, a.pri === "High" && !fin ? "hi" : "")}</td><td>${pill(a.status, a.status === "Done" ? "done" : a.status === "In progress" ? "prog" : a.status === "Cancelled" ? "" : "open")}</td><td style="max-width:200px;font-size:12px;color:var(--muted)">${esc(from)}</td><td>${a.x != null && !fin ? `<button data-show="act:${a.id}">Show</button>` : ""}</td></tr>`;
+      return `<tr class="click" data-actid="${esc(a.id)}"><td><b class="nw">${actNo(a)}</b></td><td class="t"><b>${esc(a.title)}</b>${a.note ? `<span class="sub">${esc(a.note)}</span>` : ""}</td><td>${esc(s5name(a.s5))}</td><td>${esc(a.owner) || '<span class="muted">none</span>'}</td>${areaCell(a)}<td>${fin ? `<span class="nw">${esc(fmtD(a.done))}</span>` : dueCell(a.due, actOverdue(a))}</td><td>${pill(a.pri, a.pri === "High" && !fin ? "hi" : "")}</td><td>${pill(a.status, a.status === "Done" ? "done" : a.status === "In progress" ? "prog" : a.status === "Cancelled" ? "" : "open")}</td><td style="max-width:200px;font-size:12px;color:var(--muted)">${esc(from)}</td><td>${a.x != null && !fin ? `<button data-show="act:${a.id}">Show</button>` : ""}</td></tr>`;
     })
     .join("")}</table>`;
 }
