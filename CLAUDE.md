@@ -15,6 +15,9 @@ already have. A later step, only with IT, is Microsoft 365 sign-in with SharePoi
 ## Hard rules
 - **No build step, no framework, no bundler.** Plain HTML/CSS/JS that works from `file://` and GitHub Pages.
 - **No external network dependencies at runtime** (no CDNs, fonts, analytics). It must work offline on the shop floor.
+- **Content-Security-Policy** (`<meta>` at the top of `index.html`) enforces that: only the site's own scripts, styles,
+  images and fonts; inline styles and `data:`/`blob:` images allowed; no inline scripts, `onclick=` attributes,
+  `eval`, `fetch()`, frames or form posts. New code must work within it, not loosen it. Tests fail on a CSP error.
 - **Keep the old internal names.** The rename to Lean Studio is display only. The database `studio-5s`, the
   `studio5s-*` and `5s-smed-timer-draft` browser keys and `app: "5s-studio"` in project files must not change, or
   people's saved work disappears. Projects in a project folder are `<name>.leanstudio.json`; older team files

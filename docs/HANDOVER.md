@@ -47,6 +47,11 @@ The example model line (Settings, or the empty layout) fills every view.
 
 Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `docs/DOMAIN.md`. Live at leanstudio.app.
 
+Content-Security-Policy (10 Oct): a `<meta>` tag in `index.html` lets the page load only its own scripts, styles,
+images and fonts, and blocks network connections (`connect-src 'none'`), inline scripts, frames and form posts. It
+stops a damaged or tampered project file from running code, and makes the offline rule something the browser
+enforces. Checked from `file://` and http; the tests fail on any CSP error.
+
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
 ## Outside review (10 Oct)

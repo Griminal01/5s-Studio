@@ -39,6 +39,10 @@ const server = http.createServer((req, res) => {
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
+  page.on("console", (m) => {
+    if (m.type() === "error" && /Content Security Policy/i.test(m.text()))
+      errors.push("csp: " + m.text());
+  });
   const failures = [];
   const expect = (ok, msg) => ok || failures.push(msg);
 
@@ -58,9 +62,10 @@ const server = http.createServer((req, res) => {
     null,
     { timeout: 15000 },
   );
-  const manifest = await page.evaluate(async () =>
-    (await fetch("manifest.webmanifest")).json(),
-  );
+  // read from the test side: the page's Content-Security-Policy blocks fetch()
+  const manifest = await (
+    await page.request.get(new URL("manifest.webmanifest", page.url()).href)
+  ).json();
   expect(
     manifest.name === "Lean Studio" && manifest.icons.length >= 3,
     "the web app manifest is missing or incomplete",

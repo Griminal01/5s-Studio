@@ -39,6 +39,10 @@ const server = http.createServer((req, res) => {
   const page = await (await browser.newContext()).newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
+  page.on("console", (m) => {
+    if (m.type() === "error" && /Content Security Policy/i.test(m.text()))
+      errors.push("csp: " + m.text());
+  });
   const failures = [];
   const expect = (ok, msg) => ok || failures.push(msg);
   await page.goto(base);
