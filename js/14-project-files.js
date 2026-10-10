@@ -36,6 +36,15 @@ function saveProject() {
   toast("Backup download started. Keep the JSON file somewhere backed up.");
 }
 $("#bSave").onclick = saveProject;
+// File menu: the open layout sheet for people without the studio
+$("#bPng").onclick = () => {
+  $("#fileMenu").open = false;
+  exportPNG();
+};
+$("#bPdf").onclick = () => {
+  $("#fileMenu").open = false;
+  printSheet();
+};
 // Amber nudge when work exists but no backup file has been downloaded for a week.
 const BACKUP_DAYS = 7;
 function updateBackupChip() {

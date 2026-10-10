@@ -248,6 +248,24 @@ function setDrawFocus(on) {
     draw();
   });
 }
+// phones: say once, kindly, that drawing the layout is a computer job
+const PHONE_HINT = "studio5s-phonehint",
+  phoneMQ = matchMedia("(max-width: 760px)");
+function updatePhoneHint() {
+  let seen = false;
+  try {
+    seen = !!localStorage.getItem(PHONE_HINT);
+  } catch {}
+  $("#phoneHint").hidden = seen || !phoneMQ.matches;
+}
+$("#phoneHintOk").onclick = () => {
+  try {
+    localStorage.setItem(PHONE_HINT, "1");
+  } catch {}
+  $("#phoneHint").hidden = true;
+};
+phoneMQ.addEventListener("change", updatePhoneHint);
+updatePhoneHint();
 $("#sbMore").onclick = () => {
   const bar = $(".sheetbar"),
     open = bar.classList.toggle("open");

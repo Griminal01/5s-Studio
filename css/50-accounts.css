@@ -95,3 +95,18 @@ body.locked > *:not(#auth):not(dialog):not(#toast):not(script) {
 #acTabs {
   margin-bottom: 12px;
 }
+.authintro {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.noscript {
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 0 16px;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  color: #1c2250;
+}

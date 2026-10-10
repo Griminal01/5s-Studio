@@ -49,6 +49,16 @@ Offline and install (11 Oct): `sw.js`, `manifest.webmanifest`, `icons/`; see `do
 
 Deploys stamp the css and script links with the commit id (`pages.yml`), so a browser cannot run new scripts against cached old CSS. If something looks unstyled or black after an update, hard refresh (Ctrl+Shift+R).
 
+## Outside review (10 Oct)
+
+From a review of the live site: the title says what it is ("Lean Studio: 5S layout and floor tape planner"), the
+meta and link-preview descriptions are one text that mentions the fishbone board, the first screen has a one-line
+intro, and a `<noscript>` text explains the tool to anything that does not run scripts. File has "Export layout
+as image (PNG)" and "Print layout or save as PDF". The save status shows on laptops (it was hidden below 1500 px).
+Phones get a one-time note on the Layout that drawing is easiest on a computer. Found while testing: a project
+added in the moment between "Who is working?" and the end of start-up could drop out of the project list (its data
+kept but not listed); adding, opening and deleting projects now wait for start-up (`appReady`, 16-app).
+
 ## Project folder (10 Oct, `js/33-team.js`)
 
 Projects can live as files in a folder: Account (name button) > Project folder > Choose the project folder, then

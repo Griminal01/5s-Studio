@@ -322,24 +322,26 @@ Layout exports: deviations and routes CSV, exportPNG() (the sheet as an image), 
 - 80 `async exportPNG()`
 - 175 `printSheet()`
 
-## js/14-project-files.js (192 lines)
+## js/14-project-files.js (201 lines)
 Project files: projectBundle() (the whole project as one JSON, also what the team folder gets), saveProject() backup download and the backup chip, opening files, adding the drawing image, photos, logo.
 
 - 6 `projectBundle()` everything in the open project as one file (also what is published to a team folder)
 - 27 `saveProject()`
 - 38 `on #bSave onclick`
-- 40 `BACKUP_DAYS` Amber nudge when work exists but no backup file has been downloaded for a week.
-- 41 `updateBackupChip()`
-- 54 `on #bkChip onclick`
-- 56 `on #bOpen onclick`
-- 57 `on #fProject onchange`
-- 74 `on #fImage onchange`
-- 110 `shrink(file, max = 1280, type = "image/jpeg", q = 0.72)`
-- 133 `on #fPhoto onchange`
-- 152 `async viewPhoto(id)`
-- 179 `on #fLogo onchange`
+- 40 `on #bPng onclick` File menu: the open layout sheet for people without the studio
+- 44 `on #bPdf onclick`
+- 49 `BACKUP_DAYS` Amber nudge when work exists but no backup file has been downloaded for a week.
+- 50 `updateBackupChip()`
+- 63 `on #bkChip onclick`
+- 65 `on #bOpen onclick`
+- 66 `on #fProject onchange`
+- 83 `on #fImage onchange`
+- 119 `shrink(file, max = 1280, type = "image/jpeg", q = 0.72)`
+- 142 `on #fPhoto onchange`
+- 161 `async viewPhoto(id)`
+- 188 `on #fLogo onchange`
 
-## js/15-settings-keyboard.js (279 lines)
+## js/15-settings-keyboard.js (297 lines)
 Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-screen drawing (setDrawFocus), the phone sheet-bar Options button, undo / redo buttons, print hooks.
 
 - 5 `on #bSettings onclick`
@@ -350,23 +352,28 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 232 `on #zOut onclick`
 - 233 `on #zFit onclick`
 - 238 `setDrawFocus(on)` the drawing on its own: hides the header, page bars and sheet bar (useful on a phone)
-- 251 `on #sbMore onclick`
-- 258 `on #zFull onclick`
-- 260 `on document keydown`
-- 264 `on #bUndo onclick`
-- 265 `on #bRedo onclick`
-- 266 `on window resize`
-- 267 `on window beforeprint`
-- 272 `on window afterprint`
+- 252 `PHONE_HINT` phones: say once, kindly, that drawing the layout is a computer job
+- 254 `updatePhoneHint()`
+- 261 `on #phoneHintOk onclick`
+- 269 `on #sbMore onclick`
+- 276 `on #zFull onclick`
+- 278 `on document keydown`
+- 282 `on #bUndo onclick`
+- 283 `on #bRedo onclick`
+- 284 `on window resize`
+- 285 `on window beforeprint`
+- 290 `on window afterprint`
 
-## js/16-app.js (192 lines)
+## js/16-app.js (198 lines)
 renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the project, keep anything unreadable instead of overwriting it).
 
 - 5 `renderAll()`
 - 32 `hashStr(t) =>` A short hash names a preserved copy, so the same unreadable data is kept once.
 - 39 `async preserveUnreadable(items)` Keep a copy of anything that could not be read before a blank project can overwrite it.
 - 70 `async resolveHeld(bundle, why)` Autosave stays paused until the person chooses; Esc cannot skip the choice.
-- 97 `async init()`
+- 100 `appReadyDone` Resolves when init() has loaded the project list and the open project. The page is usable a moment before tha…
+- 101 `appReady`
+- 102 `async init()`
 
 ## js/17-pins.js (110 lines)
 pins on the drawing: actions and documents
@@ -523,7 +530,7 @@ Tracking's drift map: where each item was found across daily checks (driftCalc),
 - 314 `moveHome(ref)`
 - 330 `addExtraToStd(i)`
 
-## js/32-accounts.js (503 lines)
+## js/32-accounts.js (506 lines)
 People, not passwords. Whoever uses the studio picks their name ("Who is working?"), or types it the first time; everything they save is kept under that name in this browser, so two people sharing a computer each have their own projects. There is no password: the site is a static page and the data …
 
 - 11 `AUTH_KEY`
@@ -543,16 +550,16 @@ People, not passwords. Whoever uses the studio picks their name ("Who is working
 - 167 `async readProject(pid)`
 - 176 `afterProjectChange()`
 - 204 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
-- 224 `async openProject(pid)`
-- 254 `async deleteProject(pid)`
-- 306 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
-- 329 `async startNewProject(name)`
-- 334 `ago(ms) =>` the account dialog: projects, team, account
-- 344 `async accountDialog(tab = "projects")`
-- 453 `projectsTabHTML()`
-- 464 `async renameMeDialog()`
-- 483 `async deleteAccountDialog()`
-- 502 `on #userBtn onclick`
+- 225 `async openProject(pid)`
+- 256 `async deleteProject(pid)`
+- 309 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
+- 332 `async startNewProject(name)`
+- 337 `ago(ms) =>` the account dialog: projects, team, account
+- 347 `async accountDialog(tab = "projects")`
+- 456 `projectsTabHTML()`
+- 467 `async renameMeDialog()`
+- 486 `async deleteAccountDialog()`
+- 505 `on #userBtn onclick`
 
 ## js/33-team.js (521 lines)
 The studio is a static page with no server. Each person picks a folder once (a OneDrive or Teams folder synced to the PC, or a network drive); every project in it is one file, <name>.leanstudio.json. The file is the real copy: who can open it is decided by the folder's own sharing, OneDrive keeps i…
@@ -929,11 +936,11 @@ Startup: calls init() (last file to load) and registers the service worker for o
 ## css (sections: line, title)
 
 - **css/00-base.css** (115 lines): 
-- **css/10-header.css** (509 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
-- **css/20-layout.css** (778 lines): 1 sheet strip · 84 studio · 531 side
+- **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
+- **css/20-layout.css** (802 lines): 1 sheet strip · 84 studio · 531 side · 778 phones: a one-time note that drawing is easiest on a computer
 - **css/30-registers.css** (392 lines): 1 trends · 103 registers, drift · 319 phones: name and use get full rows, the small fields share one · 353 5S view
 - **css/40-dialogs.css** (605 lines): 1 dialog · 398 tracking charts and red tag photos · 441 boards and labels · 589 SMED
-- **css/50-accounts.css** (98 lines): 1 sign-in screen, account button
+- **css/50-accounts.css** (113 lines): 1 sign-in screen, account button
 - **css/60-problems.css** (341 lines): 1 problem solving · 227 improvement log: quick-win chart (benefit up, effort across) and the form's sec… · 327 phones: the improvement log is number and idea; who, when and status sit under …
 - **css/70-layout-edit.css** (112 lines): 1 layout editing
 - **css/80-problem-board.css** (468 lines): 1 problem solving board: laid out like the whiteboard · 78 the bone: a slanted line that meets the spine · 189 Act / Why / remove sit over the right end of the row on hover or focus, so long… · 398 the printed board: same layout, plain text · 447 SMED: series of trials, the four steps, compact timeline, one-tap choices · 467 SMED steps on a phone: each step is a card

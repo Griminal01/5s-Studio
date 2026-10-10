@@ -1304,6 +1304,36 @@ const VIEWS = [
   );
   if (stillOpen) await page.click("#dlgCancel");
 
+  // what a link preview or a search engine reads: a title that says what it is, one description, a noscript text
+  const head = await page.evaluate(() => {
+    const m = (sel) => document.querySelector(sel)?.getAttribute("content");
+    return {
+      desc: m('meta[name="description"]'),
+      og: m('meta[property="og:description"]'),
+      ogTitle: m('meta[property="og:title"]'),
+      noscript: document.querySelector("noscript")?.textContent || "",
+      intro: document.querySelector(".authintro")?.textContent || "",
+    };
+  });
+  expect(
+    head.desc === head.og &&
+      /fishbone/.test(head.desc) &&
+      /5S layout/.test(head.ogTitle) &&
+      /5S layouts/.test(head.noscript) &&
+      /floor tape/.test(head.intro),
+    "page title, descriptions or intro are out of step: " +
+      JSON.stringify(head),
+  );
+  // File menu: the layout as a picture for people without the studio
+  await page.click("#fileMenu summary");
+  const [png] = await Promise.all([
+    page.waitForEvent("download", { timeout: 10000 }),
+    page.click("#bPng"),
+  ]);
+  expect(
+    /\.png$/.test(png.suggestedFilename()),
+    "Export layout as image did not give a PNG: " + png.suggestedFilename(),
+  );
   // the rename is display only: team files with the old name still open
   const rb = await page.evaluate(() => ({
     title: document.title,

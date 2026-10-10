@@ -3,16 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Lean Studio</title>
+    <title>Lean Studio: 5S layout and floor tape planner</title>
     <meta
       name="description"
-      content="Lean Studio: design 5S layouts and floor tape, and solve problems on a fishbone board. Works offline in the browser."
+      content="Plan 5S layouts and floor tape to scale, set out lines and zones, log improvement ideas and solve problems on a fishbone board. Works offline in the browser; your work stays on your computer or in your OneDrive."
     />
     <meta name="theme-color" content="#1c2250" />
-    <meta property="og:title" content="Lean Studio" />
+    <meta
+      property="og:title"
+      content="Lean Studio: 5S layout and floor tape planner"
+    />
     <meta
       property="og:description"
-      content="Design 5S layouts and floor tape, set up lines and zones, define operator tasks and solve problems. Works offline."
+      content="Plan 5S layouts and floor tape to scale, set out lines and zones, log improvement ideas and solve problems on a fishbone board. Works offline in the browser; your work stays on your computer or in your OneDrive."
     />
     <meta
       property="og:image"
@@ -37,9 +40,26 @@
     <link rel="stylesheet" href="css/95-tape-plan.css" />
   </head>
   <body>
+    <noscript>
+      <div class="noscript">
+        <h1>Lean Studio: 5S layout and floor tape planner</h1>
+        <p>
+          A free tool for designing a production area: 5S layouts drawn to
+          scale, floor tape plans with an order list, lines and zones, operator
+          tasks, documents, an improvement log and problem solving with a 5-Why
+          and a fishbone board. Prints on A3 and A4 and works offline.
+        </p>
+        <p>It runs in the browser and needs JavaScript turned on.</p>
+      </div>
+    </noscript>
     <div id="auth" hidden>
       <div class="authcard">
         <h1>Lean Studio</h1>
+        <p class="authintro">
+          Plan 5S layouts and floor tape to scale, log improvement ideas and
+          solve problems on a fishbone board. Works offline; your work stays on
+          this computer or in your OneDrive.
+        </p>
         <div id="authBody"></div>
         <p id="authMsg" role="alert"></p>
       </div>
@@ -91,6 +111,19 @@
               title="Open a project file (this studio or the older version)"
             >
               Open a project file…
+            </button>
+            <hr />
+            <button
+              id="bPng"
+              title="The open layout sheet as a picture, to send to anyone"
+            >
+              Export layout as image (PNG)
+            </button>
+            <button
+              id="bPdf"
+              title="Print the open layout sheet, or choose Save as PDF in the print window"
+            >
+              Print layout or save as PDF…
             </button>
             <hr />
             <button id="bSettings">Settings</button>
@@ -248,6 +281,12 @@
             aria-label="Layout drawing"
           ></svg>
           <div class="scopebar" id="scopeBar" hidden></div>
+          <div class="phonehint" id="phoneHint" hidden>
+            <span
+              >Drawing the layout is easiest on a computer. On a phone you can
+              look round, check where things are and raise ideas.</span
+            ><button id="phoneHintOk">OK</button>
+          </div>
           <div class="hint" id="hint" hidden></div>
           <div
             class="selbar"
