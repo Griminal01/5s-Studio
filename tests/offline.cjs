@@ -71,7 +71,12 @@ const server = http.createServer((req, res) => {
   await page.press("[name=user]", "Enter");
   await page.waitForSelector("#svg", { timeout: 10000 });
   await page.evaluate(() => loadExample());
-  await page.waitForTimeout(800);
+  // wait for the browser save to finish, not a fixed time: a slow machine can take longer
+  await page.waitForFunction(
+    () => STD().objects.length > 10 && !savePending && !saveRunning,
+    null,
+    { timeout: 10000 },
+  );
 
   await ctx.setOffline(true);
   await page.reload();

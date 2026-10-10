@@ -94,6 +94,11 @@ async function resolveHeld(bundle, why) {
   holdSave = false;
   save();
 }
+// Resolves when init() has loaded the project list and the open project. The page is usable a moment
+// before that, so anything that adds, opens or deletes a project waits for it (32-accounts); otherwise a
+// project added in that moment would be dropped from the list when the list loads.
+let appReadyDone;
+const appReady = new Promise((r) => (appReadyDone = r));
 async function init() {
   let storageDown = "";
   try {
@@ -186,6 +191,7 @@ async function init() {
   renderAll();
   if (!applyHash()) syncHash(false);
   tabTell("open");
+  appReadyDone();
   if (!held) folderCheck(); // the project's file may have been changed by someone else
   if (held) await resolveHeld(bundle, readFailed || storageDown);
 }

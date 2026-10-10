@@ -202,6 +202,7 @@ function afterProjectChange() {
 }
 /* make another project from data in memory and open it */
 async function addProject(p, d, ph, name, from = "", src = "") {
+  await appReady; // the project list must be loaded before one is added to it
   await flushSave();
   const id = uid();
   p.projectName = name || p.projectName || "Project";
@@ -222,6 +223,7 @@ async function addProject(p, d, ph, name, from = "", src = "") {
   return id;
 }
 async function openProject(pid) {
+  await appReady;
   if (pid === PID) return;
   await flushSave();
   await folderFlushNow();
@@ -252,6 +254,7 @@ async function openProject(pid) {
   folderCheck(); // a project saved in the folder may have been changed there
 }
 async function deleteProject(pid) {
+  await appReady;
   await flushSave();
   // the project that opens next must be readable: never put a blank one over unreadable data
   if (pid === PID) {
