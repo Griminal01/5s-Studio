@@ -106,7 +106,18 @@ function renderPresent() {
       bh = box.y1 - box.y0,
       bvw = Math.max(bw, (bh * W) / H),
       bvh = (bvw * H) / W,
-      bc = { x: box.x0 + bw / 2, y: box.y0 + bh / 2 },
+      // centred on the zone, slid so the frame shows the drawing and not the white past its walls
+      bc = (() => {
+        const v = viewInDrawing(
+          box.x0 + bw / 2 - bvw / 2,
+          box.y0 + bh / 2 - bvh / 2,
+          bvw,
+          bvh,
+          d.w,
+          d.h,
+        );
+        return { x: v.x + bvw / 2, y: v.y + bvh / 2 };
+      })(),
       // zoomed in: a smaller window on the drawing, so labels have room to show in full
       vw = bvw / pr.z,
       vh = bvh / pr.z,
@@ -270,7 +281,8 @@ document.addEventListener(
       pr.compare = !pr.compare;
       renderPresent();
     }
-    pokePresent();
+    // keys (a presenter's clicker sends arrows) leave the control bar hidden, so it does not
+    // cover the bottom of the drawing at each step; the mouse or a touch brings it back
   },
   true,
 );

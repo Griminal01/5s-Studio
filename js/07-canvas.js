@@ -511,9 +511,19 @@ function fitView() {
     dm = DM(),
     A = scopeArea();
   if (!r.width || !r.height) return;
-  // the whole drawing, or a box round the area being worked on
+  // the whole drawing, or the area being worked on with a little round it (the faded context
+  // reaches out to scopeBox, a step further, for panning)
   const b = A
-    ? scopeBox(A)
+    ? (() => {
+        const z = areaBox(A),
+          pad = Math.max(z.x1 - z.x0, z.y1 - z.y0) * 0.1 + 4;
+        return {
+          x0: z.x0 - pad,
+          y0: z.y0 - pad,
+          x1: z.x1 + pad,
+          y1: z.y1 + pad,
+        };
+      })()
     : {
         x0: -dm.w * 0.015,
         y0: -dm.h * 0.025,
@@ -526,6 +536,11 @@ function fitView() {
   ui.vb = { w: r.width / sc, x: 0, y: 0 };
   ui.vb.x = (b.x0 + b.x1) / 2 - ui.vb.w / 2;
   ui.vb.y = (b.y0 + b.y1) / 2 - vbH() / 2;
+  if (A)
+    Object.assign(
+      ui.vb,
+      viewInDrawing(ui.vb.x, ui.vb.y, ui.vb.w, vbH(), dm.w, dm.h),
+    );
 }
 function world(e) {
   // a tap can land before the first draw after a project opens (ui.vb is reset then)

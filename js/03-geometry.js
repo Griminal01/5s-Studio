@@ -1,7 +1,8 @@
 "use strict";
 /* ============ geometry ============
    Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon
-   length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles. */
+   length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles,
+   viewInDrawing (keeps a zone's view on the drawing). */
 function corners(o, pad = 0) {
   const r = (o.a * Math.PI) / 180,
     c = Math.cos(r),
@@ -281,4 +282,13 @@ function homeLen(o, sh) {
   return o.fpStyle === "outline"
     ? 2 * (o.w + o.h + 4 * pad)
     : 8 * (Math.min(o.w, o.h) * 0.3 + pad);
+}
+// slide a view (x, y, w, h) so it shows the drawing (dw x dh) rather than empty space past its edge;
+// a view wider or taller than the drawing is centred on it in that direction
+function viewInDrawing(x, y, w, h, dw, dh) {
+  const ax = dw * 0.015,
+    ay = dh * 0.025,
+    slide = (v, len, size, m) =>
+      len >= size + 2 * m ? (size - len) / 2 : clamp(v, -m, size + m - len);
+  return { x: slide(x, w, dw, ax), y: slide(y, h, dh, ay) };
 }

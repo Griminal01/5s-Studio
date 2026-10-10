@@ -114,27 +114,28 @@ Global state: the open project P and the UI state ui (view, selection ui.sel, vi
 - 320 `find(id, sh = S()` find element by id in active sheet
 - 338 `selected() =>`
 
-## js/03-geometry.js (285 lines)
-Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles.
+## js/03-geometry.js (295 lines)
+Geometry on drawing units: rotated rectangles (corners, overlap), points and segments, polygon length, fixed structure (fxRects, fxNorm normalises saved fixed objects), tape offsets and aisles, viewInDrawing (keeps a zone's view on the drawing).
 
-- 5 `corners(o, pad = 0)`
-- 18 `overlap(a, b)`
-- 45 `segX(p, q, r, s)`
-- 54 `polyLen(pts) =>`
-- 60 `markLen(m) =>`
-- 63 `fxRects(sh)` fixed structure drawn on the base drawing: walls, columns, doors and fixed equipment
-- 87 `fxDoors(sh) =>`
-- 89 `ptInRect(p, z)`
-- 97 `segRectHit(p, q, z)`
-- 105 `fxNorm(f) =>`
-- 188 `dedupePts(pts)` floor marking geometry
-- 198 `offsetPoly(pts0, d)`
-- 236 `aisleEdges(m) =>`
-- 240 `aisleRects(m)`
-- 257 `distToRect(p, z)`
-- 268 `nearestStruct(sh, p)`
-- 277 `markTape(m) =>`
-- 279 `homeLen(o, sh)`
+- 6 `corners(o, pad = 0)`
+- 19 `overlap(a, b)`
+- 46 `segX(p, q, r, s)`
+- 55 `polyLen(pts) =>`
+- 61 `markLen(m) =>`
+- 64 `fxRects(sh)` fixed structure drawn on the base drawing: walls, columns, doors and fixed equipment
+- 88 `fxDoors(sh) =>`
+- 90 `ptInRect(p, z)`
+- 98 `segRectHit(p, q, z)`
+- 106 `fxNorm(f) =>`
+- 189 `dedupePts(pts)` floor marking geometry
+- 199 `offsetPoly(pts0, d)`
+- 237 `aisleEdges(m) =>`
+- 241 `aisleRects(m)`
+- 258 `distToRect(p, z)`
+- 269 `nearestStruct(sh, p)`
+- 278 `markTape(m) =>`
+- 280 `homeLen(o, sh)`
+- 288 `viewInDrawing(x, y, w, h, dw, dh)` slide a view (x, y, w, h) so it shows the drawing (dw x dh) rather than empty space past its edge; a view wid…
 
 ## js/04-checks.js (343 lines)
 Layout checks and comparison: keep-clear and aisle conflicts, issues(sh) (everything the Compare tab and the red outlines show), compare(a, b) between sheets with a score, walking totals, 5S score, safeImage().
@@ -191,7 +192,7 @@ Dialogs and output: toast(), modal() (fresh body each time; Enter never submits)
 - 102 `on #dlgForm keydown` Enter in a text field would submit the dialog form with its first button, which is Cancel, and throw away wha…
 - 113 `on #dlgForm submit` Only the dialog's own OK and Cancel may close it. A button inside the body (tabs, row actions) is inside the …
 
-## js/07-canvas.js (1321 lines)
+## js/07-canvas.js (1336 lines)
 The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints, PNG, Present and the document map all call it); draw() puts it on screen. Also objSVG / markSVG / routeSVG per element, the viewbox (fitView, viewCentre, zoomAt, kNow) and pointer handling (drag, draw tools, pinch).
 
 - 6 `svg`
@@ -214,25 +215,25 @@ The layout drawing. buildSVG(sh, o) returns the SVG for a sheet (screen, prints,
 - 497 `viewCentre()` the middle of what is on screen; the middle of the drawing before the layout has been shown
 - 505 `kNow()`
 - 509 `fitView()`
-- 530 `world(e)`
-- 541 `zoomAt(f, cx, cy)`
-- 554 `centreOn(x, y, zoomIn = true)`
-- 561 `rafP`
-- 562 `draw()`
-- 569 `cmpCache`
-- 570 `drawNow()`
-- 609 `drawScale(k)`
-- 623 `snapV(v, sh)`
-- 626 `snapPoint(p, e, last)`
-- 667 `ptrs`
-- 792 `startPan(e, clickClears)`
-- 952 `endDrag(e)`
-- 1040 `setTool(t, level)`
-- 1060 `placeOrDraw(e, p)`
-- 1066 `addDraftPoint(e, p)`
-- 1110 `async finishDraft()`
-- 1282 `cancelDraft()`
-- 1288 `updateHint()`
+- 545 `world(e)`
+- 556 `zoomAt(f, cx, cy)`
+- 569 `centreOn(x, y, zoomIn = true)`
+- 576 `rafP`
+- 577 `draw()`
+- 584 `cmpCache`
+- 585 `drawNow()`
+- 624 `drawScale(k)`
+- 638 `snapV(v, sh)`
+- 641 `snapPoint(p, e, last)`
+- 682 `ptrs`
+- 807 `startPan(e, clickClears)`
+- 967 `endDrag(e)`
+- 1055 `setTool(t, level)`
+- 1075 `placeOrDraw(e, p)`
+- 1081 `addDraftPoint(e, p)`
+- 1125 `async finishDraft()`
+- 1297 `cancelDraft()`
+- 1303 `updateHint()`
 
 ## js/08-actions.js (351 lines)
 What the layout buttons do: addItem() drops a library item, act(a, el) handles the layout side panel's data-a"..." buttons (routed from 11-side-panel) and the dup / del / rot90 shortcuts, setField() edits a selected item.
@@ -820,7 +821,7 @@ problem solving: fishbone, Pareto, A3 report, CSV
 - 208 `printProblem(p)` A3 report
 - 274 `csvProblems()` CSV
 
-## js/37-labels.js (293 lines)
+## js/37-labels.js (299 lines)
 Every name on the drawing (items, marked areas, fixed equipment, lines and zones) is placed here, in one pass, on top of everything else. All sizes are in screen pixels (world units / k), so the screen, Present mode and the A3 print behave the same way. For each item, in this order: 1. Inside it: t…
 
 - 14 `LABEL`
@@ -898,7 +899,7 @@ The layout no longer shows document pins by default (Layers can still turn them 
 - 292 `on document keydown`
 - 303 `on window resize`
 
-## js/39-present.js (332 lines)
+## js/39-present.js (344 lines)
 Shows the open sheet large and clean (no tools). The arrow keys, or the buttons that appear when the pointer moves, step through the whole factory, each line and each zone; Tour does that on a timer. It draws with its own scope and leaves the Showing picker alone.
 
 - 7 `pr`
@@ -906,27 +907,27 @@ Shows the open sheet large and clean (no tools). The arrow keys, or the buttons 
 - 36 `openPresent()`
 - 59 `closePresent()`
 - 70 `renderPresent()`
-- 156 `stepPresent(d)`
-- 163 `zoomFrame` zoom by a factor about a point of the stage (px, py in pixels; the middle if not given)
-- 164 `zoomPresent(f, px, py)`
-- 187 `resetZoom()`
-- 193 `panPresent(dx, dy)` drag: move the zoomed view without drawing it again
-- 205 `stopTour()`
-- 209 `toggleTour()`
-- 216 `pokePresent()` the buttons show when the pointer moves or a key is pressed, and fade after a few seconds
-- 222 `on #bPresent onclick`
-- 223 `on #prExit onclick`
-- 224 `on #prPrev onclick`
-- 225 `on #prNext onclick`
-- 226 `on #prPlay onclick`
-- 227 `on #prIn onclick`
-- 228 `on #prOut onclick`
-- 229 `on #prFit onclick`
-- 230 `on #prCmp onclick`
-- 234 `on #present pointermove`
-- 235 `on #present pointerdown`
-- 326 `on window resize`
-- 328 `on document fullscreenchange` leaving full screen with Esc ends the presentation too
+- 167 `stepPresent(d)`
+- 174 `zoomFrame` zoom by a factor about a point of the stage (px, py in pixels; the middle if not given)
+- 175 `zoomPresent(f, px, py)`
+- 198 `resetZoom()`
+- 204 `panPresent(dx, dy)` drag: move the zoomed view without drawing it again
+- 216 `stopTour()`
+- 220 `toggleTour()`
+- 227 `pokePresent()` the buttons show when the pointer moves or a key is pressed, and fade after a few seconds
+- 233 `on #bPresent onclick`
+- 234 `on #prExit onclick`
+- 235 `on #prPrev onclick`
+- 236 `on #prNext onclick`
+- 237 `on #prPlay onclick`
+- 238 `on #prIn onclick`
+- 239 `on #prOut onclick`
+- 240 `on #prFit onclick`
+- 241 `on #prCmp onclick`
+- 245 `on #present pointermove`
+- 246 `on #present pointerdown`
+- 338 `on window resize`
+- 340 `on document fullscreenchange` leaving full screen with Esc ends the presentation too
 
 ## js/40-main.js (23 lines)
 Startup: calls init() (last file to load) and registers the service worker for offline use.
@@ -935,7 +936,7 @@ Startup: calls init() (last file to load) and registers the service worker for o
 
 ## css (sections: line, title)
 
-- **css/00-base.css** (115 lines): 
+- **css/00-base.css** (120 lines): 116 keep record numbers (RT-003) and dates (28 Sept 26) on one line in tables
 - **css/10-header.css** (515 lines): 1 top bar: one row; sections grouped; menu on medium screens; tab bar on phones · 166 the pages of the current section
 - **css/20-layout.css** (802 lines): 1 sheet strip · 84 studio · 531 side · 778 phones: a one-time note that drawing is easiest on a computer
 - **css/30-registers.css** (392 lines): 1 trends · 103 registers, drift · 319 phones: name and use get full rows, the small fields share one · 353 5S view
