@@ -89,10 +89,7 @@ screen first (`tests/smoke.cjs`).
 
 ## Picking the work back up
 Read `docs/HANDOVER.md` first: what is built, what the review fixed, known limits, what is next.
-Next agreed step: `docs/IT.md`, an information sheet for the company's IT (what the tool is, where data lives,
-no accounts, server, network calls or outside code, personal data held, how to host it internally), then a
-Content-Security-Policy in `index.html` that blocks network connections so IT can check that claim. Still to do on
-the real site: try the project folder in Edge with the real OneDrive folder, and print the tape plan on A3 at 100%.
+Still to do on the real site: try the project folder in Edge with the real OneDrive folder, and print the tape plan on A3 at 100%.
 Working pattern with the user: build on a `claude/...` branch, verify, push, and merge to `main` (fast-forward)
 when they say so.
 

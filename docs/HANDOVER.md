@@ -71,7 +71,7 @@ and you have no unsaved changes, their version simply comes in; if you both chan
 use theirs (yours is kept in My projects) or save yours as a new file. Nothing is overwritten. Access, version
 history and retention come from OneDrive. Needs Edge or Chrome on a computer; elsewhere use Download and Open.
 The old publish-a-copy team folder is replaced; older team files still open as copies. Ask IT whether the browser
-may edit files in synced folders (some companies restrict it). Next: `docs/IT.md`, an information sheet for IT.
+may edit files in synced folders (some companies restrict it).
 
 ## Improvement log (9 Oct, `js/35-ideas.js`)
 
