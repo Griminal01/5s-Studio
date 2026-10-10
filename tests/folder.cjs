@@ -50,6 +50,7 @@ const server = http.createServer((req, res) => {
   await page.fill("[name=user]", "Folder");
   await page.press("[name=user]", "Enter");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   await page.evaluate(() => loadExample());
   await page.waitForTimeout(900);
 

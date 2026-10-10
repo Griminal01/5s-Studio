@@ -73,6 +73,7 @@ const VIEWS = [
   await page.press("[name=user]", "Enter");
   await page.waitForSelector("#svg", { timeout: 10000 });
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   expect(
     (await page.textContent("#userBtn")) === "Tester",
     "the account name is not shown in the header",
@@ -1541,6 +1542,7 @@ const VIEWS = [
   // a reload opens the same person straight away
   await page.reload();
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   expect(
     (await page.evaluate(() => CUR.name)) === "Tester",
     "a reload did not reopen the last person",
@@ -1552,6 +1554,7 @@ const VIEWS = [
   await page.waitForSelector("#authBody [data-u]", { timeout: 10000 });
   await page.click("#authBody [data-u]");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   await page.waitForSelector("#svg");
   expect(
     (await page.evaluate(() => IDX.list.length)) === 3,
@@ -1567,6 +1570,7 @@ const VIEWS = [
   await page.waitForSelector("#authBody [data-u]", { timeout: 10000 });
   await page.click("#authBody [data-u]");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   await page.waitForSelector("#svg");
   await page.waitForTimeout(300);
   expect(
@@ -1583,6 +1587,7 @@ const VIEWS = [
   await page.fill("[name=user]", "Second");
   await page.press("[name=user]", "Enter");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.evaluate(() => appReady); // the project list is read after the names screen hides
   await page.waitForSelector("#svg");
   const other = await page.evaluate(() => ({
     name: CUR.name,
