@@ -360,7 +360,7 @@ Settings dialog, keyboard shortcuts (document keydown), zoom buttons, the full-s
 - 272 `on window afterprint`
 
 ## js/16-app.js (191 lines)
-renderAll() redraws whatever view is open; init() starts the app (open storage, sign in, load the project, keep anything unreadable instead of overwriting it).
+renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the project, keep anything unreadable instead of overwriting it).
 
 - 5 `renderAll()`
 - 32 `hashStr(t) =>` A short hash names a preserved copy, so the same unreadable data is kept once.
@@ -523,44 +523,36 @@ Tracking's drift map: where each item was found across daily checks (driftCalc),
 - 314 `moveHome(ref)`
 - 330 `addExtraToStd(i)`
 
-## js/32-accounts.js (608 lines)
-Accounts live in this browser. A person signs in with a username and password; everything they save is kept under their own account, so two people can share one computer without seeing each other's work. This is a sign-in screen for a shared computer, not encryption: the page's code runs in the bro…
+## js/32-accounts.js (500 lines)
+People, not passwords. Whoever uses the studio picks their name ("Who is working?"), or types it the first time; everything they save is kept under that name in this browser, so two people sharing a computer each have their own projects. There is no password: the site is a static page and the data …
 
 - 11 `AUTH_KEY`
-- 16 `utf8`
-- 17 `b64(buf) =>`
-- 18 `unb64(s) =>`
-- 19 `sleep(ms) =>`
-- 21 `async pbkdf2(pw, salt, iter)`
-- 42 `sameHash(a, b) =>` compare without stopping at the first difference
-- 48 `async makeCredentials(pw)`
-- 56 `checkPassword(user, pw) =>`
-- 58 `validName(n) =>`
-- 59 `nameKey(n) =>`
-- 60 `loadUsers() =>`
-- 64 `saveUsers(list) =>`
-- 67 `authGate()` the sign-in screen
-- 195 `async resetAccountDialog(u)` "forgot my password": there is no reset, so the only way back in is to remove the account
-- 205 `async removeAccount(u)`
-- 213 `async signOut()`
-- 225 `IDX` the project list
-- 226 `indexKey() =>`
-- 227 `projectIndexEntry()`
-- 235 `async loadIndex()`
-- 257 `blankProjectObject() =>`
-- 264 `async readProject(pid)`
-- 273 `afterProjectChange()`
-- 300 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
-- 320 `async openProject(pid)`
-- 348 `async deleteProject(pid)`
-- 400 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
-- 423 `async startNewProject(name)`
-- 428 `ago(ms) =>` the account dialog: projects, team, account
-- 438 `async accountDialog(tab = "projects")`
-- 547 `projectsTabHTML()`
-- 558 `async changePasswordDialog()`
-- 584 `async deleteAccountDialog()`
-- 607 `on #userBtn onclick`
+- 14 `validName(n) =>`
+- 15 `nameKey(n) =>`
+- 16 `nameProblem(name, users, me = "") =>`
+- 22 `loadUsers() =>`
+- 26 `saveUsers(list) =>`
+- 29 `authGate()` who is working
+- 107 `async removeAccount(u)`
+- 116 `async signOut()` back to "Who is working?"
+- 128 `IDX` the project list
+- 129 `indexKey() =>`
+- 130 `projectIndexEntry()`
+- 138 `async loadIndex()`
+- 160 `blankProjectObject() =>`
+- 167 `async readProject(pid)`
+- 176 `afterProjectChange()`
+- 203 `async addProject(p, d, ph, name, from = "", src = "")` make another project from data in memory and open it
+- 223 `async openProject(pid)`
+- 251 `async deleteProject(pid)`
+- 303 `async importBundle(j, label, from = "", src = "")` a saved project file (this studio, or the original single-file version) becomes a new project
+- 326 `async startNewProject(name)`
+- 331 `ago(ms) =>` the account dialog: projects, team, account
+- 341 `async accountDialog(tab = "projects")`
+- 450 `projectsTabHTML()`
+- 461 `async renameMeDialog()`
+- 480 `async deleteAccountDialog()`
+- 499 `on #userBtn onclick`
 
 ## js/33-team.js (274 lines)
 The studio is a static web page, so there is no server to hold shared data. Instead each person points the studio at a folder their team shares (a OneDrive or Teams folder synced to the PC, or a network drive). The studio writes your open project there as a file, and lists the files your teammates …

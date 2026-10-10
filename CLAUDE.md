@@ -52,7 +52,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 24-example-project | `makeExampleProject()` and `loadExample()` |
 | 25-tracking, 27-drift-map | Tracking view: checks over time, charts, "where things actually sit" |
 | 26-project-ui | project name, duplicate, item list controls |
-| 32-accounts | accounts (username + password, salted PBKDF2 hash), sign-in screen, per-account project list, account dialog |
+| 32-accounts | people: the "Who is working?" screen (`authGate`, names only, no password), per-person project list, account dialog (switch person, change name, remove) |
 | 34-areas | lines and zones, both stored in `P.areas` (`a.level` "line" or "zone"; a zone's `a.parent` is its line; the old name `areas` is kept so saved work still opens): polygons on a drawing, `a.locked` (a locked line or zone cannot be moved, reshaped or deleted), item designation (`o.area`, zones only), layout check `outOfArea`, side panel and A3 sheets; **scope** (`ui.scope`, `setScope()`, `scopeObj/scopeMark/scopeBox/scopePass`): the Showing picker applies to the layout (zone drawn sharp, a faded margin of context around it), registers, documents, the document map and problems |
 | 34-import | Bring items from another project: pick a project in My projects, tick items (grouped by its zones), they are copied onto the open sheet with new refs, sizes converted between the two scales, categories matched by id or name, and the operator tasks that use them (`bringItems()`) |
 | 34-tasks | operator tasks (`P.tasks`: zone, who, frequency, minutes, 5S step, `items` = item refs, linked document): the Operator tasks page (follows the Showing picker), the form with its item picker, blocks in the zone and item side panels, zone A3 sheet table, CSV and print |
@@ -75,10 +75,11 @@ checks, the drift map and areas were removed and restored; `validate()` parks `b
 turns old audit areas into plain areas. Project version is 13 (areas, problems; 7 added problem hypothesis/confirm and `a.cause`; 8 added action `stream` ("5s", "doc", "improve") and `a.doc`, the linked document; 9 added `a.level` and `a.parent` on areas, and moved Boards and SMED into `parked`; 10 added `P.tasks`; 11 added `a.locked` on lines and zones; 12 added ordering details on tape types (`roll`, `supplier`, `code`, `ref`) and `P.marking.std` (the colour standard's number, revision, owner); 13 added `P.ideas`, the improvement log, and `a.idea` on actions).
 
 ## Accounts and projects
-Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). Accounts are a
-sign-in screen for a shared computer, **not security**: the code runs in the browser, data is not
-encrypted, and the site itself is public. Never describe it as secure. Open / team files become new
-projects in the list; nothing a person has is ever replaced silently. Tests sign in through the real
+Everything saved is keyed `u/<account id>/p/<project id>/...` (see `K()` in 05-storage). An account is just a
+name picked on the "Who is working?" screen: **no password** (removed 10 Oct), so it is **not security**: the
+code runs in the browser, data is not encrypted, and the site itself is public. Never describe it as secure.
+The last person on a computer opens straight away; "Switch person" goes back to the names. Open / team files
+become new projects in the list; nothing a person has is ever replaced silently. Tests go through the real
 screen first (`tests/smoke.cjs`).
 
 ## Picking the work back up

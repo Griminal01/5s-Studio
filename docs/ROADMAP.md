@@ -134,8 +134,8 @@ Earlier answers that still apply when these resume: TV is a mini PC or the TV's 
 ## 8. Hosting and sharing for two users (decided)
 
 - **Hosting:** GitHub Pages (workflow included, see README). The site is public and holds no data.
-- **Accounts:** username and password, kept in each browser (PBKDF2 hash). They separate people on a shared
-  computer; they are not site security.
+- **People:** a name per person ("Who is working?"), no password, kept in each browser. Names separate people's
+  projects on a shared computer; they are not security. Real sign-in comes with a shared backend (section 7).
 - **Sharing:** each person points the studio at a shared team folder (OneDrive, Teams or a network drive);
   the open project is published there as a file, and teammates' projects open as copies in your own list.
   No server, no IT approval needed for the studio itself.

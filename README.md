@@ -78,10 +78,11 @@ display. They are in git history at commit `2ddb593`.
 
 ## Accounts, projects and sharing
 
-- Sign in with a **username and password** (created on first visit). Accounts live in this browser, so
-  two people can share a computer without seeing each other's work. Passwords are stored only as a salted
-  hash. It is a sign-in screen, **not encryption and not site security**: anyone can open the site and
-  make their own account, and there is no password reset. Keep **Save project** backups.
+- **Who is working?** Type your name the first time; after that the studio opens straight to the last person
+  on this computer, and "Switch person" (person icon, top right) goes back to the list of names. Each name has
+  its own projects in this browser, so two people can share a computer. There is **no password**: it is a
+  static site and the data lives in the browser, so anyone at the computer can open any name. Nothing is
+  encrypted. Keep **Save project** backups.
 - Each account has several **projects** (person icon, top right). Opening a project file, the example
   or a teammate's project always adds a new project; nothing is replaced.
 - **Team**: pick a folder you both reach (a synced OneDrive or Teams folder, or a network drive) and your

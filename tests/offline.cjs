@@ -68,9 +68,7 @@ const server = http.createServer((req, res) => {
 
   // create an account and a project online, then lose the network
   await page.fill("[name=user]", "Offline");
-  await page.fill("[name=pw]", "offline-pass");
-  await page.fill("[name=pw2]", "offline-pass");
-  await page.press("[name=pw2]", "Enter");
+  await page.press("[name=user]", "Enter");
   await page.waitForSelector("#svg", { timeout: 10000 });
   await page.evaluate(() => loadExample());
   await page.waitForTimeout(800);
@@ -86,12 +84,8 @@ const server = http.createServer((req, res) => {
     /Lean Studio/.test(first.title),
     "the page did not open offline: " + JSON.stringify(first),
   );
-  // sign in again offline: accounts and projects live in the browser, so they are all still there
-  if (first.auth) {
-    await page.fill("[name=user]", "Offline");
-    await page.fill("[name=pw]", "offline-pass");
-    await page.press("[name=pw]", "Enter");
-  }
+  // the last person opens straight away offline: people and projects live in the browser
+  expect(!first.auth, "offline, the last person did not open straight away");
   await page.waitForSelector("#svg", { timeout: 10000 });
   await page.waitForTimeout(800);
   const after = await page.evaluate(() => ({

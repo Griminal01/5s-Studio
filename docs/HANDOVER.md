@@ -109,7 +109,9 @@ example, prints everything, and opens a real backup made with the original v7 fi
 
 ## Accounts, projects, team (added 9 Oct)
 
-Sign-in screen (username + password, hashed in the browser), several projects per account, and a Team
+"Who is working?" screen (names only; passwords were removed on 10 Oct because a static site cannot protect
+anything with them and a forgotten one could only be recovered by deleting the work), several projects per
+person, and a Team
 tab that publishes your open project to a shared folder and opens teammates' projects as copies. Data is
 stored under per-account keys in the `studio-5s` database. Project files, the example and teammates'
 projects always become new projects. Not security: the site is public and nothing is encrypted.

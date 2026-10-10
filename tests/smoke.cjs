@@ -63,12 +63,14 @@ const VIEWS = [
     await page.click(`#subnav [data-view="${v}"]`);
   };
 
-  // first visit: create the first account through the real sign-in screen
+  // first visit: type a name on the real "Who is working?" screen; there is no password
   await page.waitForSelector("#authForm", { timeout: 10000 });
+  expect(
+    !(await page.$("#authForm [type=password]")),
+    "the first screen still asks for a password",
+  );
   await page.fill("[name=user]", "Tester");
-  await page.fill("[name=pw]", "tester-pass");
-  await page.fill("[name=pw2]", "tester-pass");
-  await page.press("[name=pw2]", "Enter");
+  await page.press("[name=user]", "Enter");
   await page.waitForSelector("#svg", { timeout: 10000 });
   await page.waitForFunction(() => document.getElementById("auth").hidden);
   expect(
@@ -1319,20 +1321,13 @@ const VIEWS = [
   // accounts and projects
   const acc = await page.evaluate(async () => {
     const users = await idb.get("auth/users");
-    const stored = JSON.stringify(users);
     return {
-      noPassword:
-        !stored.includes("tester-pass") &&
-        users[0].hash.length > 20 &&
-        users[0].iter >= 100000,
+      noPassword: users.every((u) => !u.hash && !u.salt),
       projects: IDX.list.length,
       active: P.projectName,
     };
   });
-  expect(
-    acc.noPassword,
-    "the password is stored in the clear, or too weakly hashed",
-  );
+  expect(acc.noPassword, "a new person was stored with a password");
   expect(
     acc.projects === 2,
     "the example should be added as a second project: " + JSON.stringify(acc),
@@ -1366,40 +1361,50 @@ const VIEWS = [
     copied.added === 1 && copied.from === "Sam",
     "a teammate's file did not open as a copy: " + JSON.stringify(copied),
   );
-  // wrong password is refused, right one works, a second account sees none of this
+  // a reload opens the same person straight away
+  await page.reload();
+  await page.waitForFunction(() => document.getElementById("auth").hidden);
+  expect(
+    (await page.evaluate(() => CUR.name)) === "Tester",
+    "a reload did not reopen the last person",
+  );
+  // Switch person shows the names; tapping one opens it with all its projects
   await page.evaluate(() => {
     signOut();
   });
   await page.waitForSelector("#authBody [data-u]", { timeout: 10000 });
   await page.click("#authBody [data-u]");
-  await page.fill("[name=pw]", "not-the-password");
-  await page.press("[name=pw]", "Enter");
-  await page.waitForFunction(
-    () => document.getElementById("authMsg").textContent.length > 0,
-  );
-  expect(
-    await page.evaluate(() => !document.getElementById("auth").hidden),
-    "a wrong password let someone in",
-  );
-  // a wrong guess makes the button wait a moment before the next try
-  await page.waitForSelector("#authForm [type=submit]:not([disabled])");
-  await page.fill("[name=pw]", "tester-pass");
-  await page.press("[name=pw]", "Enter");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
   await page.waitForSelector("#svg");
   expect(
     (await page.evaluate(() => IDX.list.length)) === 3,
-    "the signed-in account lost its projects",
+    "the person lost their projects",
   );
+  // a profile made when there were passwords opens without one, and keeps its work
+  await page.evaluate(async () => {
+    const users = await idb.get("auth/users");
+    Object.assign(users[0], { salt: "c2FsdA==", iter: 210000, hash: "old" });
+    await idb.write([["auth/users", users]]);
+    signOut();
+  });
+  await page.waitForSelector("#authBody [data-u]", { timeout: 10000 });
+  await page.click("#authBody [data-u]");
+  await page.waitForFunction(() => document.getElementById("auth").hidden);
+  await page.waitForSelector("#svg");
+  await page.waitForTimeout(300);
+  expect(
+    (await page.evaluate(() => IDX.list.length)) === 3,
+    "an old profile with a password did not open with its projects: " +
+      JSON.stringify(await page.evaluate(() => [CUR, IDX.list.length])),
+  );
+  // someone new gets an empty list of their own
   await page.evaluate(() => {
     signOut();
   });
   await page.waitForSelector("#authBody [data-new]");
   await page.click("#authBody [data-new]");
   await page.fill("[name=user]", "Second");
-  await page.fill("[name=pw]", "second-pass");
-  await page.fill("[name=pw2]", "second-pass");
-  await page.press("[name=pw2]", "Enter");
+  await page.press("[name=user]", "Enter");
   await page.waitForFunction(() => document.getElementById("auth").hidden);
   await page.waitForSelector("#svg");
   const other = await page.evaluate(() => ({
@@ -1409,7 +1414,7 @@ const VIEWS = [
   }));
   expect(
     other.name === "Second" && other.projects === 1 && other.objects === 0,
-    "a second account can see another account's work: " + JSON.stringify(other),
+    "a second person can see another person's work: " + JSON.stringify(other),
   );
 
   failures.push(...errors);
@@ -1421,6 +1426,6 @@ const VIEWS = [
   console.log(
     "OK: boots, " +
       VIEWS.length +
-      " views render, sign-in, projects and team copies work, daily check and red tag forms work, example project loads and prints, old v7 backup opens, no console errors",
+      " views render, who is working, projects and team copies work, daily check and red tag forms work, example project loads and prints, old v7 backup opens, no console errors",
   );
 })();

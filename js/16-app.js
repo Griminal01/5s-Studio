@@ -1,6 +1,6 @@
 "use strict";
 /* ============ render all & start ============
-   renderAll() redraws whatever view is open; init() starts the app (open storage, sign in, load the
+   renderAll() redraws whatever view is open; init() starts the app (open storage, pick who is working, load the
    project, keep anything unreadable instead of overwriting it). */
 function renderAll() {
   applyMarking();
@@ -103,7 +103,7 @@ async function init() {
     storageDown = (e && e.message) || "storage is unavailable";
   }
   if (idb.db) keepStorage();
-  await authGate(); // sign in (or create the first account)
+  await authGate(); // who is working (or type a name the first time)
   $("#userBtn").textContent = CUR.name;
   if (idb.db) {
     await loadIndex();

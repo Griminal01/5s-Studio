@@ -59,7 +59,7 @@ const idb = {
     });
   },
 };
-/* Who is signed in and which of their projects is open. Everything a person
+/* Who is working (their name, picked on the "Who is working?" screen) and which of their projects is open. Everything a person
    saves is stored under their own key prefix, so accounts never see each
    other's work in the same browser. */
 let CUR = null, // { id, name }

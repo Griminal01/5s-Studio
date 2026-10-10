@@ -1,90 +1,50 @@
 "use strict";
 /* ============ accounts and projects ============ */
-// Accounts live in this browser. A person signs in with a username and password;
-// everything they save is kept under their own account, so two people can share
-// one computer without seeing each other's work. This is a sign-in screen for a
-// shared computer, not encryption: the page's code runs in the browser, so
-// someone who controls the browser can get past it. Passwords are never stored,
-// only a salted PBKDF2 hash. Each account can hold several projects, and a
-// teammate's published project (see 33-team.js) opens as a copy in your own list.
+// People, not passwords. Whoever uses the studio picks their name ("Who is working?"), or types it the
+// first time; everything they save is kept under that name in this browser, so two people sharing a
+// computer each have their own projects. There is no password: the site is a static page and the data
+// lives in the browser, so a password could not protect anything and a forgotten one cost the work.
+// Anyone at this computer can open any name. Profiles made before this had passwords: the hash is
+// left in the stored list, unused. Each person can hold several projects, and a teammate's published
+// project (see 33-team.js) opens as a copy in their own list.
 
-const AUTH_KEY = "auth/users",
+const AUTH_KEY = "auth/users", // [{ id, name, created }]
   SESSION_KEY = "studio5s-user",
-  REMEMBER_KEY = "studio5s-remember",
-  PW_ITER = 210000,
-  PW_MIN = 6;
-const utf8 = new TextEncoder();
-const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
-const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function pbkdf2(pw, salt, iter) {
-  if (!window.crypto?.subtle)
-    throw Error(
-      "Sign-in needs a secure page. Open the studio from its https address, from localhost, or as a local file.",
-    );
-  const key = await crypto.subtle.importKey(
-    "raw",
-    utf8.encode(pw),
-    "PBKDF2",
-    false,
-    ["deriveBits"],
-  );
-  return b64(
-    await crypto.subtle.deriveBits(
-      { name: "PBKDF2", hash: "SHA-256", salt, iterations: iter },
-      key,
-      256,
-    ),
-  );
-}
-// compare without stopping at the first difference
-const sameHash = (a, b) => {
-  let d = a.length ^ b.length;
-  for (let i = 0; i < Math.max(a.length, b.length); i++)
-    d |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
-  return d === 0;
-};
-async function makeCredentials(pw) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  return {
-    salt: b64(salt),
-    iter: PW_ITER,
-    hash: await pbkdf2(pw, salt, PW_ITER),
-  };
-}
-const checkPassword = async (user, pw) =>
-  sameHash(await pbkdf2(pw, unb64(user.salt), user.iter), user.hash);
+  REMEMBER_KEY = "studio5s-remember"; // the last person on this computer opens straight away
 const validName = (n) => /^[A-Za-z0-9][A-Za-z0-9 ._-]{1,23}$/.test(n);
 const nameKey = (n) => String(n).trim().toLowerCase();
+const nameProblem = (name, users, me = "") =>
+  !validName(name)
+    ? "Use 2 to 24 letters, numbers, spaces, dots, dashes or underscores."
+    : users.some((u) => u.id !== me && nameKey(u.name) === nameKey(name))
+      ? "That name is already used on this computer."
+      : "";
 const loadUsers = async () => {
   const u = idb.db ? await idb.get(AUTH_KEY) : [];
   return Array.isArray(u) ? u : [];
 };
 const saveUsers = (list) => idb.write([[AUTH_KEY, list]]);
 
-/* ----- the sign-in screen ----- */
+/* ----- who is working ----- */
 function authGate() {
   return new Promise(async (resolve) => {
-    // without browser storage there is nothing to sign in to
+    // without browser storage nothing is kept, so there is nobody to choose
     if (!idb.db) {
       CUR = { id: "guest", name: "Guest" };
       return resolve();
     }
-    let users = await loadUsers(),
-      fails = 0;
-    const finish = (u, remember) => {
+    let users = await loadUsers();
+    const finish = (u) => {
       CUR = { id: u.id, name: u.name };
       try {
         sessionStorage.setItem(SESSION_KEY, u.id);
-        if (remember) localStorage.setItem(REMEMBER_KEY, u.id);
-        else localStorage.removeItem(REMEMBER_KEY);
+        localStorage.setItem(REMEMBER_KEY, u.id);
       } catch {}
       $("#auth").hidden = true;
       document.body.classList.remove("locked");
       resolve();
     };
-    // already signed in in this tab, or asked to be remembered on this computer
+    // this tab's person, else the last person on this computer
     let ids = [];
     try {
       ids = [
@@ -92,115 +52,57 @@ function authGate() {
         localStorage.getItem(REMEMBER_KEY),
       ];
     } catch {}
-    const known = users.find((u) => ids.includes(u.id));
-    if (known) return finish(known, !!localStorage.getItem(REMEMBER_KEY));
+    const known =
+      users.find((u) => u.id === ids[0]) || users.find((u) => u.id === ids[1]);
+    if (known) return finish(known);
 
     document.body.classList.add("locked");
-    const root = $("#auth"),
-      body = $("#authBody"),
+    const body = $("#authBody"),
       msg = (t) => ($("#authMsg").textContent = t || "");
-    root.hidden = false;
-    const show = (mode, who) => {
+    $("#auth").hidden = false;
+    const show = (mode) => {
       msg("");
-      if (mode === "pick") {
-        body.innerHTML = `<p class="authsub">Who is working?</p><div class="tiles">${users
-          .map(
-            (u) =>
-              `<button class="tile" data-u="${esc(u.id)}"><span class="av">${esc(u.name.slice(0, 1).toUpperCase())}</span>${esc(u.name)}</button>`,
-          )
-          .join(
-            "",
-          )}<button class="tile new" data-new="1"><span class="av">+</span>New account</button></div>`;
-      } else if (mode === "login") {
-        body.innerHTML = `<form id="authForm"><p class="authsub">Welcome back, <b>${esc(who.name)}</b></p><label class="f">Password<input name="pw" type="password" autocomplete="current-password" required autofocus></label><label class="chk"><input type="checkbox" name="remember">Keep me signed in on this computer</label><div class="btns"><button class="pri" type="submit">Sign in</button>${users.length > 1 ? '<button type="button" data-back="1">Not you?</button>' : ""}</div><p class="small"><a href="#" data-forgot="1">Forgot your password?</a></p></form>`;
-        body.querySelector("[name=pw]").focus();
-      } else {
-        body.innerHTML = `<form id="authForm"><p class="authsub">${users.length ? "Create an account" : "Welcome. Create the first account"}</p><label class="f">Username<input name="user" autocomplete="username" required maxlength="24" placeholder="e.g. Josh"></label><label class="f">Password (at least ${PW_MIN} characters)<input name="pw" type="password" autocomplete="new-password" required></label><label class="f">Repeat the password<input name="pw2" type="password" autocomplete="new-password" required></label><label class="chk"><input type="checkbox" name="remember">Keep me signed in on this computer</label><div class="btns"><button class="pri" type="submit">Create account</button>${users.length ? '<button type="button" data-back="1">Back</button>' : ""}</div><p class="small muted">Your projects are saved in this browser under your name. There is no password reset, so choose one you will remember. Save project files as backups.</p></form>`;
-        body.querySelector("[name=user]").focus();
-      }
+      body.innerHTML =
+        mode === "pick"
+          ? `<p class="authsub">Who is working?</p><div class="tiles">${users
+              .map(
+                (u) =>
+                  `<button class="tile" data-u="${esc(u.id)}"><span class="av">${esc(u.name.slice(0, 1).toUpperCase())}</span>${esc(u.name)}</button>`,
+              )
+              .join(
+                "",
+              )}<button class="tile new" data-new="1"><span class="av">+</span>Someone new</button></div><p class="small muted">Each name has its own projects in this browser. There is no password: anyone at this computer can open any name, so save project files as backups.</p>`
+          : `<form id="authForm"><p class="authsub">${users.length ? "Who is it?" : "Welcome. What is your name?"}</p><label class="f">Your name<input name="user" autocomplete="name" required maxlength="24" placeholder="e.g. Josh"></label><div class="btns"><button class="pri" type="submit">Start</button>${users.length ? '<button type="button" data-back="1">Back</button>' : ""}</div><p class="small muted">Your projects are saved in this browser under your name, and it goes on what you print and share. There is no password: anyone at this computer can open it. Save project files as backups.</p></form>`;
       body.dataset.mode = mode;
-      body.dataset.who = who?.id || "";
+      body.querySelector("[name=user]")?.focus();
     };
-    show(users.length ? "pick" : "create");
-    body.onclick = async (e) => {
-      const t = e.target.closest(
-        "[data-u],[data-new],[data-back],[data-forgot]",
-      );
+    show(users.length ? "pick" : "name");
+    body.onclick = (e) => {
+      const t = e.target.closest("[data-u],[data-new],[data-back]");
       if (!t) return;
       e.preventDefault();
-      if (t.dataset.u)
-        show(
-          "login",
-          users.find((u) => u.id === t.dataset.u),
-        );
-      else if (t.dataset.new) show("create");
-      else if (t.dataset.back) show("pick");
-      else if (t.dataset.forgot) {
-        const u = users.find((x) => x.id === body.dataset.who);
-        if (await resetAccountDialog(u)) {
-          users = await loadUsers();
-          show(users.length ? "pick" : "create");
-        }
-      }
+      if (t.dataset.u) finish(users.find((u) => u.id === t.dataset.u));
+      else if (t.dataset.new) show("name");
+      else show("pick");
     };
     body.onsubmit = async (e) => {
       e.preventDefault();
-      const f = new FormData(e.target),
-        btn = e.target.querySelector("[type=submit]");
-      btn.disabled = true;
+      const name = String(new FormData(e.target).get("user")).trim(),
+        same = users.find((u) => nameKey(u.name) === nameKey(name));
+      // typing a name that is already here opens it, rather than refusing
+      if (same) return finish(same);
+      const problem = nameProblem(name, users);
+      if (problem) return msg(problem);
+      const u = { id: uid(), name, created: today() };
+      users = [...users, u];
       try {
-        if (body.dataset.mode === "login") {
-          const u = users.find((x) => x.id === body.dataset.who);
-          if (await checkPassword(u, String(f.get("pw"))))
-            return finish(u, !!f.get("remember"));
-          fails++;
-          msg("That password is not right.");
-          e.target.querySelector("[name=pw]").value = "";
-          await sleep(Math.min(5000, 400 * fails)); // slows guessing a little
-        } else {
-          const name = String(f.get("user")).trim(),
-            pw = String(f.get("pw"));
-          if (!validName(name))
-            msg(
-              "Use 2 to 24 letters, numbers, spaces, dots, dashes or underscores.",
-            );
-          else if (users.some((u) => nameKey(u.name) === nameKey(name)))
-            msg("That username is taken on this computer.");
-          else if (pw.length < PW_MIN)
-            msg(`The password needs at least ${PW_MIN} characters.`);
-          else if (nameKey(pw) === nameKey(name))
-            msg("The password cannot be your username.");
-          else if (pw !== String(f.get("pw2")))
-            msg("The two passwords are different.");
-          else {
-            const u = {
-              id: uid(),
-              name,
-              created: today(),
-              ...(await makeCredentials(pw)),
-            };
-            users = [...users, u];
-            await saveUsers(users);
-            return finish(u, !!f.get("remember"));
-          }
-        }
+        await saveUsers(users);
+        finish(u);
       } catch (err) {
         msg(err.message || "Something went wrong.");
       }
-      btn.disabled = false;
     };
   });
-}
-/* "forgot my password": there is no reset, so the only way back in is to remove the account */
-async function resetAccountDialog(u) {
-  const r = await modal(
-    "Forgot your password?",
-    `<p style="margin-top:0">Passwords cannot be reset: they are not stored anywhere, only a scrambled check of them.</p><p>The only way back in is to <b>remove the account ${esc(u.name)} from this computer</b>. That deletes its saved projects from this browser. Project files you saved with <b>Save project</b>, and projects you published to a team folder, are not touched and can be opened again in a new account.</p><label class="f">Type the username to confirm<input name="n" autocomplete="off"></label>`,
-    "Remove the account",
-  );
-  if (!r || nameKey(r.n) !== nameKey(u.name)) return false;
-  await removeAccount(u);
-  return true;
 }
 async function removeAccount(u) {
   await idb.removePrefix(userPrefix(u.id));
@@ -210,6 +112,7 @@ async function removeAccount(u) {
   } catch {}
   await saveUsers((await loadUsers()).filter((x) => x.id !== u.id));
 }
+// back to "Who is working?"
 async function signOut() {
   try {
     await flushSave();
@@ -448,7 +351,7 @@ async function accountDialog(tab = "projects") {
     if (t === "projects") root.innerHTML = projectsTabHTML();
     else if (t === "team") root.innerHTML = await teamTabHTML();
     else
-      root.innerHTML = `<p style="margin-top:0">Signed in as <b>${esc(CUR.name)}</b>${CUR.id === "guest" ? ". Browser storage is not available, so accounts cannot be used and nothing is kept between visits." : ", on this computer."}</p><div class="btns"><button id="acPw">Change password</button><button id="acOut" class="pri">Sign out</button><button id="acDel" class="danger">Delete this account</button></div><p class="small muted">Accounts are kept in this browser only. They keep people on a shared computer out of each other's projects; they do not encrypt anything, so keep project files somewhere only you can reach.</p>`;
+      root.innerHTML = `<p style="margin-top:0">Working as <b>${esc(CUR.name)}</b>${CUR.id === "guest" ? ". Browser storage is not available, so nothing is kept between visits." : ", on this computer."}</p><div class="btns"><button id="acOut" class="pri">Switch person</button><button id="acName">Change my name</button><button id="acDel" class="danger">Remove me from this computer</button></div><p class="small muted">Names keep people's projects apart on a shared computer. There is no password and nothing is encrypted, so anyone at this computer can open any name. Keep project files somewhere backed up.</p>`;
     root.dataset.t = t;
     if (t === "team") wireTeamTab(root, closeThen(dlg));
   };
@@ -535,7 +438,7 @@ async function accountDialog(tab = "projects") {
             });
           else if (b.id === "acExample") close(() => loadExample());
           else if (b.id === "acFile") close(() => $("#fProject").click());
-          else if (b.id === "acPw") close(() => changePasswordDialog());
+          else if (b.id === "acName") close(() => renameMeDialog());
           else if (b.id === "acOut") close(() => signOut());
           else if (b.id === "acDel") close(() => deleteAccountDialog());
         };
@@ -555,53 +458,42 @@ function projectsTabHTML() {
     .join("");
   return `<p style="margin-top:0">Your projects are saved in this browser under <b>${esc(CUR.name)}</b>. Switching is instant and nothing is lost.</p><div class="regtbl"><table class="tbl" style="width:100%"><tr><th>Project</th><th>Last saved</th><th></th></tr>${rows}</table></div><div class="btns"><button id="acNew" class="pri">New project</button><button id="acExample">Open the example model line</button><button id="acFile">Open a project file…</button></div>`;
 }
-async function changePasswordDialog() {
+async function renameMeDialog() {
   const users = await loadUsers(),
     me = users.find((u) => u.id === CUR.id);
   if (!me) return;
   const r = await modal(
-    "Change password",
-    `<label class="f">Current password<input name="old" type="password" autocomplete="current-password" required></label><label class="f">New password (at least ${PW_MIN} characters)<input name="n1" type="password" autocomplete="new-password" required></label><label class="f">Repeat the new password<input name="n2" type="password" autocomplete="new-password" required></label>`,
-    "Change password",
+    "Change my name",
+    `<label class="f">Name<input name="n" required maxlength="24" value="${esc(me.name)}"></label><p class="small muted">Your projects stay as they are. Prints and team files use the new name from now on.</p>`,
+    "Save",
   );
   if (!r) return;
-  try {
-    if (!(await checkPassword(me, r.old)))
-      return void toast("The current password is not right.");
-    if (r.n1.length < PW_MIN)
-      return void toast(
-        `The new password needs at least ${PW_MIN} characters.`,
-      );
-    if (r.n1 !== r.n2)
-      return void toast("The two new passwords are different.");
-    Object.assign(me, await makeCredentials(r.n1));
-    await saveUsers(users);
-    toast("Password changed.");
-  } catch (e) {
-    toast(e.message);
-  }
+  const name = r.n.trim(),
+    problem = nameProblem(name, users, me.id);
+  if (problem) return void toast(problem);
+  me.name = name;
+  await saveUsers(users);
+  CUR.name = name;
+  $("#userBtn").textContent = name;
+  toast("Name changed.");
 }
 async function deleteAccountDialog() {
   const users = await loadUsers(),
     me = users.find((u) => u.id === CUR.id);
   if (!me) return;
   const r = await modal(
-    "Delete this account?",
-    `<p style="margin-top:0">This deletes <b>${esc(me.name)}</b> and all its projects from this browser. Project files you saved are not affected. It cannot be undone.</p><label class="f">Your password<input name="pw" type="password" autocomplete="current-password" required></label>`,
-    "Delete the account",
+    "Remove " + me.name + " from this computer?",
+    `<p style="margin-top:0">This deletes <b>${esc(me.name)}</b> and all of their projects from this browser. Project files you saved, and projects published to a team folder, are not affected. It cannot be undone.</p><label class="f">Type the name to confirm<input name="n" autocomplete="off"></label>`,
+    "Remove",
   );
   if (!r) return;
+  if (nameKey(r.n) !== nameKey(me.name))
+    return void toast("The name did not match, so nothing was removed.");
+  await removeAccount(me);
   try {
-    if (!(await checkPassword(me, r.pw)))
-      return void toast("The password is not right, so nothing was deleted.");
-    await removeAccount(me);
-    try {
-      sessionStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(REMEMBER_KEY);
-    } catch {}
-    location.reload();
-  } catch (e) {
-    toast(e.message);
-  }
+    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
+  } catch {}
+  location.reload();
 }
 $("#userBtn").onclick = () => accountDialog();
