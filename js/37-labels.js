@@ -154,13 +154,19 @@ function labelsSVG(sh, k, o) {
         if (box.x0 < 2 || box.x1 > W - 2 || box.y0 < 2 || box.y1 > H - 2)
           return;
         const cost = hitsBody(box, null) + (hitsPlaced(box) ? 1e6 : 0) + i * 30;
-        if (!best || cost < best.cost) best = { cost, box, cx, cy };
+        if (!best || cost < best.cost) best = { cost, box, cx, cy, i };
       });
       if (!best) {
         const [cx, cy] = tries[0];
         best = { box: labBox(cx, cy, w, h), cx, cy };
       }
       placed.push(best.box);
+      // a line's name sits on or by its dashed edge (as does a zone's moved above its edge):
+      // a white backing breaks the edge so the name does not read as crossed out
+      if (line || best.i === 1) {
+        const b = best.box;
+        out += `<rect x="${(b.x0 - 2) * k}" y="${b.y0 * k}" width="${(b.x1 - b.x0 + 4) * k}" height="${(b.y1 - b.y0) * k}" rx="${3 * k}" fill="#fff" fill-opacity=".92" pointer-events="none"/>`;
+      }
       out += txt(best.cx * k, best.cy * k, text, fs * k, k, {
         fill: a.color,
         w: 700,
