@@ -5,8 +5,12 @@ Guidance for Claude Code sessions in this repo.
 ## What this is
 Lean Studio (renamed from 5S Studio): a **lean design tool for a production line**, used by a small team (two people to start).
 Priorities, in order: (1) design 5S: layout, floor tape, items and documents in an area;
-(2) problem solving (A3, 5-Why, fishbone). Mobile auditing, the TV dashboard and cloud sync
-are deferred until IT input. See `docs/ROADMAP.md`. Local-first, offline, no IT dependency.
+(2) improvement: an improvement log anyone can add to, and problem solving (A3, 5-Why, fishbone).
+Mobile auditing, the TV dashboard and a real server are deferred until IT input. See `docs/ROADMAP.md`.
+Local-first, offline, no IT dependency. **Storage direction (decided 10 Oct):** stay a static site; the real copy
+of each project is a file in the team's OneDrive or Teams folder (the project folder, `33-team`), the browser keeps
+a working copy. Access, version history and retention come from OneDrive, so IT governs the data with tools they
+already have. A later step, only with IT, is Microsoft 365 sign-in with SharePoint reached straight from the page.
 
 ## Hard rules
 - **No build step, no framework, no bundler.** Plain HTML/CSS/JS that works from `file://` and GitHub Pages.
@@ -44,7 +48,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 06-ui-helpers | `modal()` (fresh body each time; Enter never submits), `printWithPage()` for every print, `printView()`, `csv()` |
 | 07-canvas .. 11-side-panel | canvas, tools, sheets, render, side panel |
 | 12-views | navigation: four sections (Setup, 5S, Documents, Improve) from the `NAV` list; section buttons in the header (`#gnav`) and phone tab bar, pages in the bar under it (`#subnav`), the last page per section remembered; the **Showing picker** (`#scopeSel`: whole factory, a line, or a zone); `setView()`; badges; address-bar routing (`#/layout/<zoneId>`, `#/problems/<id>/why`, Back works). Add a page by adding it to a section in `NAV` |
-| 13-exports .. 16-app | PNG/CSV exports, save/open, settings and keys, `renderAll` and `init` |
+| 13-exports .. 16-app | PNG/CSV exports (also in the File menu: layout as PNG, print or save as PDF), save/open, settings and keys (full-screen drawing, phone note on the Layout), `renderAll` and `init`; `appReady` resolves when start-up has loaded the project list, and adding, opening or deleting a project waits for it |
 | 17-pins, 18-shared-helpers | pins on the drawing (actions, documents), shared form helpers |
 | 19-forms, 20-registers | red tag form and register, action form and register |
 | 21-documents | documents register, form, pins, document map and list printing |
@@ -67,7 +71,7 @@ later files at runtime (after load), never at top level. `40-main.js` calls `ini
 | 37-layout-edit | layout editing helpers: toolbar under the selection (`positionSelbar`), align and space evenly, smart guides while dragging (edges of items, fixed objects, wall faces; Alt turns off), Shift-drag box select, Ctrl+A/C/V (paste works across sheets), full-name label tags, shortcuts dialog |
 | 33-team | the **project folder** (File System Access API; a synced OneDrive or Teams folder in real use): each project is a file `<name>.leanstudio.json`, the file is the real copy and the browser a working copy. Links live on the index entry (`e.file`, `e.fileMod`, `e.fileKey`). `folderAfterSave` writes the file at most every 30 s (`FOLDER_GAP`) while someone works, and at once on leaving the tab, closing the page or opening another project (`folderFlush`, `folderFlushNow`); `folderTidy` removes `.crswap` temporary files left by a crashed save once they are 10 minutes old; `folderSync` loads a file someone else saved when there are no local changes, else `folderHold` shows the `#syncWarn` banner (use theirs and keep mine as a copy, or save mine as a new file; never overwrite). Checks again on opening a project and on returning to the tab. Older `Lean-Studio__` team files open as copies (`openTeammateBundle`). Tested in `tests/folder.cjs` with the browser's private file system standing in for the folder |
 | 40-main | startup; registers the service worker |
-| css/*.css | the stylesheet in numbered files (`00-base` to `90-tasks-present`), loaded in order by `index.html`, so keep the order when adding one. Add a link in `index.html`; `sw.js` and the deploy pick it up |
+| css/*.css | the stylesheet in numbered files (`00-base` to `95-tape-plan`), loaded in order by `index.html`, so keep the order when adding one. Add a link in `index.html`; `sw.js` and the deploy pick it up |
 | sw.js, manifest.webmanifest, icons/ | offline and install: `sw.js` caches every file `index.html` names (so a new script or stylesheet needs nothing extra), the deploy stamps `__BUILD__` and the css/js links with the commit id; anything outside `css/` and `js/` that the page needs must be added to the file list in `sw.js`. `tools/make-icons.cjs` redraws the PNG icons from `icons/icon.svg` |
 
 Removed features (formal audits, audit lines, TV, Boards and SMED) are preserved untouched in `project.parked` by
@@ -85,13 +89,21 @@ screen first (`tests/smoke.cjs`).
 
 ## Picking the work back up
 Read `docs/HANDOVER.md` first: what is built, what the review fixed, known limits, what is next.
+Next agreed step: `docs/IT.md`, an information sheet for the company's IT (what the tool is, where data lives,
+no accounts, server, network calls or outside code, personal data held, how to host it internally), then a
+Content-Security-Policy in `index.html` that blocks network connections so IT can check that claim. Still to do on
+the real site: try the project folder in Edge with the real OneDrive folder, and print the tape plan on A3 at 100%.
+Working pattern with the user: build on a `claude/...` branch, verify, push, and merge to `main` (fast-forward)
+when they say so.
 
 ## Verify before committing
 ```bash
 npm run check && npm run lint && npm test
 ```
 `npm run check` is a syntax check of every file plus the code map freshness check.
-`npm test` runs the smoke test and `tests/offline.cjs` (installs the service worker over http, switches the network off, reloads).
+`npm test` runs the smoke test, `tests/offline.cjs` (installs the service worker over http, switches the network off, reloads)
+and `tests/folder.cjs` (the project folder, with the browser's private file system standing in for OneDrive; it needs http,
+so it serves the site itself). Tests that wait for saving should wait for `!savePending && !saveRunning`, not a fixed time.
 The smoke test also opens `tests/fixtures/v7-backup.json` (made with the original file): old backups must keep opening.
 For UI changes, also load the page in Chromium (Playwright is preinstalled; do not run
 `playwright install`) and take screenshots at desktop (1600x900), phone (390x844) and TV (1920x1080).
