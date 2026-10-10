@@ -1080,7 +1080,8 @@ const VIEWS = [
     );
   });
   await page.waitForTimeout(600);
-  // names on the drawing: every name whole (no "..."), tags for small items, a switch to turn them off
+  // names on the drawing: every name whole (no "..."), only inside items (no detached tags or leader
+  // lines), a name that does not fit shows on hover, and a switch turns them off
   await go("layout");
   await page.evaluate(() => renderAll());
   await page.waitForTimeout(300);
@@ -1089,7 +1090,18 @@ const VIEWS = [
     cut: [...document.querySelectorAll("#svg .names text")].filter((t) =>
       /…|\.\.\./.test(t.textContent),
     ).length,
-    tags: document.querySelectorAll("#svg .names rect").length,
+    leaders: document.querySelectorAll("#svg .names line").length,
+    // a small item whose name does not fit: pointing at it shows the name
+    hover: (() => {
+      const o = S().objects.find(
+        (x) => x.kind === "item" && x.label && !LABEL.shown.has(x.id),
+      );
+      if (!o) return "none";
+      ui.hover = o.id;
+      const shown = labelTagsSVG(S(), kNow()).includes(esc(o.label));
+      ui.hover = null;
+      return shown;
+    })(),
   }));
   await page.evaluate(() => {
     ui.layers.labels = false;
@@ -1104,7 +1116,11 @@ const VIEWS = [
     renderAll();
   });
   expect(
-    nm.n > 15 && nm.cut === 0 && nm.tags > 3 && nm.off === 0,
+    nm.n > 15 &&
+      nm.cut === 0 &&
+      nm.leaders === 0 &&
+      nm.hover !== false &&
+      nm.off === 0,
     "names on the drawing are wrong: " + JSON.stringify(nm),
   );
   // presentation mode: the layout full screen, stepping through the factory, lines and zones
