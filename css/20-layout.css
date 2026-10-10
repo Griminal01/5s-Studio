@@ -549,6 +549,10 @@ details.menu[open] summary {
   padding: 4px 10px;
   font-size: 12px;
 }
+/* the hint is dark, so its plain buttons need dark words on their white face */
+.hint button:not(.pri) {
+  color: var(--ink);
+}
 .hint button.pri {
   background: var(--tape);
   color: var(--ink);
